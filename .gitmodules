@@ -1,0 +1,3 @@
+[submodule "nannou"]
+	path = nannou
+	url = https://github.com/nannou-org/nannou
