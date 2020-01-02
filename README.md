@@ -1,5 +1,7 @@
 Creative Coding with Nannou
 
-Daily experimentation. 
+#### Experimentation log 
 
-2020.01.02 - Bootstrap, run examples
+**2020.01.02**
+* Bootstrap, run examples
+* first 'Hello World' app
