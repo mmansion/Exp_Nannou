@@ -8,30 +8,6 @@ edition = "2018"
 
 [dependencies]
 nannou = "0.12"
-# approx = "0.1"
-# cgmath = { version = "0.16", features = ["serde"] }
-# conrod_core = "0.68"
-# conrod_winit = "0.68"
-# conrod_vulkano = "0.68"
-# daggy = "0.6"
-# find_folder = "0.3"
-# image = "0.21"
-# lyon = "0.14"
-# noise = "0.5"
-# notosans = { version = "0.1", optional = true }
-# palette = "0.4"
-# pennereq = "0.3"
-# rand = "0.7"
-# rusttype = "0.7"
-# serde = "1"
-# serde_derive = "1"
-# serde_json = "1"
-# toml = "0.4"
-# vulkano = "0.16"
-# vulkano-win = "0.16"
-# vulkano-shaders = "0.16"
-# walkdir = "2"
-# winit = "0.19"
 
 [dev-dependencies]
 audrey = "0.2"
@@ -47,3 +23,9 @@ moltenvk_deps = "0.1"
 [[examples]]
 name = "osc_receiver"
 path = "examples/osc_receiver.rs"
+[[examples]]
+name = "basic_shapes"
+path = "examples/basic_shapes.rs"
+[[examples]]
+name = "basic_forces"
+path = "examples/basic_forces.rs"
