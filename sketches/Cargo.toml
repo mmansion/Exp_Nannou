@@ -29,3 +29,6 @@ path = "examples/basic_shapes.rs"
 [[examples]]
 name = "basic_forces"
 path = "examples/basic_forces.rs"
+[[examples]]
+name = "aquatic_juice"
+path = "examples/aquatic_juice.rs"
