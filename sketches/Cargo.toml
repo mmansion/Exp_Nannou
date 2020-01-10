@@ -35,3 +35,6 @@ path = "examples/aquatic_juice.rs"
 [[examples]]
 name = "delicate_umbrella"
 path = "examples/delicate_umbrella.rs"
+[[examples]]
+name = "polyline"
+path = "examples/polyline.rs"
