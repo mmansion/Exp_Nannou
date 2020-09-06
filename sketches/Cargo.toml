@@ -20,3 +20,11 @@ shade_runner = "0.3"
 [[example]]
 name = "hello_world"
 path = "src/hello_world.rs"
+
+[[example]]
+name = "basic_forces"
+path = "src/basic_forces.rs"
+
+[[example]]
+name = "draw_loop"
+path = "src/draw_loop.rs"

@@ -59,12 +59,12 @@ impl Mover {
         }
     }
 
-    fn display(&self, draw: &app::Draw) {
+    fn display(&self, draw: &Draw) {
         // Display circle at x position
         draw.ellipse()
             .xy(self.position)
             .w_h(48.0, 48.0)
-            //.gray(0.3)
+            .gray(0.3)
             .stroke(BLACK)
             .stroke_weight(2.0);
     }
@@ -73,10 +73,10 @@ impl Mover {
 fn model(app: &App) -> Model {
     let rect = Rect::from_w_h(640.0, 360.0);
     app.new_window()
-        .with_dimensions(rect.w() as u32, rect.h() as u32)
+        .size(rect.w() as u32, rect.h() as u32)
         .view(view)
         .build()
-        .unwrap();
+        .unwrap();±
     let mover = Mover::new(rect);
     Model { mover }
 }
@@ -90,7 +90,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     m.mover.check_edges(app.window_rect());
 }
 
-fn view(app: &App, m: &Model, frame: &Frame) {
+fn view(app: &App, m: &Model, frame: Frame) {
     // Begin drawing
     let draw = app.draw();
     draw.background().color(WHITE);
