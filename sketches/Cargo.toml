@@ -30,6 +30,10 @@ name = "draw_loop"
 path = "src/draw_loop.rs"
 
 [[example]]
-name = "210101"
-path = "src/210101_bounce_lines.rs"
+name = "2021_01_01"
+path = "src/2021_01_01.rs"
+
+[[example]]
+name = "2021_01_02"
+path = "src/2021_01_02.rs"
 
