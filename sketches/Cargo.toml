@@ -28,3 +28,8 @@ path = "src/basic_forces.rs"
 [[example]]
 name = "draw_loop"
 path = "src/draw_loop.rs"
+
+[[example]]
+name = "210101"
+path = "src/210101_bounce_lines.rs"
+
