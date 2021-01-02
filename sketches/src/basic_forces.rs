@@ -76,7 +76,7 @@ fn model(app: &App) -> Model {
         .size(rect.w() as u32, rect.h() as u32)
         .view(view)
         .build()
-        .unwrap();±
+        .unwrap();
     let mover = Mover::new(rect);
     Model { mover }
 }

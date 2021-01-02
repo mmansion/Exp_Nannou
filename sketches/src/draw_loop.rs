@@ -49,7 +49,6 @@ fn view(app: &App, model: &Model, frame: Frame) {
     // Prepare to draw.
     let draw = app.draw();
  
-
     draw.background().color(WHITE);
     // draw.color_blend(BLEND_DARKEST);
     // Assign the blend mode.
