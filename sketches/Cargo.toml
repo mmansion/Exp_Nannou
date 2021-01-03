@@ -15,7 +15,23 @@ nannou_audio = "0.14.0"
 nannou_laser = "0.14.3"
 nannou_osc = "0.14.0"
 shade_runner = "0.3"
+# ------------------------------------------------
+# daily sketches
 
+
+[[example]]
+name = "2021_01_03"
+path = "src/2021_01_03.rs"
+
+[[example]]
+name = "2021_01_02"
+path = "src/2021_01_02.rs"
+
+[[example]]
+name = "2021_01_01"
+path = "src/2021_01_01.rs"
+
+# ------------------------------------------------
 
 [[example]]
 name = "hello_world"
@@ -28,12 +44,3 @@ path = "src/basic_forces.rs"
 [[example]]
 name = "draw_loop"
 path = "src/draw_loop.rs"
-
-[[example]]
-name = "2021_01_01"
-path = "src/2021_01_01.rs"
-
-[[example]]
-name = "2021_01_02"
-path = "src/2021_01_02.rs"
-
