@@ -149,165 +149,130 @@ fn view(app: &App, m: &Model, frame: Frame) {
     // Begin drawing
     let draw = app.draw();
 
+    let rotate = (app.time * 0.5).sin() * (app.time * 0.25  * PI * 2.0).cos();
+    let draw = draw.rotate(rotate);
+
     // clear the bg
-    let mut bg_col = rgba(0.0, 0.0, 0.0, 0.05);
-    //draw.background().color(bg_col);
+    let mut bg_col = rgba(0.0, 0.0, 0.0, 0.02);
+    let mut fg_col = rgba(1.0, 1.0, 1.0, 0.1);
+   // draw.background().color(bg_col);
+
+    //background
 
     draw.rect()
         .x_y(0.0, 0.0)
-        .w_h(win.w(), win.w())
+        .w_h(win.w()*2.0, win.w()*2.0)
         .color(bg_col)
         ;
+
+     // --------------------------------------
     
-    // println!("{}", m.mover.x);
+     let x = m.inc.cos() * m.rad;
+     let y = m.inc.sin() * m.rad;
+ 
+     let p = pt2(x, y);
+
     
     // --------------------------------------
 
     let mut color = rgba(1.0, 1.0, 1.0, 1.0);
 
-    // --------------------------------------
-    
-    let x = m.inc.cos() * m.rad;
-    let y = m.inc.sin() * m.rad;
 
-    let p = pt2(x, y);
 
     // --------------------------------------
 
     // define points
-    let p1_start = pt2( -win.w() / 2.0, win.h() / 2.0 );
-    let p1_end   = p;
+    // let p1_start = pt2( -win.w() / 2.0, win.h() / 2.0 );
+    // let p1_end   = p;
 
-    draw.line()
-    .start(p1_start)
-    .end(p1_end)
-    .weight(1.0)
-    .color(color);
+    // draw.line()
+    // .start(p1_start)
+    // .end(p1_end)
+    // .weight(1.0)
+    // .color(color);
 
     // --------------------------------------
 
-    let p2_start = pt2( win.w() / 2.0, win.h() / 2.0 );
-    let p2_end   = p;
+    // let p2_start = pt2( win.w() / 2.0, win.h() / 2.0 );
+    // let p2_end   = p;
 
-    draw.line()
-    .start(p2_start)
-    .end(p2_end)
-    .weight(1.0)
-    .color(color);
+    // draw.line()
+    // .start(p2_start)
+    // .end(p2_end)
+    // .weight(1.0)
+    // .color(color);
 
     // --------------------------------------
     
-    let p3_start = pt2( win.w() / 2.0, -win.h() / 2.0 );
-    let p3_end   = p;
+    // let p3_start = pt2( win.w() / 2.0, -win.h() / 2.0 );
+    // let p3_end   = p;
 
-    draw.line()
-    .start(p3_start)
-    .end(p3_end)
-    .weight(1.0)
-    .color(color);
+    // draw.line()
+    // .start(p3_start)
+    // .end(p3_end)
+    // .weight(1.0)
+    // .color(color);
 
     // --------------------------------------
 
-    let p4_start = pt2( -win.w() / 2.0, -win.h() / 2.0 );
-    let p4_end   = p;
+    // let p4_start = pt2( -win.w() / 2.0, -win.h() / 2.0 );
+    // let p4_end   = p;
 
-    draw.line()
-    .start(p4_start)
-    .end(p4_end)
-    .weight(1.0)
-    .color(color);
+    // draw.line()
+    // .start(p4_start)
+    // .end(p4_end)
+    // .weight(1.0)
+    // .color(color);
 
     
     //m.mover.display(&draw);
     //println!("hello?");
 
+    for i in 0..8 {
+        let f = i as f32;
+        draw.ellipse()
+            .x_y(0.0,0.0)
+            .w(m.rad * f * 0.5)
+            .h(m.rad*  f * 0.5)
+            .stroke_weight(f * 1.5)
+            .color(bg_col)
+            .no_fill()
+            ;
+
+    }
+
+
 
     // ------------------------------------------
+    let circle_resolution = 12;
+    let angle = TAU / circle_resolution as f32;
 
-    let mut circle_col = rgba(0.0, 0.0, 0.0, 0.9);
-    draw.ellipse()
-    .color(circle_col)
-    .x_y(0.0, 0.0)
-    .w(400.0)
-    .h(400.0)
-    ;
+    //draw.background().color(BLACK);
 
-    // -----------------------------------------
-    // Store the radius of the circle we want to make.
-    let radius = 300.0;
-    let n_points = 360;
-    // Map over an array of integers from 0 to 360 to represent the degrees in a circle.
-    let points = (0..=n_points).map(|i| {
-        // Convert each degree to radians.
-        let radian = deg_to_rad(i as f32);
-        // Get the sine of the radian to find the x co-ordinate of this point of the circle
-        // and multiply it by the radius.
-        let x = radian.sin() * radius;
-        // Do the same with cosine to find the y co-ordinate.
-        let y = radian.cos() * radius;
-        // Construct and return a point object with a color.
-        pt2(x,y)
-
-    })
-    .enumerate()
-        // Colour each vertex uniquely based on its index.
-        .map(|(i, p)| {
-            let fract = i as f32 / n_points as f32;
-            let r = (t + fract) % 1.0;
-            let g = (t + 1.0 - fract) % 1.0;
-            let b = (t + 0.5 + fract) % 1.0;
-            let rgba = srgba(r, g, b, 1.0);
-            (p, rgba)
-        });
-
-
-    // Create a polyline builder. Hot-tip: polyline is short-hand for a path that is
-    // drawn via "stroke" tessellation rather than "fill" tessellation.
-    draw.polyline()
-        .weight(10.0)
-        .points_colored(points); // Submit our points.
-
-
-    // 2nd cir
-
-    // Store the radius of the circle we want to make.
-    let radius = 200.0;
-    let n_points = 360;
-    // Map over an array of integers from 0 to 360 to represent the degrees in a circle.
-    let points = (0..=n_points).map(|i| {
-        // Convert each degree to radians.
-        let radian = deg_to_rad(i as f32);
-        // Get the sine of the radian to find the x co-ordinate of this point of the circle
-        // and multiply it by the radius.
-        let x = radian.sin() * radius;
-        // Do the same with cosine to find the y co-ordinate.
-        let y = radian.cos() * radius;
-        // Construct and return a point object with a color.
-        pt2(x,y)
-
-    })
-    .enumerate()
-        // Colour each vertex uniquely based on its index.
-        .map(|(i, p)| {
-            let fract = i as f32 / n_points as f32;
-            let r = (t + fract) % 1.0;
-            let g = (t + 1.0 - fract) % 1.0;
-            let b = (t + 0.5 + fract) % 1.0;
-            let rgba = srgba(r, g, b, 1.0);
-            (p, rgba)
-        });
-
-
-    // Create a polyline builder. Hot-tip: polyline is short-hand for a path that is
-    // drawn via "stroke" tessellation rather than "fill" tessellation.
-    draw.polyline()
-        .weight(10.0)
-        .points_colored(points); // Submit our points.
-
+    for i in 0..circle_resolution {
+        let x = (angle * i as f32).cos() * m.rad*2.0;
+        let y = (angle * i as f32).sin() * m.rad*2.0;
+        draw.line()
+            .start(pt2(0.0, 0.0))
+            .end(pt2(x, y))
+            .stroke_weight(1.0)
+            .caps_round()
+            .color(fg_col);
+    }
     // ------------------------------------------
 
     //println!("{}", m.mover.x);
 
+     // --------------------------------------
+    
+    
+    
     // Write the result of our drawing to the window's frame.
     draw.to_frame(app, &frame).unwrap();
+
+    // capture
+    // if app.keys.down.contains(&Key::S) {
+    //     app.main_window()
+    //         .capture_frame(app.exe_name().unwrap() + ".png");
+    // }
 }

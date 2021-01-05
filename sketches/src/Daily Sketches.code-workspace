@@ -5,6 +5,15 @@
 		},
 		{
 			"path": "../../nannou/examples"
+		},
+		{
+			"path": "../../nannou/nature_of_code"
+		},
+		{
+			"path": "../../nannou/generative_design"
+		},
+		{
+			"path": "../../nannou/draw_capture"
 		}
 	],
 	"settings": {}

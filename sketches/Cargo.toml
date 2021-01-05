@@ -19,7 +19,11 @@ shade_runner = "0.3"
 # daily sketches
 
 [[example]]
-name = "2021_01_03"
+name = "2021_01_05"
+path = "src/2021_01_05.rs"
+
+[[example]]
+name = "2021_01_04"
 path = "src/2021_01_04.rs"
 
 [[example]]
