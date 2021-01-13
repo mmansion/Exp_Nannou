@@ -243,7 +243,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
             .no_fill()
             // .color(WHITE)
             .rotate(transform)
-            .stroke(WHITE)
+            .stroke(fg_col)
             .stroke_weight(3.0)
             .join_round()
             .points(points);
@@ -258,14 +258,10 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     //---------------------------------------------------------
 
-    
-
 
 
     //----------------------------------------------
 
-    
-    
     // Write the result of our drawing to the window's frame.
     draw.to_frame(app, &frame).unwrap();
 
