@@ -12,7 +12,9 @@ static _HEIGHT_     : f32 = 800.0;
 static _VEC_SIZE_   : i32 = 12;
 static _VEC_SCALE_  : f32 = 1.0; 
 
-static NPOINTS  : i32 = 9;
+static NUM_POINTS  : i32 = 12;
+
+static SHAPE_SIZE   :f32  = 200.0;
 
 // -----------------------------------------------------
 fn main() {
@@ -24,9 +26,12 @@ fn main() {
 
 struct Model {
     shape_points : Vec<Vector2>, // points bin no.1
+    offsets : Vec<Vector2>,
     pbin_2 : Vec<Vector2>,
     ibin_1 : Vec<f32>,
-    ibin_2 : Vec<f32>
+    ibin_2 : Vec<f32>,
+
+    points : [Vector2; 5],
 }
 
 fn model(app : &App) -> Model {
@@ -39,32 +44,29 @@ fn model(app : &App) -> Model {
         .build()
         .unwrap();
 
-    let mut shape_points  = Vec::new();
+    let mut shape_points = Vec::new();
+    let mut offsets = Vec::new();
+
     let mut pbin_2  = Vec::new();
     let mut ibin_1  = Vec::new();
     let mut ibin_2  = Vec::new();
 
-    // for i in 0.._VEC_SIZE_ {
+    let mut points = [
+        pt2(0.0, 0.0),
+        pt2(-SHAPE_SIZE, 0.0),
+        pt2(-SHAPE_SIZE, SHAPE_SIZE),
+        pt2(0.0, SHAPE_SIZE),
+        pt2(0.0, 0.0)
+    ];
 
-    //     let rand_x = random_range(-rect.w()/2.0 * _VEC_SCALE_, rect.w()/2.0 * _VEC_SCALE_);
-    //     let rand_y = random_range(-rect.h()/2.0 * _VEC_SCALE_, rect.h()/2.0 * _VEC_SCALE_);
+    for i in 0..NUM_POINTS {
+        let x = (i as f32).cos() * SHAPE_SIZE;
+        let y = (i as f32).cos() * SHAPE_SIZE;
 
-    //     let x = (i as f32).cos() * rand_x;
-    //     let y = (i as f32).sin() * rand_y;
-
-    //     //space the increments out numerically on init
-    //     ibin_1.push(i as f32 * random_f32()); 
-    //     ibin_2.push(i as f32 * random_f32());
-
-    //     shape_points.push(pt2(x, y));
-    //     pbin_2.push(pt2(y, x)); //flip
-    // }
-
-    for i in 0..NPOINTS {
-
+        shape_points.push( pt2(x, y) );
     }
 
-    Model { shape_points, pbin_2, ibin_1, ibin_2 }
+    Model { shape_points, offsets, pbin_2, ibin_1, ibin_2, points }
 }    
 
 // -----------------------------------------------------
@@ -117,19 +119,17 @@ fn view(app: &App, m: &Model, frame: Frame) {
             // .color(BLACK)
             ;
     }
-
     // -----------------------------------------------------
-    let size = 250.0;
-    let points = [
-        pt2(0.0, 0.0),
-        pt2(-size, 0.0),
-        pt2(-size, size),
-        // pt2(0.0, size),
-        pt2(0.0, 0.0)
-    ];
+    
+    // this works too
+    // for i in 0..m.shape_points.len() {
+    //     println!("{}", m.shape_points[i].x);
+    // }
+  
+    let point_color_tuples = (0..m.shape_points.len()).map( |i| {
 
-    let point_color_tuples = (0..=3).map(|i|{
-        (points[i], WHITE)
+        ( pt2( m.shape_points[i].x, m.shape_points[i].y), WHITE )
+
     });
 
     draw.polyline()
@@ -139,28 +139,46 @@ fn view(app: &App, m: &Model, frame: Frame) {
         ;
 
     // -----------------------------------------------------
-    let draw = draw.rotate(time * -1.0);
+    // let size = 250.0;
+    // let points = [
+    //     pt2(0.0, 0.0),
+    //     pt2(-size, 0.0),
+    //     pt2(-size, size),
+    //     // pt2(0.0, size),
+    //     pt2(0.0, 0.0)
+    // ];
 
-    let size = 120.0;
-    let points = [
-        pt2(0.0, 0.0),
-        pt2(-size, 0.0),
-        pt2(-size, size),
-        // pt2(0.0, size),
-        pt2(0.0, 0.0)
-    ];
+    // let point_color_tuples = (0..=3).map(|i|{
+    //     (points[i], WHITE)
+    // });
 
-    let point_color_tuples = (0..=3).map(|i|{
-        (points[i], BLACK)
-    });
+    // draw.polyline()
+    //     .weight(2.5)
+    //     //.points(points)
+    //     .points_colored(point_color_tuples)
+    //     ;
 
-    draw.polyline()
-        .weight(2.5)
-        //.points(points)
-        .points_colored(point_color_tuples)
-        ;
+    // -----------------------------------------------------
+    // let draw = draw.rotate(time * -1.0);
 
+    // let size = 120.0;
+    // let points = [
+    //     pt2(0.0, 0.0),
+    //     pt2(-size, 0.0),
+    //     pt2(-size, size),
+    //     // pt2(0.0, size),
+    //     pt2(0.0, 0.0)
+    // ];
 
+    // let point_color_tuples = (0..=3).map(|i|{
+    //     (points[i], BLACK)
+    // });
+
+    // draw.polyline()
+    //     .weight(2.5)
+    //     //.points(points)
+    //     .points_colored(point_color_tuples)
+    //     ;
 
     // let shape_points_iter = m.shape_points.iter();
     // let pbin_2_iter = m.pbin_2.iter();
@@ -228,12 +246,8 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //         .points_colored(tuples2)
     //         ;
 
-
     //     ix1+=1; //bump to next inc in vec
     // }
-
-   
-
 
     //----------------------------------------------
 
