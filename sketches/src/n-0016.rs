@@ -14,7 +14,7 @@ static _VEC_SCALE_  : f32 = 1.0;
 
 static NUM_POINTS  : i32 = 60;
 
-static SHAPE_SIZE   :f32  = 200.0;
+static SHAPE_SIZE   :f32  = 100.0;
 
 // -----------------------------------------------------
 fn main() {
@@ -98,7 +98,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     for i in 0..m.offsets.len() {
 
-        let xOff = (m.ibin_1[i] as f32).cos() +  m.shape_points[i].x;
+        let xOff = (m.ibin_1[i] as f32).cos() +  m.shape_points[i].x * 3.0;
         let yOff = (m.ibin_1[i] as f32).sin() +  m.shape_points[i].y;
 
         m.ibin_1[i] -= 0.1;
@@ -123,12 +123,12 @@ fn view(app: &App, m: &Model, frame: Frame) {
     let draw = app.draw();
 
     //let rotate = (time * 0.1).sin() * (m.ibin_1[0]).cos();
-    let draw = draw.rotate(time * 1.02);
+    let draw = draw.rotate(time * 0.1);
 
     // -----------------------------------------------------
     // BACKGROUND
 
-    let mut bg_col = rgba(0.0, 0.0, 0.0, 0.05);
+    let mut bg_col = rgba(0.0, 0.0, 0.0, 0.002);
     let col1 = hsv(1.0, time, 1.0);
 
     if time < 0.1 {
@@ -144,27 +144,76 @@ fn view(app: &App, m: &Model, frame: Frame) {
             ;
     }
     // -----------------------------------------------------
-    let deadZoneRadius = 200.0;
+    let deadZoneRadius = 10.0;
+
     for i in 0..m.shape_points.len() {
 
         let x = m.shape_points[i].x + m.offsets[i].x;
         let y = m.shape_points[i].y + m.offsets[i].y;
+        let c = hsv(time * 1.1, 1.0, 1.0);
+
+        //let draw = draw.rotate(time * random_f32() * 1.1);
 
         if(abs(x) > deadZoneRadius && abs(y) > deadZoneRadius) {
-            draw.ellipse()
-            .x_y(x, y)
-            .radius(win.w() * 0.125 * time.sin() * 0.03)
-            .rotate(time * -0.9)
-            .color(col1);
-        }
-        
+            // draw.ellipse()
+            // .x_y(x, y * random_f32())
+            // .radius(win.w() * time.sin() * 0.01)
+            // .rotate(time * -0.9)
+            // .color(c);
 
+            draw.scale(win.w() * time.sin() * 0.01).rect()
+            .x_y(x + y, y * random_f32())
+            .w(win.w() * time.cos() * 0.01)
+            .h(win.h() * time.sin() * 0.01)
+            .stroke_weight(1.0)
+            .color(c);
+        }
+
+        // ----------------------------
+        
+        let rect_tuples = (0..m.rect_points.len()).map(|i|{
+            let c = hsv(time * 2.1, 1.0, 1.0);
+            let x = m.rect_points[i].x;
+            let y = m.rect_points[i].y;
+            ( pt2(x, y), c)
+        });
+    
+        draw.scale(0.25)
+            .polyline()
+            .weight(1.0)
+            .rotate(time)
+            //.points(points)
+            .points_colored(rect_tuples)
+            ;
+
+        // ----------------------------
+
+        let rect_tuples = (0..m.rect_points.len()).map(|i|{
+            let c = hsv(time * 0.1, 1.0, 0.1);
+            let x = m.rect_points[i].x;
+            let y = m.rect_points[i].y;
+            ( pt2(x, y), c)
+        });
+        
+    
+        // draw.scale(1.0)
+        //     .polyline()
+        //     .weight(4.0)
+        //     .rotate(time * TAU)
+        //     .weight(2.0)
+        //     //.points(points)
+        //     .points_colored(rect_tuples)
+        //     ;
+        // ----------------------------
+        
     }
 
-    // draw.ellipse()
-    //     .x_y(0.0, 0.0)
-    //     .radius(200.0)
-    //     .color(BLACK);
+
+
+    draw.ellipse()
+        .x_y(0.0, 0.0)
+        .radius(200.0)
+        .color(BLACK);
 
     // -----------------------------------------------------
 
@@ -186,12 +235,14 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     });
 
-    draw.scale(0.9)
-        .polyline()
-        .weight(2.0)
-        //.points(points)
-        .points_colored(point_color_tuples)
-        ;
+   
+
+    // draw.scale(0.9)
+    //     .polyline()
+    //     .weight(2.0)
+    //     //.points(points)
+    //     .points_colored(point_color_tuples)
+    //     ;
 
 
     // -----------------------------------------------------
