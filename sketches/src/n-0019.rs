@@ -11,6 +11,7 @@ static _WIDTH_      : f32 = 800.0;
 static _HEIGHT_     : f32 = 800.0;
 static _VEC_SIZE_   : i32 = 12;
 static _VEC_SCALE_  : f32 = 1.0; 
+static _MARGIN_     : f32 = 100.0;
 
 static NUM_POINTS  : i32 = 60;
 
@@ -38,7 +39,7 @@ struct Model {
     clear_background: bool,
     paused : bool,
 
-    
+    mover : Mover
 }
 
 // returns instantiated Model
@@ -84,6 +85,8 @@ fn model(app : &App) -> Model {
         shape_points.push( pt2(x, y) );
     }
 
+    let mover = Mover::new(rect, String::from("Hello!"));
+
     Model { 
         shape_points, 
         offsets, 
@@ -94,8 +97,96 @@ fn model(app : &App) -> Model {
         clicked: false,
         clear_background: false,
         paused : false,
+        mover
     }
 }    
+
+// -----------------------------------------------------
+// Mover
+
+struct Mover {
+    position: Point2,
+    velocity: Vector2,
+    acceleration: Vector2,
+    mass: f32,
+    name: String,
+    x:f32,
+    y:f32,
+}
+
+impl Mover {
+    fn new(rect: Rect, n: String) -> Self {
+
+        let position = pt2(rect.left() + 30.0, rect.top() - 30.0);
+        let velocity = vec2(0.0, 0.0);
+        let acceleration = vec2(0.0, 0.0);
+        let mass = 1.0;
+        let name = n;
+
+        let mut x = 0.0;
+        let mut y = 0.0;
+
+        Mover {
+            position,
+            velocity,
+            acceleration,
+            mass,
+            name,
+            x,
+            y,
+        }
+    }
+
+    // Immutable access.
+    fn name(&self) -> &String {
+        &self.name
+    }
+    fn x(&self) -> &f32 {
+        &self.x
+    }
+    fn y(&self) -> &f32 {
+        &self.y
+    }
+
+    fn apply_force(&mut self, force: Vector2) {
+        let f = force / self.mass;
+        self.acceleration += f;
+    }
+
+    fn update(&mut self) {
+        self.velocity += self.acceleration;
+        self.position += self.velocity;
+        self.acceleration *= 0.0;
+
+        self.x = self.position.x;
+        self.y = self.position.y;
+    }
+
+    fn check_edges(&mut self, rect: Rect) {
+
+        if self.position.x > rect.right()  {
+            self.position.x = rect.right();
+            self.velocity.x *= -1.0;
+        } else if self.position.x < rect.left()  {
+            self.velocity.x *= -1.0;
+            self.position.x = rect.left();
+        }
+        if self.position.y < rect.bottom()  {
+            self.velocity.y *= -1.0;
+            self.position.y = rect.bottom();
+        }
+    }
+
+    fn display(&self, draw: &Draw) {
+        // display circle at x position
+        draw.ellipse()
+            .xy(self.position)
+            .w_h(48.0, 48.0)
+            .gray(0.3)
+            .stroke(BLACK)
+            .stroke_weight(2.0);
+    }
+}
 
 // -----------------------------------------------------
 
@@ -107,6 +198,14 @@ This is a design choice from nannou where you can't mutate things when you are d
 Coming from processing it might be hard to adapt to this choice, but it makes things clearer.
 */
 fn update(app: &App, model: &mut Model, _update: Update) {
+
+    let wind = vec2(0.01, 0.0);
+    let gravity = vec2(0.0, -0.1);
+
+    model.mover.apply_force(wind);
+    model.mover.apply_force(gravity);
+    model.mover.update();
+    model.mover.check_edges(app.window_rect());
 
     // for inc in m.ibin_1.iter_mut() {
     //     *inc += 0.008;
@@ -125,9 +224,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         model.offsets[i].x = xOff;
         model.offsets[i].y = yOff;
         // println!("{}", i);
-    }
-
-    
+    } 
 }
 
 // draw outputs here
@@ -142,7 +239,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
 
     //let rotate = (time * 0.1).sin() * (m.ibin_1[0]).cos();
-    let draw = draw.rotate(time * app.time.sin() * 0.1);
+    //let draw = draw.rotate(time * app.time.sin() * 0.1);
+    let draw = draw.rotate(time * 10.0);
+    let draw = draw.x_y(model.mover.x, model.mover.y);
+
 
     // -----------------------------------------------------
     // BACKGROUND
@@ -168,9 +268,9 @@ fn view(app: &App, model: &Model, frame: Frame) {
     
     let circle_resolution = map_range( abs(app.time.sin()), 0. , 1. ,3.0 , 12.0) as i32;
     //let radius = app.mouse.x - win.left();
-    let radius = model.offsets[0].x + SHAPE_SIZE;
+    //let radius = model.offsets[0].x + SHAPE_SIZE;
+    let radius = SHAPE_SIZE;
     let angle = TAU / circle_resolution as f32;
-
     
     if app.elapsed_frames() == 1 || model.clear_background {
         draw.background().color(BLACK);
@@ -185,8 +285,8 @@ fn view(app: &App, model: &Model, frame: Frame) {
         let y = (angle * i as f32).sin() * radius;
         points_1.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * radius;
-        let y = (angle * i as f32).sin() * radius;
+        let x = (angle * i as f32).cos() * radius * 2.0;
+        let y = (angle * i as f32).sin() * radius * 2.0;
         points_2.push(pt2(x, y));
 
         let x = (angle * model.ibin_1[0] ).cos() * radius/2.0;
@@ -194,40 +294,36 @@ fn view(app: &App, model: &Model, frame: Frame) {
         points_3.push(pt2(x, y));
     }
 
-
-
-    // if  app.time.sin() > 0.0  {
-        draw.scale(0.75).polygon()
+   
+        draw.polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
         .stroke( col1 )
-        .stroke_weight( model.offsets[0].x )
+        .stroke_weight( 10.0)
         .no_fill()
         .points(points_1);
-    // }
 
 
-        draw.scale(0.5).polygon()
+        draw.scale(0.25).polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( BLACK )
-        .stroke_weight( model.offsets[0].y )
+        .stroke( RED )
+        .stroke_weight( 10.0 )
         .no_fill()
         .points(points_2);
 
-        draw.scale(1.0).polygon()
-        //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( BLACK )
-        .stroke_weight( model.offsets[0].y )
-        .no_fill()
-        .points(points_3);
+        // draw.scale(1.0).polygon()
+        // //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
+        // .stroke( BLACK )
+        // .stroke_weight( model.offsets[0].y )
+        // .no_fill()
+        // .points(points_3);
 
 
-        draw.ellipse()
-        .x_y(0.0, 0.0)
-        .radius(win.w() * 0.225 * time.sin())
-        .no_fill()
-        .stroke(BLACK)
-        .stroke_weight(10.0)
-        ;
+        // draw.ellipse()
+        // .x_y(0.0, 0.0)
+        // .radius(win.w() * 0.225 * time.sin())
+        // .no_fill()
+        // .stroke(BLACK)
+        // .stroke_weight(10.0);
     
 
     // if model.clicked {
