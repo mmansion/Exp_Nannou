@@ -2,7 +2,7 @@ use nannou::prelude::*;
 
 static WIDTH  : i32 = 800;
 static HEIGHT : i32 = 800; 
-static DIVS   : i32 = 10;
+static DIVS   : i32 = 16;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -62,21 +62,38 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
 
     // set background to blue
-    draw.background().color( rgb(0.2, 0.0, 0.8));
+    let r = 10.0;
+    //let bg = hsv ( map_range( app.time % r, 0.0 , r, 0.0 , 1.0), 1.0, 1.0);
+    let bg = hsva ( 0.9, 1.0, 1.0, 1.0);
+    //let bg = hsva ( map_range( app.time.sin(), 0.0, 1.0, 0.3, 0.75), 1.0, 1.0, 0.1);
+
+    draw.background().color( BLACK);
 
     let draw = draw.x_y((-WIDTH/2) as f32, (-HEIGHT/2) as f32);
 
     let t = app.time;
 
+
+    println!("{}", model.points.len());
     for i in 0..model.points.len() {
 
         // println!( "{},{}", model.points[i].x, model.points[i].y );
-        let col = hsv( (t * 0.001 * i as f32).sin(), 1.0, 1.0);
+        // let color = hsv( (t * 0.001 * i as f32).sin(), 1.0, 1.0);
+        let mut color = hsva ( map_range( i, 0 , model.points.len() , 0.4 , 0.9), 1.0, 1.0, 1.0);
+
+        // if i > model.points.len() / 2  {
+        //     color = hsva ( map_range( i, 0 , model.points.len() , 0.4 , 0.7), 1.0, 1.0, 1.0);   
+        // } 
         draw.ellipse()
         .x_y(model.points[i].x, model.points[i].y)
-        .radius( ( (t) + i as f32).sin() * 20.0 )
-        .color(col);
+        .radius( ( (t*0.9) + i as f32).sin() * model.points.len() as f32 )
+        .color(color); 
+        
+
+
+        
     }
+
 
     // put everything on the frame
     draw.to_frame(app, &frame).unwrap();
@@ -86,7 +103,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
         // let mut owned_string: String = "hello ".to_owned();
         // let borrowed_string: String = "output/" + app.exe_name().unwrap() + ".png";
     
-        let directory  = "captures/21/".to_string();
+        let directory  = "captures/".to_string();
         let app_name   = app.exe_name().unwrap().to_string();
         // let frame_num  = model.this_capture_frame.to_string();
         let extension  = ".png".to_string();
