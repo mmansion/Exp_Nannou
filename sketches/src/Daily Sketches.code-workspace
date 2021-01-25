@@ -6,5 +6,8 @@
         {
             "path": "../../nannou"
         }
-    ]
+    ],
+    "settings": {
+        "git.ignoreLimitWarning": true
+    }
 }
