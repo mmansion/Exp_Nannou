@@ -2,7 +2,7 @@ use nannou::prelude::*;
 use nannou::Draw;
 use std::collections::VecDeque;
 
-static CAPTURE  : bool = false; // capture to image sequence
+static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : i32 = 800;
 static HEIGHT   : i32 = 800; 
 static DIVS     : i32 = 16;
@@ -70,13 +70,13 @@ struct Vehicle {
 
 impl Vehicle {
     fn new(x: f32, y: f32) -> Self {
-        let mass = 4.0;
+        let mass = 3.0;
         let history = VecDeque::<Vector2>::with_capacity(10000);
         let position = vec2(x, y);
         let velocity = vec2(3.0, -2.0);
         let acceleration = vec2(0.0, 0.0);
         let r = 10.0;
-        let max_force = 0.3;
+        let max_force = 0.1;
         let max_speed = 3.0;
 
         Vehicle {
@@ -237,19 +237,9 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     let win = app.window_rect();
 
-    let bg = rgba(0.0, 0.0, 0.0, 0.01);
-    draw.background().color( BLACK );
+    let bg = rgba(0.0, 0.0, 0.1, 0.0001);
+    draw.background().color( bg );
 
-    if model.debug {
-        draw.rect()
-            .x_y(win.x(), win.y())
-            .w(win.w() - model.d * 2.0)
-            .h(win.h() - model.d * 2.0)
-            .no_fill()
-            .stroke(WHITE);
-    }
-
-    
 
     //let draw = draw.x_y((-WIDTH/2) as f32, (-HEIGHT/2) as f32);
 
@@ -269,17 +259,17 @@ fn view(app: &App, model: &Model, frame: Frame) {
         // .radius( ( (t*0.9) + i as f32).sin() * model.points.len() as f32 )
         // .color(color); 
 
-        draw.ellipse()
-        .xy(model.points[i].position)
-        .radius( (t + i as f32).sin() * 10.0 as f32 )
-        .color( GRAY ); 
+        // draw.ellipse()
+        // .xy(model.points[i].position)
+        // .radius( (t + i as f32).sin() * 10.0 as f32 )
+        // .color( rgb(0.1,0.1, 0.1) ); 
 
         
-        draw.scale(1.3).rect()
-        .xy(model.points[i].position)
-        .w((t + i as f32).sin() * 10.0 as f32)
-        .h((t + i as f32).sin() * 10.0 as f32)
-        .color(GRAY);
+        // draw.scale(1.3).rect()
+        // .xy(model.points[i].position)
+        // .w((t + i as f32).sin() * 10.0 as f32)
+        // .h((t + i as f32).sin() * 10.0 as f32)
+        // .color(GRAY);
 
         // if(i > 0) {
         //     let p1   = pt2( model.points[i-1].x, model.points[i-1].y);
