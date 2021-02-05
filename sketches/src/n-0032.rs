@@ -2,12 +2,12 @@ use nannou::prelude::*;
 use nannou::Draw;
 use std::collections::VecDeque;
 
-static CAPTURE  : bool = false; // capture to image sequence
+static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : i32 = 800;
 static HEIGHT   : i32 = 800; 
 static DIVS     : i32 = 16;
-static MARGIN   : i32 = 100; 
-static LINE_LEN : usize = 200;
+static MARGIN   : i32 = 50; 
+static LINE_LEN : usize = 10;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -72,14 +72,14 @@ struct Vehicle {
 }
 
 impl Vehicle {
-    fn new(x: f32, y: f32) -> Self {
-        let mass     = 30.0;
+    fn new(x: f32, y: f32, v: Vector2) -> Self {
+        let mass     = 10.0;
         let history  = VecDeque::<Vector2>::with_capacity(100);
         let position = vec2(x, y);
-        let velocity = vec2(1.0, 0.0);
+        let velocity = v;
         let acceleration = vec2(0.0, 0.0);
         let r = 100.0;
-        let max_force = 0.01;
+        let max_force = 1.09;
         let max_speed = 1.0;
 
         Vehicle {
@@ -129,13 +129,23 @@ impl Vehicle {
     fn repel(&self, p: &Point) -> Vector2 {
 
         let mut force = self.position - p.position; // Calculate direction of force
+        // let mut force = self.position; // Calculate direction of force
         let mut distance = force.magnitude(); // Distance between objects
+
+        
+        if(distance < 10.0) {
+            //println!("{}", distance);
+            self.velocity.rotate(PI/2.0);
+        }
+
         distance = distance.max(1.0).min(10000.0); // Limiting the distance to eliminate "extreme" results for very cose or very far object
         force = force.normalize(); // Normalize vector (distance doesn't matter, we just want this vector for direction)
-        let g = 1.0;
+        let g = 100.0;
         let strength = (g * self.mass * p.mass) / (distance * distance); // Calculate gravitational force magnitude
-        println!("{}", strength);
-        force * (-1.0 * strength) // Get force vector --> magnitude * direction  
+        force * (-1.0 * strength) // Get force vector --> magnitude * direction
+       // force * (-1.0)
+        // force;
+        
     }
 
     fn boundaries(&mut self, d: f32, win: &Rect) {
@@ -185,8 +195,10 @@ fn model(app: &App) -> Model {
         let randX = random_f32();
         let randY = random_f32();
 
-        vehicles.push(Vehicle::new(random_f32() * rect.w() as f32, random_f32()*2.0));
-        vehicles2.push(Vehicle::new(random_f32()*2.0, random_f32()));
+
+        vehicles.push(Vehicle::new(random_f32(), random_f32(), vec2(10.1, 0.0)));
+
+        vehicles2.push(Vehicle::new(random_f32(), random_f32(), vec2(10.1, 0.0)));
     }
 
      //----------------------------------
@@ -207,8 +219,8 @@ fn model(app: &App) -> Model {
 
             let x =  ( (WIDTH/DIVS  * col) + (-WIDTH/2) ) as f32;
             
-            points.push(Point::new(x, y, 1.0, 20.0));
-            points2.push(Point::new(y, x, 1.0, 20.0));
+            points.push(Point::new(x, y, 1.0, 1.0));
+            points2.push(Point::new(y, x, 1.0, 1.0));
             // points.push(pt2(x + (-WIDTH/2) as f32 , y + (-HEIGHT/2) as f32));
             
         } 
@@ -261,8 +273,8 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     let win = app.window_rect();
 
-    let bg1 = rgba(0.0, 0.0, 0.0, 0.005);
-    let bg2 = rgba(0.0, 0.0, 0.2, 0.05);
+    let bg1 = rgba(0.0, 0.0, 0.0, 0.05);
+    let bg2 = rgba(0.0, 0.0, 0.2, 0.02);
     // draw.background().color( bg );
 
     //let draw = draw.x_y((-WIDTH/2) as f32, (-HEIGHT/2) as f32);
@@ -276,11 +288,11 @@ fn view(app: &App, model: &Model, frame: Frame) {
         draw.rect()
         .x_y(0.0, 0.0)
         .w_h(win.w()*2.0, win.w()*2.0)
-        .color(bg1)
+        .color(bg2)
         ;
     }
 
-    let draw = draw.rotate(t * 0.05);
+    //let draw = draw.rotate(t * 0.05);
 
     // draw.tri()
     //     .points(win.bottom_left(), win.top_left(), win.top_right())
@@ -295,35 +307,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
         // if i > model.points.len() / 2  {
         //     color = hsva ( map_range( i, 0 , model.points.len() , 0.4 , 0.7), 1.0, 1.0, 1.0);   
         // } 
-        // draw.ellipse()
-        // .xy(model.points[i].position)
-        // .radius( ( (t*0.9) + i as f32).sin() * 0.05 * model.points.len() as f32 )
-        // .color(color); 
-
-        // draw.ellipse()
-        // .xy(model.points[i].position)
-        // .radius( (t + i as f32).sin() * 10.0 as f32 )
-        // .color( rgb(0.1,0.1, 0.1) ); 
-
-        
-        // draw.scale(1.3).rect()
-        // .xy(model.points[i].position)
-        // .w((t + i as f32).sin() * 10.0 as f32)
-        // .h((t + i as f32).sin() * 10.0  as f32)
-        // .rotate(t * i as f32 * -0.01)
-        // .color( rgb(0.2, 0.2, 0.2));
-
-        // if(i > 0) {
-        //     let p1   = pt2( model.points[i-1].x, model.points[i-1].y);
-        //     let p2   = pt2( model.points[i].x, model.points[i].y);
-
-        //     draw.line()
-        //     .start(p1)
-        //     .end(p2)
-        //     .weight(1.0)
-        //     .color(color);
-        // }
-        
+        draw.ellipse()
+        .xy(model.points[i].position)
+        .radius( ( (t*0.9) + i as f32).sin() * 0.005 * model.points.len() as f32 )
+        .color(color); 
     }
 
     // ------------------------------------------------
@@ -332,11 +319,17 @@ fn view(app: &App, model: &Model, frame: Frame) {
         display(&model.vehicles[v], &draw, &app, v as i32, 0.4);
     }
 
-    // for v in 0..model.vehicles2.len() {
+    for v in 0..model.vehicles2.len() {
 
-    //     display(&model.vehicles2[v], &draw, &app, v as i32, 0.1);
-    // }
-    
+        display(&model.vehicles2[v], &draw, &app, v as i32, 0.1);
+    }
+
+    draw.line()
+        .weight(2.0)
+        .caps_round()
+        .color(PALEGOLDENROD)
+        .color(hsv(0.5, 1.0, 1.0))
+        .points(model.vehicles[0].position, model.vehicles2[0].position);
     // ------------------------------------------------
 
     // put everything on the frame

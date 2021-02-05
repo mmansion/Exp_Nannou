@@ -15,8 +15,25 @@ nannou_audio = "0.14.0"
 nannou_laser = "0.14.3"
 nannou_osc = "0.14.0"
 shade_runner = "0.3"
+
+
+# ------------------------------------------------
+# [workspace]
+# members = [
+#     "modules",
+# ]
+
+
 # ------------------------------------------------
 # daily sketches
+
+[[example]]
+name = "34"
+path = "src/n-0034.rs"
+
+[[example]]
+name = "33"
+path = "src/n-0033.rs"
 
 [[example]]
 name = "32"
