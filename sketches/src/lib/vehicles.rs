@@ -67,8 +67,10 @@ impl Vehicle {
 
         let v = self.position - p.position; // Calculate direction of force
         let distance = v.magnitude(); // Distance between objects
-  
-        if distance <= p.size {
+
+        let size = if p.size > 5.0 { p.size } else { 5.0 };
+
+        if distance <= size {
 
 
             self.velocity = self.velocity.rotate(PI / (random_f32()*4.0) );

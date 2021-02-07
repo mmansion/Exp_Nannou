@@ -66,7 +66,7 @@ fn model(app: &App) -> Model {
 
             let x =  ( (WIDTH/DIVS  * col) + (-WIDTH/2) ) as f32;
             
-            points.push(Point::new(x, y, 1.0, 10.0));
+            points.push(Point::new(x, y, 1.0, 1.0));
             
         } 
     }
