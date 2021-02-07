@@ -72,7 +72,6 @@ impl Vehicle {
 
         if distance <= size {
 
-
             self.velocity = self.velocity.rotate(PI / (random_f32()*4.0) );
         }        
     }

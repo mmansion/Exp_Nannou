@@ -8,7 +8,7 @@ pub mod lib;
 use crate::lib::points::Point as Point;
 use crate::lib::vehicles::Vehicle as Vehicle;
 
-static CAPTURE  : bool = false; // capture to image sequence
+static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : i32 = 800;
 static HEIGHT   : i32 = 800; 
 static DIVS     : i32 = 16;
@@ -42,7 +42,7 @@ fn model(app: &App) -> Model {
     let debug = false;
 
     let mut vehicles = Vec::new();
-    for i in 0..4 {
+    for i in 0..12 {
         let randX    = random_f32() * (HEIGHT/2) as f32;
         let randY    = random_f32() * (WIDTH/2) as f32;
         let maxspeed = 5.0;
@@ -145,14 +145,16 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let mut pts = Vec::new();
     for v in 0..model.vehicles.len() {
 
-        display(&model.vehicles[v], &draw, &app, v as i32, 0.4);
+        //display(&model.vehicles[v], &draw, &app, v as i32, 0.4);
         pts.push(model.vehicles[v].position);
     }
+
+    let color = hsva (  t.sin() * 0.01, 1.0, 1.0, 1.0);
 
     draw.polygon()
         .stroke_weight(4.0)
         .caps_round()
-        .stroke(PALEGOLDENROD)
+        .stroke(color)
         .no_fill()
         .points(pts)
         ;
