@@ -127,7 +127,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
         ;
     }
 
-    // let draw = draw.rotate(t * 0.05);
+    let draw = draw.rotate(t * 0.05);
 
     for i in 0..model.points.len() {
 
