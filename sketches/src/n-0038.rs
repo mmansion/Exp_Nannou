@@ -8,11 +8,11 @@ pub mod lib;
 use crate::lib::points::Point as Point;
 use crate::lib::vehicles::Vehicle as Vehicle;
 
-static CAPTURE  : bool = false; // capture to image sequence
+static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : i32 = 800;
 static HEIGHT   : i32 = 800; 
 static DIVS     : i32 = 16;
-static MARGIN   : i32 = 200; 
+static MARGIN   : i32 = 100; 
 static LINE_LEN : usize = 200;
 
 fn main() {
@@ -35,14 +35,13 @@ fn model(app: &App) -> Model {
     app.new_window()
         .size(800, 800)
         .view(view)
-        .mouse_pressed(mouse_pressed)
         .build()
         .unwrap();
 
     let debug = false;
 
     let mut vehicles = Vec::new();
-    for i in 0..3 {
+    for i in 0..9 {
         let randX    = random_f32() * (HEIGHT/2) as f32;
         let randY    = random_f32() * (WIDTH/2) as f32;
         let maxspeed = 5.0;
@@ -65,7 +64,7 @@ fn model(app: &App) -> Model {
         for col in 0..(DIVS+1) {
 
             let x =  ( (WIDTH/DIVS  * col) + (-WIDTH/2) ) as f32;
-            let size = 10.0;
+            let size = 3.0;
             points.push(Point::new(x, y, 1.0, size));
             
         } 
@@ -97,7 +96,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
             // m.vehicles[v].apply_force(steer);
         }
         
-        m.vehicles[v].boundaries(&app.window_rect());
+        m.vehicles[v].boundaries2(&app.window_rect(), MARGIN + 20);
         m.vehicles[v].update();
     }
 
@@ -109,7 +108,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     let win = app.window_rect();
 
-    let bg = rgba(0.0, 0.0, 0.2, 0.1);
+    let bg = rgba(0.0, 0.0, 0.2, 0.4);
     // draw.background().color( bg );
 
     //let draw = draw.x_y((-WIDTH/2) as f32, (-HEIGHT/2) as f32);
@@ -127,27 +126,24 @@ fn view(app: &App, model: &Model, frame: Frame) {
         ;
     }
 
-    //let draw = draw.rotate(t * 0.5);
+    let color1 = hsva ( 0.4, 1.0, 1.0, 1.0);
+    let color2 = hsva ( 1.0, 1.0, 1.0, 0.0);
+    let color3 = hsva ( 0.2, 1.0, 1.0, 0.8);
 
-    let color = hsva ( 0.4, 1.0, 1.0, 1.0);
+    
 
     for i in 0..model.points.len() {
 
-       
-
-        // println!( "{},{}", model.points[i].x, model.points[i].y );
-        //let color = hsva ( map_range( abs(app.time.sin() * i as f32 * 0.001), 0.0, 1.0, 0.4, 0.9), 1.0, 1.0, 0.1);
-
-        // draw.ellipse()
-        // .xy(model.points[i].position)
-        // .radius( model.points[i].size )
-        // .color(color); 
-
-        draw.rect()
-        .no_fill()
+        draw.ellipse()
         .xy(model.points[i].position)
-        .w_h(model.points[i].size, model.points[i].size)
-        .stroke(color); 
+        .radius( model.points[i].size )
+        .color(color1); 
+
+        // draw.rect()
+        // .no_fill()
+        // .xy(model.points[i].position)
+        // .w_h(model.points[i].size, model.points[i].size)
+        // .stroke(WHITE); 
     }
 
     // ------------------------------------------------
@@ -156,75 +152,104 @@ fn view(app: &App, model: &Model, frame: Frame) {
    
 
     // ------------------------------------------------
-    let mut pts = Vec::new();
+    let mut pts1 = Vec::new();
+    let mut pts2 = Vec::new();
+    let mut pts3 = Vec::new();
+
     for v in 0..model.vehicles.len() {
 
-        //display(&model.vehicles[v], &draw, &app, v as i32, 0.4);
+        let points = (0..=360).map(|i| {    
+            
+            let radian = deg_to_rad(i as f32); 
+            let x = radian.sin() * 50.0;
+            let y = radian.cos() * 50.0;
+            pt2(x,y)              
+         });
 
-        let num_points = 60;
-        let radius = 20.0;
-        let angle = TAU / num_points as f32;
-    
-        let mut points_1 = Vec::new();
-        let mut points_2 = Vec::new();
-        let mut points_3 = Vec::new();
-        let mut points_4 = Vec::new();
-    
-        for i in 0..num_points {
-            let x = (angle * i as f32).cos() * radius;
-            let y = (angle * i as f32).sin() * radius;
-            points_1.push(pt2(x, y));
-            points_2.push(pt2(x, y));
-            points_3.push(pt2(x, y));
-            points_4.push(pt2(x, y));
-        }
-    
-      
 
-        draw.scale(1.0).polygon()
-        .xy(model.vehicles[v].position)
-        .stroke( color )
-        .stroke_weight( 3.0)
+         draw
+        .polygon()
+        .stroke_weight(6.0)
+        .caps_round()
+        .stroke(color1)
+        // .color(color3)
         .no_fill()
-        .points(points_1)
+        .points(points)
         ;
 
-        // draw.scale(1.5).polygon()
-        // .xy(model.vehicles[v].position)
-        // .stroke( color )
-        // .stroke_weight( 1.0)
-        // .no_fill()
-        // .points(points_2)
-        // ;
+         {
+            let points = (0..=360).map(|i| {    
+                let radian = deg_to_rad(i as f32); 
+                let x = radian.sin() * 25.0;
+                let y = radian.cos() * 25.0;
+                pt2(x,y)              
+             });
+             draw
+            .polyline() 
+            .xy(model.vehicles[v].position)
+            .weight(3.0)
+            .points(points)
+            .color(color3)
+            ; 
+            if v < 3 {
+                pts1.push(model.vehicles[v].position);
+            } else if v < 6 {
+                pts2.push(model.vehicles[v].position);
+                    
+            } else if v < 9 {
+                pts3.push(model.vehicles[v].position);
+            }
+         }
 
-        // draw.scale(2.0).polygon()
-        // .xy(model.vehicles[v].position)
-        // .stroke( color )
-        // .stroke_weight( 1.0)
-        // .no_fill()
-        // .points(points_3)
-        // ;
-
-        // draw.scale(2.5).polygon()
-        // .xy(model.vehicles[v].position)
-        // .stroke( color )
-        // .stroke_weight( 1.0)
-        // .no_fill()
-        // .points(points_4)
-        // ;
-
-        pts.push(model.vehicles[v].position);
+        
     }
 
     
 
-    draw.polygon()
-        .stroke_weight(4.0)
-        .caps_round()
-        .stroke(color)
-        .no_fill()
-        .points(pts)
-        ;
+    draw
+    .polygon()
+    .stroke_weight(2.0)
+    .caps_round()
+    .stroke(color1)
+    .color(color2)
+    .points(pts1)
+    ;
+
+    draw
+    .polygon()
+    .stroke_weight(2.0)
+    .caps_round()
+    .stroke(color1)
+    .color(color2)
+    .points(pts2)
+    ;
+
+    draw
+    .polygon()
+    .stroke_weight(2.0)
+    .caps_round()
+    .stroke(color1)
+    .color(color2)
+    .points(pts3)
+    ;
+
+
+    // ------------------------------------------------
+    let mut frame_points = Vec::new();
+
+    frame_points.push(vec2( (-WIDTH/2 + MARGIN) as f32, (-HEIGHT/2 + MARGIN) as f32 ));
+    frame_points.push(vec2( (WIDTH/2 - MARGIN) as f32, (-HEIGHT/2 + MARGIN) as f32 ));
+    frame_points.push(vec2( (WIDTH/2 - MARGIN) as f32, (HEIGHT/2 - MARGIN) as f32));
+    frame_points.push(vec2( (-WIDTH/2 + MARGIN) as f32, (HEIGHT/2 - MARGIN) as f32));
+
+    draw
+    .polygon()
+    .stroke_weight(2.0)
+    .caps_round()
+    .no_fill()
+    .stroke(color1)
+    .points(frame_points)
+    ;
     
     
 
@@ -248,49 +273,4 @@ fn view(app: &App, model: &Model, frame: Frame) {
         app.main_window().capture_frame(path);
         
     }
-}
-
-fn display(vehicle: &Vehicle, draw: &Draw, app: &App, num:i32, hue:f32) {
-    let Vehicle {
-        history,
-        position,
-        velocity,
-        ..
-    } = vehicle;
-
-    if history.len() > 1 {
-
-        let theta = (velocity.angle() + PI / 2.0) * -1.0;
-
-        let vertices1 = history
-            .iter()
-            .map(|v| pt2(v.x, v.y))
-            .enumerate()
-            .map(|(_, p)| {
-                let color2 = hsv (0.0, 1.0, 0.0);
-                (p, BLACK)
-                // let color = hsva ( map_range( abs(app.time.sin() * 0.001 + (num*2) as f32), 0.4, 0.9, 0.3, 0.75), 1.0, 1.0, 1.0);
-                
-            });
-        //draw.polyline().caps_round().weight(12.0).points_colored(vertices1);
-        
-        let vertices2 = history
-            .iter()
-            .map(|v| pt2(v.x, v.y))
-            .enumerate()
-            .map(|(_, p)| {
-                let color = hsv (hue, 1.0, 1.0);
-                // (p, color)
-                (p, PALEGOLDENROD)
-            });
-            
-        draw.polyline().caps_round().weight(5.0).points_colored(vertices2);
-
-        
-    }
-
-}
-
-fn mouse_pressed(_app: &App, model: &mut Model, _button: MouseButton) {
-    model.debug = !model.debug;
 }

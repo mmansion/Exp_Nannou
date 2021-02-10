@@ -97,4 +97,26 @@ impl Vehicle {
             self.apply_force(steer);
         }
     }
+
+    pub fn boundaries2(&mut self, win: &Rect, margin : i32) {
+        
+        let left   = win.left() + margin as f32;
+        let right  = win.right() - margin as f32;
+        let top    = win.top() - margin as f32;
+        let bottom = win.bottom() + margin as f32;
+
+        let desired = match self.position {
+            Vector2 { x, .. } if x < left => Some(vec2(self.max_speed, self.velocity.y)),
+            Vector2 { x, .. } if x > right => Some(vec2(-self.max_speed, self.velocity.y)),
+            Vector2 { y, .. } if y < bottom => Some(vec2(self.velocity.x, self.max_speed)),
+            Vector2 { y, .. } if y > top => Some(vec2(self.velocity.x, -self.max_speed)),
+            _ => None,
+        };
+
+        if let Some(desired) = desired {
+            let desired = desired.normalize() * self.max_speed;
+            let steer = (desired - self.velocity).limit_magnitude(self.max_force);
+            self.apply_force(steer);
+        }
+    }
 }
