@@ -8,11 +8,11 @@ pub mod lib;
 use crate::lib::points::Point as Point;
 use crate::lib::vehicles::Vehicle as Vehicle;
 
-static CAPTURE  : bool = true; // capture to image sequence
+static CAPTURE  : bool = false; // capture to image sequence
 static WIDTH    : i32 = 800;
 static HEIGHT   : i32 = 800; 
 static DIVS     : i32 = 16;
-static MARGIN   : i32 = 100; 
+static MARGIN   : i32 = 200; 
 static LINE_LEN : usize = 200;
 
 fn main() {
@@ -42,7 +42,7 @@ fn model(app: &App) -> Model {
     let debug = false;
 
     let mut vehicles = Vec::new();
-    for i in 0..12 {
+    for i in 0..3 {
         let randX    = random_f32() * (HEIGHT/2) as f32;
         let randY    = random_f32() * (WIDTH/2) as f32;
         let maxspeed = 5.0;
@@ -65,8 +65,8 @@ fn model(app: &App) -> Model {
         for col in 0..(DIVS+1) {
 
             let x =  ( (WIDTH/DIVS  * col) + (-WIDTH/2) ) as f32;
-            
-            points.push(Point::new(x, y, 1.0, 1.0));
+            let size = 10.0;
+            points.push(Point::new(x, y, 1.0, size));
             
         } 
     }
@@ -109,7 +109,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
     let win = app.window_rect();
 
-    let bg = rgba(0.0, 0.0, 0.2, 0.05);
+    let bg = rgba(0.0, 0.0, 0.2, 0.1);
     // draw.background().color( bg );
 
     //let draw = draw.x_y((-WIDTH/2) as f32, (-HEIGHT/2) as f32);
@@ -127,39 +127,106 @@ fn view(app: &App, model: &Model, frame: Frame) {
         ;
     }
 
-    let draw = draw.rotate(t * 0.05);
+    //let draw = draw.rotate(t * 0.5);
+
+    let color = hsva ( 0.4, 1.0, 1.0, 1.0);
 
     for i in 0..model.points.len() {
 
+       
+
         // println!( "{},{}", model.points[i].x, model.points[i].y );
-        let color = hsv( (t * 0.0001 * i as f32).sin(), 1.0, 1.0);
         //let color = hsva ( map_range( abs(app.time.sin() * i as f32 * 0.001), 0.0, 1.0, 0.4, 0.9), 1.0, 1.0, 0.1);
 
         // draw.ellipse()
         // .xy(model.points[i].position)
         // .radius( model.points[i].size )
         // .color(color); 
+
+        draw.rect()
+        .no_fill()
+        .xy(model.points[i].position)
+        .w_h(model.points[i].size, model.points[i].size)
+        .stroke(color); 
     }
+
+    // ------------------------------------------------
+
+   
+   
 
     // ------------------------------------------------
     let mut pts = Vec::new();
     for v in 0..model.vehicles.len() {
 
         //display(&model.vehicles[v], &draw, &app, v as i32, 0.4);
+
+        let num_points = 60;
+        let radius = 20.0;
+        let angle = TAU / num_points as f32;
+    
+        let mut points_1 = Vec::new();
+        let mut points_2 = Vec::new();
+        let mut points_3 = Vec::new();
+        let mut points_4 = Vec::new();
+    
+        for i in 0..num_points {
+            let x = (angle * i as f32).cos() * radius;
+            let y = (angle * i as f32).sin() * radius;
+            points_1.push(pt2(x, y));
+            points_2.push(pt2(x, y));
+            points_3.push(pt2(x, y));
+            points_4.push(pt2(x, y));
+        }
+    
+      
+
+        draw.scale(1.0).polygon()
+        .xy(model.vehicles[v].position)
+        .stroke( color )
+        .stroke_weight( 3.0)
+        .no_fill()
+        .points(points_1)
+        ;
+
+        // draw.scale(1.5).polygon()
+        // .xy(model.vehicles[v].position)
+        // .stroke( color )
+        // .stroke_weight( 1.0)
+        // .no_fill()
+        // .points(points_2)
+        // ;
+
+        // draw.scale(2.0).polygon()
+        // .xy(model.vehicles[v].position)
+        // .stroke( color )
+        // .stroke_weight( 1.0)
+        // .no_fill()
+        // .points(points_3)
+        // ;
+
+        // draw.scale(2.5).polygon()
+        // .xy(model.vehicles[v].position)
+        // .stroke( color )
+        // .stroke_weight( 1.0)
+        // .no_fill()
+        // .points(points_4)
+        // ;
+
         pts.push(model.vehicles[v].position);
     }
 
-    let color = hsva (  t.sin() * 0.01, 1.0, 1.0, 1.0);
+    
 
     draw.polygon()
         .stroke_weight(4.0)
         .caps_round()
-        .stroke(WHITE)
+        .stroke(color)
         .no_fill()
         .points(pts)
         ;
     
-    // ------------------------------------------------
+    
 
     // put everything on the frame
     draw.to_frame(app, &frame).unwrap();
