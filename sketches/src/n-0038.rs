@@ -8,7 +8,7 @@ pub mod lib;
 use crate::lib::points::Point as Point;
 use crate::lib::vehicles::Vehicle as Vehicle;
 
-static CAPTURE  : bool = true; // capture to image sequence
+static CAPTURE  : bool = false; // capture to image sequence
 static WIDTH    : i32 = 800;
 static HEIGHT   : i32 = 800; 
 static DIVS     : i32 = 16;
