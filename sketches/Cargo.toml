@@ -28,6 +28,10 @@ shade_runner = "0.3"
 # daily sketches
 
 [[example]]
+name = "41"
+path = "src/n-0041.rs"
+
+[[example]]
 name = "40"
 path = "src/n-0040.rs"
 
