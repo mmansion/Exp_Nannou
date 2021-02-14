@@ -93,7 +93,10 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     
     
         for i in (1..WIDTH+50).step_by(20) {
-            let x = i as f32;
+
+            let mut x = i as f32;
+            
+            //let x = (i as f32).sin() * 100.0;
     
             let n = m.noise.get([m.xOff, m.yOff]) as f32;
     
@@ -105,8 +108,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
             //         // rotsin as f64
             //     ]), 0., 1., 0, 1) as f32;
     
-    
-            let y = x.sin() * 100.0 * n;
+            let y = x.sin() * 10.0 * n;
     
             m.xOff += 0.0001;
 
@@ -116,8 +118,11 @@ fn update(app: &App, m: &mut Model, _update: Update) {
             let rotcos = (m.xOff as f32).cos() * 50.0;
             // let rotcos = (frac * TAU).cos();
             // let rotsin = (frac * TAU).sin();
+
+            let x2 = (x).cos() * 20.0;
+            let y2 = (y).sin() * 20.0;
         
-            m.points.push(pt2(x, y + rotsin));
+            m.points.push( pt2(x+x2, y + rotsin + y2) );
         }
         
         m.yOff += 0.0001;
@@ -147,13 +152,9 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     if m.new_frame  {
 
+    let bg = rgba(0.0, 0.0, 0.0, 0.001);
+    let color = hsva(t.sin() * 0.9, 1.0, 1.0, 1.0);
     
-
-    let bg = rgba(0.0, 0.0, 0.2, 0.01);
-    let color = hsva(t.sin() * 0.1, t.sin() * 0.9, 1.0, 1.0);
-    
-    
-
     if m.inc < 0.1 {
         draw.background().color(BLACK);
     } else {
@@ -161,26 +162,43 @@ fn view(app: &App, m: &Model, frame: Frame) {
         draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg)
         ;
     }
-    
    
     // ------------------------------------------------ 
     let pts = (0..m.points.len()).map(|i| {
         (pt2(m.points[i].x, m.points[i].y))
     });    
 
-    //let draw1 = draw.rotate(t * 0.1);
+    let pts2 = (0..m.points.len()).map(|i| {
+        (pt2(m.points[i].x, m.points[i].y))
+    });  
 
-    // let draw1 = draw.translate( pt3(-win.w()/2.0-25.0, t.sin() * win.h()/40.0, 0.0) );
+    // ------------------------------------------------ 
+
+    let draw = draw.rotate(t * 0.1);
+
     let draw1 = draw.translate( 
         pt3(
             -win.w()/2.0-25.0 + (m.inc*10.0).sin() * win.h()/40.0, 
-            (m.inc * 1.1).sin() * win.h()/3.0, 
+            -(m.inc * 1.1).sin() * win.h()/3.0, 
+            //0.0,
             0.0) );
 
+    // ------------------------------------------------ 
+
+    // let draw2 = draw.rotate(t * -0.1);
+
+    let draw2 = draw.translate( 
+        pt3(
+            -win.w()/2.0-25.0 + (m.inc*10.0).sin() * win.h()/40.0, 
+            (m.inc * 1.1).sin() * win.h()/3.0, 
+            //0.0,
+            0.0) );
+
+    // ------------------------------------------------ 
 
     draw1
     .polyline()
-    .stroke_weight(2.0)
+    .stroke_weight(10.0)
     // .caps_round()
     .color(color)
     // .no_fill()
@@ -188,18 +206,46 @@ fn view(app: &App, m: &Model, frame: Frame) {
     .points(pts)
     ;
 
-    draw
-    .rect()
-    .w_h(win.w(), 400.0)
-    .x_y(0.0, 400.0)
-    .color(rgb(0.0, 0.0, 0.2))
+    draw2
+    .polyline()
+    .stroke_weight(10.0)
+    // .caps_round()
+    .color(color)
+    // .no_fill()
+    // .color(color2)
+    .points(pts2)
     ;
+
+    // ------------------------------------------------ 
+    let pts3 = (0..360).map(|i| {
+        let x = (i as f32).sin() * 500.0;
+        let y = (i as f32).cos() * 500.0;
+
+        ( pt2(x, y) )
+    });  
+    
     draw
-    .rect()
-    .w_h(win.w(), 400.0)
-    .x_y(0.0, -400.0)
-    .color(rgb(0.0, 0.0, 0.2))
+    .polyline()
+    .stroke_weight(100.0)
+    // .caps_round()
+    .color(BLACK)
+    // .no_fill()
+    // .color(color2)
+    .points(pts3)
     ;
+
+    // draw
+    // .rect()
+    // .w_h(win.w(), 400.0)
+    // .x_y(0.0, 400.0)
+    // .color(rgb(0.0, 0.0, 0.2))
+    // ;
+    // draw
+    // .rect()
+    // .w_h(win.w(), 400.0)
+    // .x_y(0.0, -400.0)
+    // .color(rgb(0.0, 0.0, 0.2))
+    // ;
 
     // put everything on the frame
     draw.to_frame(app, &frame).unwrap();
