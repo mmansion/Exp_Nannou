@@ -13,6 +13,7 @@ use crate::lib::vehicles::Vehicle as Vehicle;
 static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : i32 = 800;
 static HEIGHT   : i32 = 800; 
+static ANGLES   : i32 = 12;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -20,6 +21,7 @@ fn main() {
 
 struct Model {
     points : Vec<Vector2>,
+    incs   : Vec<f32>,
     noise  : Perlin,
     xOff   : f64, 
     yOff   : f64,
@@ -49,6 +51,7 @@ fn model(app: &App) -> Model {
     let mut xOff = 0.0;
     let mut yOff = 0.0;
     let mut points = Vec::new();
+    let mut incs = Vec::new();
     let mut new_frame = false;
     let mut last_calc = Duration::from_millis(0);
     let mut inc = 0.0;
@@ -57,8 +60,12 @@ fn model(app: &App) -> Model {
     let mut last_capture_frame = 0;
     //----------------------------------
 
+    // setup incs
+    for i in 0..ANGLES+1 {
+        incs.push(i as f32 * random_f32());
+    }
 
-    Model {this_capture_frame, last_capture_frame, noise, points, xOff, yOff, new_frame, last_calc, inc}
+    Model {this_capture_frame, last_capture_frame, noise, points, incs,xOff, yOff, new_frame, last_calc, inc}
 } 
 
 fn update(app: &App, m: &mut Model, _update: Update) {
@@ -74,59 +81,13 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
         m.last_calc = _update.since_start;
 
-        m.inc += 0.01;
+        m.inc += 0.09;
 
         m.new_frame = true;
 
-        if !m.points.is_empty() {
-            m.points.clear();// clears the vector, removing all values
+        for inc in m.incs.iter_mut() {
+            *inc += 0.008;
         }
-    
-        let w = WIDTH as f32;
-        let h = HEIGHT as f32;
-        //m.points.push(pt2(-25.0, -h));
-        // increment by a custom step value
-        // see: iter step by method
-        // https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.step_by
-        
-        let frac = (app.elapsed_frames() % 200) as f32 / (200.0);
-    
-    
-        for i in (1..WIDTH+50).step_by(20) {
-
-            let mut x = i as f32;
-            
-            //let x = (i as f32).sin() * 100.0;
-    
-            let n = m.noise.get([m.xOff, m.yOff]) as f32;
-    
-            // let n = map_range( m.noise.get(
-            //     [
-            //         m.xOff, 
-            //         m.yOff,
-            //         // rotcos as f64,
-            //         // rotsin as f64
-            //     ]), 0., 1., 0, 1) as f32;
-    
-            let y = x.sin() * 10.0 * n;
-    
-            m.xOff += 0.0001;
-
-            // let rotsin = (frac * y).sin() * 100.0;
-            // let rotcos = (frac * x).cos() * 50.0;
-            let rotsin = (m.yOff as f32).sin() * 100.0;
-            let rotcos = (m.xOff as f32).cos() * 50.0;
-            // let rotcos = (frac * TAU).cos();
-            // let rotsin = (frac * TAU).sin();
-
-            let x2 = (x).cos() * 20.0;
-            let y2 = (y).sin() * 20.0;
-        
-            m.points.push( pt2(x+x2, y + rotsin + y2) );
-        }
-        
-        m.yOff += 0.0001;
-        //m.points.push(pt2(w+25.0, -h));
 
         if m.this_capture_frame != m.last_capture_frame {
             m.last_capture_frame = m. this_capture_frame;
@@ -147,90 +108,120 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 fn view(app: &App, m: &Model, frame: Frame) {
 
     // get canvas to draw on
-    let draw = app.draw();
-    let win = app.window_rect();
-    let t = app.time;
+    let draw  = app.draw();
+    let win   = app.window_rect();
+    let t     = app.time;
 
+    // draw frame ---------------------------------------------------------
     if m.new_frame  {
 
-    let bg = rgba(0.0, 0.0, 0.2, 1.0);
-    let color = hsva(t.sin() * 0.9, 1.0, 1.0, 1.0);
-    
-    if m.inc < 0.01 {
-        draw.background().color(BLACK);
-    } else {
-        //background
-        draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
-    }
+        let bg = rgba(0.0, 0.0, 0.2, 0.08);
+        let color = hsva(t.sin() * 0.9, 1.0, 1.0, 1.0);
+        
+        if m.inc < 0.01 {
+            draw.background().color(BLACK);
+        } else {
+            //background
+            draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
+        }
 
-    for n in 0..20 {
+        for n in 0..20 { 
 
-       
+            let atten = 0.18;
+            let scale = (n as f32) * atten;
+            let mut xStore = 0.0;
+            let mut yStore = 0.0;
 
-        let angles = 12;
-        let atten = 0.3;
-        let scale = (n as f32) * atten;
-        let mut xStore = 0.0;
-        let mut yStore = 0.0;
+            let pts = (0..ANGLES + 1).map(|i| {
 
-        let points_colored = (0..angles + 1).map(|i| {
-            let inc =  ( (360 / angles * i) as f32).to_radians();
+                let inc =  ( (360 / ANGLES * i) as f32).to_radians();
+                let ix  = i as usize;
+                
+                let x = inc.cos() * 100.0; 
+                let y = inc.sin() * 100.0;
+
+                let r = 30.0;
+                // let mut xOff = 0.0;
+                // let mut yOff = 0.0;
+
+                let mut xOff = m.incs[ix].cos() * r; 
+                let mut yOff = m.incs[ix].sin() * r;
+
+
+                if i == 0 {
+                    xStore = xOff;
+                    yStore = yOff;
+                } 
+
+                if i == ANGLES {
+                    xOff = xStore;
+                    yOff = yStore;
+                }
+                // let n = (m.noise.get([x as f64, y as f64]) * 10.0) as f32;
+        
+                pt2(x + xOff, y + yOff)
+
+
+            });  
             
-            let x = inc.cos() * 100.0; 
-            let y = inc.sin() * 100.0;
+            let color = hsva( t.sin() * 0.01, 1.0, 1.0, 1.0);
+            let draw = draw.rotate( (t.sin() * n as f32) * 0.0001);
+            let draw = draw.rotate( -t * 0.01 );
 
-            let r = 10.0;
-            // let mut xOff = 0.0;
-            // let mut yOff = 0.0;
+            draw
+            .scale(scale)
+            .polygon()
+            .no_fill()
+            .stroke(color)
+            .stroke_weight( 0.8)
+            .points(pts)
+            ;
 
-            let mut xOff = x.cos() * (random_f32() * r); 
-            let mut yOff = y.sin() * (random_f32() * r);
+            // let points = (0..=360).map(|i| {    
+            
+            //     let radian = deg_to_rad(i as f32); 
+            //     let x = radian.sin() * 50.0;
+            //     let y = radian.cos() * 50.0;
+            //     pt2(x,y)              
+            //  });
+    
+    
+            //  draw
+            // .polygon()
+            // .stroke_weight(6.0)
+            // .caps_round()
+            // .stroke(color)
+            // // .color(color3)
+            // .no_fill()
+            // .points(points)
+            // ;
 
+            // draw.polygon()
+    //     .stroke(BLACK)
+    //     .stroke_weight(1.0)
+    //     .points(points)
+    //     .xy(*position)
+    //     .rgb(0.5, 0.5, 0.5)
+    //     .rotate(-theta);
 
-            if i == 0 {
-                xStore = xOff;
-                yStore = yOff;
-            } 
-
-            if i == angles {
-                xOff = xStore;
-                yOff = yStore;
-            }
-
-            let color = hsva( (t.sin() * x) * 0.01, 1.0, 1.0, 1.0);
             
 
-            // let n = (m.noise.get([x as f64, y as f64]) * 10.0) as f32;
-
-        
-            (pt2(x + xOff, y + yOff), color)
-        });  
-        
-        let color = hsva( t.sin() * 0.01, 1.0, 1.0, 1.0);
-        let draw = draw.rotate( (t.sin() * n as f32) * 0.01);
-        let draw = draw.rotate( t );
-
-        draw
-        .scale(scale)
-        .polygon()
-        .no_fill()
-        .stroke(color)
-        .stroke_weight( n as f32 * 0.5)
-        .points_colored(points_colored)
-        ;
-
+        }
+    
         
 
-    }
-   
+
+        // put everything on the frame
+        draw.to_frame(app, &frame).unwrap();
+
     
 
+    } 
+    // end draw frame ---------------------------------------------------------
 
-    // put everything on the frame
-    draw.to_frame(app, &frame).unwrap();
-
+    
     if m.this_capture_frame != m.last_capture_frame {
-        
+            
         // let mut owned_string: String = "hello ".to_owned();
         // let borrowed_string: String = "output/" + app.exe_name().unwrap() + ".png";
     
@@ -246,12 +237,5 @@ fn view(app: &App, m: &Model, frame: Frame) {
         app.main_window().capture_frame(path);
         
     }
-
-    
-
-    }
-
-    
-
     
 }
