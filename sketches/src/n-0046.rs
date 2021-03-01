@@ -65,14 +65,11 @@ fn model(app: &App) -> Model {
         incs.push(i as f32 * random_f32());
     }
 
-   
-
     Model {this_capture_frame, last_capture_frame, noise, points, incs,xOff, yOff, new_frame, last_calc, inc}
 } 
 
 fn update(app: &App, m: &mut Model, _update: Update) {
 
-    
     // ref:
     //https://doc.rust-lang.org/nightly/core/time/struct.Duration.html
     //let millis = Duration::from_millis(100).as_millis();
@@ -126,38 +123,61 @@ fn view(app: &App, m: &Model, frame: Frame) {
             draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
         }
 
-        // for x in (0..100).rev() {
-        //     println!("{}", x);
-        // }
-        for n in (0..20).rev() { 
+        for n in (0..200).rev() { 
 
-            let atten = 0.15;
+            let atten = 0.25;
             let scale = (n as f32) * atten;
             let mut xStore = 0.0;
             let mut yStore = 0.0;
+
+            let rad_a = 120.0;
+            let rad_b = 20.0;
+            let num_cusps = 5.0;
+
 
             let pts = (0..ANGLES + 1).rev().map(|i| {
 
                 let inc =  ( (360 / ANGLES * i) as f32).to_radians();
                 let ix  = i as usize;
                 
-                let x = inc.cos() * 100.0; 
-                let y = inc.sin() * 100.0;
+                let x = inc.cos() * rad_a; 
+                //let y = (inc.sin() * rad_b;
+                let y = ( (num_cusps-1.0) * inc.sin() * rad_b) + (( (num_cusps -1.0) * inc).sin() * rad_b );
 
-                let r = 5.0;
+            
+                let r = 2.0;
+
                 // let mut xOff = 0.0;
                 // let mut yOff = 0.0;
 
                 let mut xOff = (m.incs[ix] + inc).cos() * r; 
                 let mut yOff = (m.incs[ix] + inc).sin() * r;
 
+                if i == 15 {
+                    xOff = 0.0;
+                    yOff = 0.0;
+                }
+                if i == 16 {
+                    xOff = 0.0;
+                    yOff = 0.0;
+                }
+                if i == 17 {
+                    xOff = 0.0;
+                    yOff = 0.0;
+                }
+                if i == 18 {
+                    xOff = 0.0;
+                    yOff = 0.0;
+                }
 
                 if i == 0 {
+                    
                     xStore = xOff;
                     yStore = yOff;
                 } 
 
                 if i == ANGLES {
+                 
                     xOff = xStore;
                     yOff = yStore;
                 }
@@ -170,8 +190,9 @@ fn view(app: &App, m: &Model, frame: Frame) {
             
             // let color = hsva( t.sin() * 0.01, 1.0, 1.0, 1.0);
             let color = rgba(0.0, 0.0, 0.0, 1.0);
-            let draw = draw.rotate( (t.sin() * n as f32) * 0.0001);
-            let draw = draw.rotate( -t * 0.01 );
+            // let draw = draw.rotate( (t.sin() * n as f32) * 0.0001);
+            let draw = draw.rotate( 3.0*PI/2.0 );
+
 
             if n % 2 == 0 {
                 draw
@@ -179,8 +200,8 @@ fn view(app: &App, m: &Model, frame: Frame) {
                 .polygon()
                 //.color(BLUE)
                 .no_fill()
-                .stroke(rgba(0.5, 0.5, 0.5, 1.0))
-                .stroke_weight(2.0 + (2.0 * scale))
+                .stroke(rgba(0.0, 0.5, 0.5, 1.0))
+                .stroke_weight(0.9 + (0.9 * scale))
                 .points(pts)
                 ;
             } else {
@@ -189,54 +210,22 @@ fn view(app: &App, m: &Model, frame: Frame) {
                 .polygon()
                 // .color(BLUE)
                 // .no_fill()
-                .stroke(rgba(0.0, 0.0, 0.8, 0.3))
-                .stroke_weight(8.0 + (8.0 * scale))
+                .stroke(rgba(1.0, 0.5, 0.8, 0.5))
+                .stroke_weight(0.5 + (0.5 * scale))
                 .points(pts)
                 ;
             }
 
-            
-
-            // let points = (0..=360).map(|i| {    
-            
-            //     let radian = deg_to_rad(i as f32); 
-            //     let x = radian.sin() * 50.0;
-            //     let y = radian.cos() * 50.0;
-            //     pt2(x,y)              
-            //  });
-    
-    
-            //  draw
-            // .polygon()
-            // .stroke_weight(6.0)
-            // .caps_round()
-            // .stroke(color)
-            // // .color(color3)
-            // .no_fill()
-            // .points(points)
-            // ;
-
-            // draw.polygon()
-    //     .stroke(BLACK)
-    //     .stroke_weight(1.0)
-    //     .points(points)
-    //     .xy(*position)
-    //     .rgb(0.5, 0.5, 0.5)
-    //     .rotate(-theta);
-
-            
-
         }
     
-        
 
 
         // put everything on the frame
         draw.to_frame(app, &frame).unwrap();
 
-    
-
     } 
+
+
     // end draw frame ---------------------------------------------------------
 
     
@@ -257,5 +246,4 @@ fn view(app: &App, m: &Model, frame: Frame) {
         app.main_window().capture_frame(path);
         
     }
-    
 }
