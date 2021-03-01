@@ -1,0 +1,46 @@
+{	
+	/*
+	nannou.code-snippets - code snippets for creative coding
+
+	Copyright (c) 2021 Mikhail Mansion All right reserved.
+
+	This snippets file is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Lesser General Public
+	License as published by the Free Software Foundation; either
+	version 2.1 of the License, or (at your option) any later version.
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Lesser General Public License for more details.
+
+	You should have received a copy of the GNU Lesser General Public
+	License along with this library; if not, write to the Free Software
+	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+	*/
+
+
+	// Place your sketches workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. 
+	
+	// Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+
+	"Forin" : {
+		"prefix": "forin",
+		"body": [
+			"for i in 0..$1 {"
+				"// loop code here"
+			"}"
+		],
+		"description": "for-in looop, enter a number"
+
+	},
+	
+	"TODO comment": {
+		"prefix": "todo",
+		"body": ["// TODO: ${1:...}"]
+	}
+}
