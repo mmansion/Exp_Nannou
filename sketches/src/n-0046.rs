@@ -100,8 +100,6 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     } else {
         m.new_frame = false;
     }
-
-
 }
 
 fn view(app: &App, m: &Model, frame: Frame) {

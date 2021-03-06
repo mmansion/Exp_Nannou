@@ -2,19 +2,16 @@
 name = "sketches"
 version = "0.1.0"
 authors = ["mmansion <mikhail@transmission.studio>"]
-edition = "2018"
+description = "Nannou, creative coding sketchbook"
+readme = "README.md"
+keywords = ["creative", "sketch", "graphics", "audio", "example"]
+license = "MIT"
+repository = "https://github.com/mmansion/Exp_Nannou.git"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nannou = "0.14.1"
-
-[dev-dependencies]
-audrey = "0.2"
-nannou_audio = "0.14.0"
-nannou_laser = "0.14.3"
-nannou_osc = "0.14.0"
-shade_runner = "0.3"
+nannou = "0.15.0"
 
 
 # ------------------------------------------------
@@ -23,9 +20,20 @@ shade_runner = "0.3"
 #     "modules",
 # ]
 
-
 # ------------------------------------------------
 # daily sketches
+
+[[example]]
+name = "49"
+path = "src/n-0049.rs"
+
+[[example]]
+name = "48"
+path = "src/n-0048.rs"
+
+[[example]]
+name = "47"
+path = "src/n-0047.rs"
 
 [[example]]
 name = "46"
