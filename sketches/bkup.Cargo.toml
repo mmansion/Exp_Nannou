@@ -2,12 +2,23 @@
 name = "sketches"
 version = "0.1.0"
 authors = ["mmansion <mikhail@transmission.studio>"]
-edition = "2018"
+description = "Nannou, creative coding sketchbook"
+readme = "README.md"
+keywords = ["creative", "sketch", "graphics", "audio", "example"]
+license = "MIT"
+repository = "https://github.com/mmansion/Exp_Nannou.git"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 nannou = "0.15.0"
+
+
+# ------------------------------------------------
+# [workspace]
+# members = [
+#     "modules",
+# ]
 
 # ------------------------------------------------
 # daily sketches

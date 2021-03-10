@@ -31,8 +31,8 @@
 	"Forin" : {
 		"prefix": "forin",
 		"body": [
-			"for i in 0..$1 {"
-				"// loop code here"
+			"for i in 0..$1 {",
+				"// loop code here",
 			"}"
 		],
 		"description": "for-in looop, enter a number"
@@ -42,5 +42,20 @@
 	"TODO comment": {
 		"prefix": "todo",
 		"body": ["// TODO: ${1:...}"]
-	}
+	},
+
+	// drawing shapes
+	"draw.polyline": {
+		"prefix": "polyline",
+		"body": [
+			"draw",
+			".polyline()",
+			".stroke_weight(1.0)",
+			".caps_round()",
+			".color(rgba(0.0, 0.0, 0.0, 1.0))",
+			".points(${1:points})",
+			";"
+		]
+	},
+
 }
