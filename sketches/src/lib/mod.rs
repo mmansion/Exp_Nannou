@@ -4,3 +4,4 @@
 // All other files in that directory, acts as a sub module of that directory.
 pub mod points;
 pub mod vehicles;
+pub mod grid;
