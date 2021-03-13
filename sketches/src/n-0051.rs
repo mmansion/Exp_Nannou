@@ -16,7 +16,6 @@ static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 
-
 fn main() {
     nannou::app(model).update(update).run();
 }
@@ -25,6 +24,8 @@ fn main() {
 #[derive(Clone)]
 struct Particle {
     position: Point2,
+    offset : Point2,
+    offsetInc: f32,
     velocity: Vector2,
     acceleration: Vector2,
     life_span: f32,
@@ -36,10 +37,11 @@ struct Particle {
 impl Particle {
     fn new(l: Point2, idx: u64) -> Self {
         let acceleration = vec2(0.0, 0.1);
-        
         let velocity = vec2( random_range(-5.0, 5.0) , random_range(-5.0, 5.0));
         let position = l;
+        
         let life_span = 255.0;
+
         Particle {
             acceleration,
             velocity,
@@ -48,6 +50,8 @@ impl Particle {
             r: 6.0,
             highlight: false,
             idx,
+            offset: pt2(0.0, 0.0),
+            offsetInc: 0.0,
         }
     }
 
@@ -74,42 +78,45 @@ impl Particle {
         self.position -= self.velocity;
         self.acceleration *= 0.0;
         self.life_span -= 2.0;
+
+        self.offsetInc += 0.1;
     }
 
     // Method to display
     fn display(&self, draw: &Draw) {
         let c = if self.highlight {
-            rgba(0.5, 0.0, 0.0, 1.0)
+            rgba(0.5, 0.0, 0.0, 0.0)
         } else {
             rgba(0.5, 0.5, 0.5, self.life_span / 255.0)
         };
 
-        let r = 20.0;
+        let r = 10.0;
 
         let pts = (0..6).rev().map(|i| {
-
             let x = (i as f32).cos() * r;
             let y = (i as f32).sin() * r;
-
             pt2(x, y)
-
         });
 
-        draw
-        .polygon()
-        .xy(self.position)
-        .no_fill()
-        .stroke(rgba(0.0, 1.0, 0.5, 0.9))
-        .stroke_weight(1.0)
-        .points(pts)
-        ;
+        let offX = (self.offsetInc).cos() * 10.0;
+        let offY = (self.offsetInc).sin() * 100.0;
 
-        // draw.ellipse()
-        //     .xy(self.position)
-        //     .radius(self.r)
-        //     .color(c)
-        //     .stroke(rgba(0.0, 0.0, 0.0, self.life_span / 255.0))
-        //     .stroke_weight(2.0);
+        // draw
+        // .polygon()
+        // .x_y(self.position.x + offX, offY)
+        // .no_fill()
+        // // .stroke(rgba(0.0, 1.0, 0.5, 0.3))
+        // .stroke(rgba(0.5, 0.5, 0.5, self.life_span / 255.0))
+        // .stroke_weight(1.0)
+        // .points(pts)
+        // ;
+
+        draw.ellipse()
+            .xy(self.position)
+            .radius(self.r * offX)
+            .color(c)
+            .stroke(rgba(0.0, 0.0, 0.0, map_range(self.life_span / 255.0,0.0, 255.0, 255.0, 0.0)))
+            .stroke_weight(2.0);
     }
 
     // Is the particle still useful?
@@ -162,11 +169,15 @@ impl ParticleSystem {
 }
 
 struct Model {
-    noise  : Perlin,
     ps: ParticleSystem,
+    noise    : Perlin,
+    noiseGen : Point2,
+    xOff   : f32, 
+    yOff   : f32,
     this_capture_frame : i32,
     last_capture_frame : i32,
     last_calc : Duration,
+    texture: wgpu::Texture,
 }
 
 // ----------------------------------------------------------------------
@@ -183,8 +194,22 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
+    // load image
+    let assets = app.assets_path().unwrap();
+    let img_path = assets.join("images").join("eye2.png");
+    let texture = wgpu::Texture::from_path(app, img_path).unwrap();
+
+
+
     let mut noise = Perlin::new();
     noise = noise.set_seed(1);
+    let mut noiseGen = pt2(0.0, 0.0);
+
+
+    let mut xOff = 0.0;
+    let mut yOff = 0.0;
+
+
     let mut last_calc = Duration::from_millis(0);
 
     //----------------------------------
@@ -202,8 +227,12 @@ fn model(app: &App) -> Model {
     Model {
         this_capture_frame, 
         last_capture_frame, 
+        texture,
         last_calc,
         noise,
+        noiseGen,
+        xOff,
+        yOff,
         ps
     }
 } 
@@ -218,13 +247,18 @@ fn update(app: &App, m: &mut Model, _update: Update) {
         // timed interval
     }
 
-    // m.ps.origin = pt2(app.mouse.x, app.mouse.y);
-    
+    // m.ps.origin = pt2(app.mouse.x, app.mouse.y); 
     m.ps.origin = pt2(0.0, 0.0);
     m.ps.add_particle(app.elapsed_frames());
     m.ps.update();
     m.ps.intersection();
 
+    // noise
+    m.noiseGen.x+=0.1;
+    m.noiseGen.y+=10.0;
+
+    m.xOff = m.noise.get([m.noiseGen.x as f64, m.noiseGen.y as f64]) as f32;
+    m.yOff = m.noise.get([m.noiseGen.x as f64, m.noiseGen.y as f64]) as f32;
 
     if m.this_capture_frame != m.last_capture_frame {
         m.last_capture_frame = m. this_capture_frame;
@@ -254,7 +288,8 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     // transform --------------------------------------------------------------
 
-    let draw = draw.rotate(t * 0.9);
+    // let draw = draw.rotate(t * 0.9);
+    let draw = draw.translate( pt3(m.xOff, m.yOff*10.0, 0.0) );
 
 
     // particle system --------------------------------------------------------
@@ -263,31 +298,33 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     // draw thigns -------------------------------------------------------------
 
-    let color = rgb(0.0, 0.0, 0.2);
-    draw
-    .ellipse()
-    .color(color)
-    .radius(80.0)
-    // .color(bg)
-    ;
+    // let color = rgb(0.0, 0.0, 0.2);
+    // draw
+    // .ellipse()
+    // .color(color)
+    // .radius(80.0)
+    // // .color(bg)
+    // ;
 
     let r = 500.0;
     let pts = (0..360).rev().map(|i| {
 
-        let x = (i as f32).cos() * r;
+        let x = (i as f32).cos() * r * m.xOff as f32;
         let y = (i as f32).sin() * r;
 
         pt2(x, y)
 
     });
 
-    draw
-    .polygon()
-    .no_fill()
-    .stroke(color)
-    .stroke_weight(200.0)
-    .points(pts)
-    ;
+    // draw
+    // .polygon()
+    // .no_fill()
+    // .stroke(color)
+    // .stroke_weight(200.0)
+    // .points(pts)
+    // ;
+
+    draw.scale(0.5).rotate(t.sin() * 1.0* t.sin() * 0.9).texture(&m.texture);
     
 
     // draw frame -------------------------------------------------------------
