@@ -44,6 +44,14 @@
 		"body": ["// TODO: ${1:...}"]
 	},
 
+	// divider
+	"divider": {
+		"prefix": "divider",
+		"body": [
+			"//--------------------------------------------------------",
+		]
+	},
+
 	// drawing shapes
 	"draw.polyline": {
 		"prefix": "polyline",
