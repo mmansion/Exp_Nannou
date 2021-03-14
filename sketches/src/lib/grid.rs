@@ -25,7 +25,7 @@ impl Grid {
         let mut row_start_pts = Vec::new();
         let mut col_start_pts = Vec::new();
         
-        let pt_size  = 10.0;
+        let pt_size  = 3.0;
 
         let row_spacing = row_spacing;
         let col_spacing = col_spacing;
@@ -71,7 +71,7 @@ impl Grid {
             draw.ellipse()
             .xy(self.points[p])
             .radius( self.pt_size )
-            .color(GRAY); 
+            .color(BLACK); 
         }
 
         // draw row lines

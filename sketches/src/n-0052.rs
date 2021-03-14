@@ -8,7 +8,7 @@ use std::time::Duration;
 
 //--------------------------------------------------------
 
-static CAPTURE  : bool = false; // capture to image sequence
+static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 
@@ -27,7 +27,11 @@ struct Model {
     this_capture_frame : i32,
     last_capture_frame : i32,
     last_calc : Duration,
-    grid : Grid,
+    grid      : Grid,
+    noise     : Perlin,
+    noiseGen  : Point2,
+    xOff      : f32, 
+    yOff      : f32,
 }
 
 // ----------------------------------------------------------------------
@@ -47,6 +51,14 @@ fn model(app: &App) -> Model {
     let grid = Grid::new(10.0, 10.0, 10, 10, &rect);
 
     //--------------------------------------------------------
+    let mut noise = Perlin::new();
+    noise = noise.set_seed(1);
+    let mut noiseGen = pt2(0.0, 0.0);
+
+    let xOff = 0.0;
+    let yOff = 0.0;
+
+    //--------------------------------------------------------
 
     let mut last_calc = Duration::from_millis(0);
     //----------------------------------
@@ -60,7 +72,11 @@ fn model(app: &App) -> Model {
         last_capture_frame, 
         last_calc,
         // texture,
-        grid
+        grid,
+        noise,
+        noiseGen,
+        xOff,
+        yOff,
     }
 } 
 
@@ -85,6 +101,12 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     //--------------------------------------------------------
     //calculations here
 
+    // noise
+    m.noiseGen.x+=0.1;
+    m.noiseGen.y+=0.1;
+
+    m.xOff = m.noise.get([m.noiseGen.x as f64, m.noiseGen.y as f64]) as f32;
+    m.yOff = m.noise.get([m.noiseGen.x as f64, m.noiseGen.y as f64]) as f32;
     //--------------------------------------------------------
 }
 
@@ -106,8 +128,36 @@ fn view(app: &App, m: &Model, frame: Frame) {
     }
 
     //--------------------------------------------------------
+    // m.grid.draw(&draw);
+    // let draw = draw.rotate(t * 0.8);
 
-    m.grid.draw(&draw);
+    let draw = draw.scale(0.5);
+
+    let draw = draw.translate(pt3(-75.0, -75.0, 0.0));
+
+    for p in 0..m.grid.points.len() {
+
+        let r = abs(30.0 * (t.sin())) + 100.0;
+
+        let pts = (0..3).map(|i| {
+            let a = i as f32;
+            let x = a.cos() * r;
+            let y = a.sin() * r; 
+            pt2(x, y)
+        });
+
+        draw
+        .polygon()
+        .x_y(
+            m.grid.points[p].x + (t + p as f32).sin() * 100.0 + m.xOff, 
+            m.grid.points[p].y + (t + p as f32).sin() * 10.0 + m.yOff)
+        .no_fill()
+        .stroke(rgba(t.sin() * 0.1, 1.0, t.sin() * 0.1, 0.9))
+        .stroke_weight(1.0)
+        .points(pts)
+        ;
+    }
+
 
     //--------------------------------------------------------
     
