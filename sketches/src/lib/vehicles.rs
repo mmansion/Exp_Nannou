@@ -76,6 +76,27 @@ impl Vehicle {
         }        
     }
 
+    pub fn redirect2(&mut self, point: Vector2, size:f32) {
+
+        let v = self.position - point; // Calculate direction of force
+        let distance = v.magnitude(); // Distance between objects
+
+        if distance <= size {
+
+            self.velocity = self.velocity.rotate(PI / (random_f32()*4.0) );
+        }        
+    }
+
+    pub fn hasCollision(&mut self, point:Vector2, size:f32) -> bool {
+        let v = self.position - point; // Calculate direction of force
+        let distance = v.magnitude(); // Distance between objects
+        if distance <= size {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     pub fn boundaries(&mut self, win: &Rect) {
         
         let left   = win.left() + self.margin as f32;

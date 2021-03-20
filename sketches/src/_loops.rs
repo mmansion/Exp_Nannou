@@ -23,6 +23,17 @@ fn model(_app: &App) -> Model {
         println!( "{},{}", points[i].x, points[i].y );
     }
 
+    // make a set of points for drawing a circle
+    let angles = 360;
+    let pts = (0..angles + 1).map(|i| {
+        let inc =  ( (360 / ANGLES * i) as f32).to_radians();
+                
+        let x = inc.cos() * 100.0; 
+        let y = inc.sin() * 100.0;
+
+        pt2(x + xOff, y + yOff)
+    });
+
     // While loops continue until a certain condition is met.
     // Note that we need to make x 'mutable' so we can change its value inside of the loop.
     println!("`while` loop:");

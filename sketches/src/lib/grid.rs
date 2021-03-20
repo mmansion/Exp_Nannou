@@ -25,7 +25,7 @@ impl Grid {
         let mut row_start_pts = Vec::new();
         let mut col_start_pts = Vec::new();
         
-        let pt_size  = 3.0;
+        let pt_size  = 5.0;
 
         let row_spacing = row_spacing;
         let col_spacing = col_spacing;

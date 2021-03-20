@@ -8,7 +8,7 @@ use std::time::Duration;
 
 //--------------------------------------------------------
 
-static CAPTURE  : bool = false; // capture to image sequence
+static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 
@@ -42,7 +42,7 @@ fn model(app: &App) -> Model {
 
     let rect = Rect::from_w_h( WIDTH, HEIGHT );
 
-    //app.set_loop_mode(LoopMode::loop_once());
+    app.set_loop_mode(LoopMode::loop_once());
     
     // app.set_loop_mode(LoopMode::loop_once());
     // app.set_loop_mode(LoopMode::rate_fps(0.1));
