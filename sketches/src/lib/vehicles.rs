@@ -15,6 +15,7 @@ pub struct Vehicle {
     mass : f32,
     margin: f32,
     line_len: usize,
+    r:f32,
 }
 
 impl Vehicle {
@@ -28,6 +29,7 @@ impl Vehicle {
         let max_force = 10.9;
         let max_speed = max_speed;
         let margin =  0.0; 
+        let r = 6.0;
         Vehicle {
             mass,
             history,
@@ -38,6 +40,7 @@ impl Vehicle {
             max_speed,
             margin,
             line_len,
+            r,
         }
     }
 
@@ -55,6 +58,22 @@ impl Vehicle {
         if self.history.len() > self.line_len {
             self.history.pop_front();
         }
+    }
+
+    pub fn display(&self, draw: &Draw) {
+
+        // Draw a triangle rotated in the direction of velocity
+        // This calculation is wrong
+        let theta = (self.velocity.angle() + PI / 2.0) * -1.0;
+        let points = vec![pt2(0.0, -self.r * 2.0), pt2(-self.r, self.r * 2.0), pt2(self.r, self.r * 2.0)];
+        draw.polygon()
+            .stroke(BLACK)
+            .stroke_weight(1.0)
+            .points(points)
+            .xy(self.position)
+            .rgb(0.5, 0.5, 0.5)
+            .rotate(-theta);
+
     }
 
     pub fn apply_force(&mut self, force: Vector2) {
