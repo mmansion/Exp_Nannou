@@ -19,7 +19,7 @@ fn main() {
 }
 
 struct Model {
-    points : Vec<Vector2>,
+    pts : Vec<Vector2>,oin
     noise  : Perlin,
     xOff   : f64, 
     yOff   : f64,

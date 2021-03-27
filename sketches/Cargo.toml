@@ -13,6 +13,10 @@ nannou = "0.15.0"
 # daily sketches
 
 [[example]]
+name = "57"
+path = "src/n-0057.rs"
+
+[[example]]
 name = "56"
 path = "src/n-0056.rs"
 
