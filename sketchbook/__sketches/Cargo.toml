@@ -1,0 +1,244 @@
+[package]
+name = "sketches"
+version = "0.1.0"
+authors = ["mmansion <mikhail@transmission.studio>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nannou = "0.15.0"
+
+add-one = { path = "../add-one" }
+
+
+# ------------------------------------------------
+# n-series / daily sketches
+
+[[example]]
+name = "57"
+path = "n-series/n-0057.rs"
+
+[[example]]
+name = "56"
+path = "n-series/n-0056.rs"
+
+[[example]]
+name = "55"
+path = "n-series/n-0055.rs"
+
+[[example]]
+name = "54"
+path = "n-series/n-0054.rs"
+
+[[example]]
+name = "53"
+path = "n-series/n-0053.rs"
+
+[[example]]
+name = "52"
+path = "n-series/n-0052.rs"
+
+[[example]]
+name = "51"
+path = "n-series/n-0051.rs"
+
+[[example]]
+name = "50"
+path = "n-series/n-0050.rs"
+
+[[example]]
+name = "49"
+path = "n-series/n-0049.rs"
+
+[[example]]
+name = "48"
+path = "n-series/n-0048.rs"
+
+[[example]]
+name = "47"
+path = "n-series/n-0047.rs"
+
+[[example]]
+name = "46"
+path = "n-series/n-0046.rs"
+
+[[example]]
+name = "45"
+path = "n-series/n-0045.rs"
+
+[[example]]
+name = "44"
+path = "n-series/n-0044.rs"
+
+[[example]]
+name = "43"
+path = "n-series/n-0043.rs"
+
+[[example]]
+name = "42"
+path = "n-series/n-0042.rs"
+
+[[example]]
+name = "41"
+path = "n-series/n-0041.rs"
+
+[[example]]
+name = "40"
+path = "n-series/n-0040.rs"
+
+[[example]]
+name = "39"
+path = "n-series/n-0039.rs"
+
+[[example]]
+name = "38"
+path = "n-series/n-0038.rs"
+
+[[example]]
+name = "37"
+path = "n-series/n-0037.rs"
+
+[[example]]
+name = "36"
+path = "n-series/n-0036.rs"
+
+[[example]]
+name = "35"
+path = "n-series/n-0035.rs"
+
+[[example]]
+name = "34"
+path = "n-series/n-0034.rs"
+
+[[example]]
+name = "33"
+path = "n-series/n-0033.rs"
+
+[[example]]
+name = "32"
+path = "n-series/n-0032.rs"
+
+[[example]]
+name = "31"
+path = "n-series/n-0031.rs"
+
+[[example]]
+name = "30"
+path = "n-series/n-0030.rs"
+
+[[example]]
+name = "29"
+path = "n-series/n-0029.rs"
+
+[[example]]
+name = "28"
+path = "n-series/n-0028.rs"
+
+[[example]]
+name = "27"
+path = "n-series/n-0027.rs"
+
+[[example]]
+name = "26"
+path = "n-series/n-0026.rs"
+
+[[example]]
+name = "25"
+path = "n-series/n-0025.rs"
+
+[[example]]
+name = "24"
+path = "n-series/n-0024.rs"
+
+[[example]]
+name = "23"
+path = "n-series/n-0023.rs"
+
+[[example]]
+name = "22"
+path = "n-series/n-0022.rs"
+
+[[example]]
+name = "21"
+path = "n-series/n-0021.rs"
+
+[[example]]
+name = "20"
+path = "n-series/n-0020.rs"
+
+[[example]]
+name = "19"
+path = "n-series/n-0019.rs"
+
+[[example]]
+name = "18"
+path = "n-series/n-0018.rs"
+
+[[example]]
+name = "17"
+path = "n-series/n-0017.rs"
+
+[[example]]
+name = "16"
+path = "n-series/n-0016.rs"
+
+[[example]]
+name = "15"
+path = "n-series/n-0015.rs"
+
+[[example]]
+name = "14"
+path = "n-series/n-0014.rs"
+
+[[example]]
+name = "13"
+path = "n-series/n-0013.rs"
+
+[[example]]
+name = "12"
+path = "n-series/n-0012.rs"
+
+[[example]]
+name = "11"
+path = "n-series/2021_01_10.2.rs"
+
+[[example]]
+name = "10"
+path = "n-series/2021_01_10.rs"
+
+[[example]]
+name = "9"
+path = "n-series/2021_01_09.rs"
+
+[[example]]
+name = "2021_01_08"
+path = "n-series/2021_01_08.rs"
+
+[[example]]
+name = "2021_01_06"
+path = "n-series/2021_01_06.rs"
+
+[[example]]
+name = "2021_01_05"
+path = "n-series/2021_01_05.rs"
+
+[[example]]
+name = "2021_01_04"
+path = "n-series/2021_01_04.rs"
+
+[[example]]
+name = "2021_01_03"
+path = "n-series/2021_01_03.rs"
+
+[[example]]
+name = "2021_01_02"
+path = "n-series/2021_01_02.rs"
+
+[[example]]
+name = "2021_01_01"
+path = "n-series/2021_01_01.rs"
+
+[[example]]
+name = "hello_world"
+path = "hello_world.rs"

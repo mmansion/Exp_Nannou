@@ -1,0 +1,20 @@
+[package]
+name = "templates"
+version = "0.1.0"
+authors = ["mmansion <mikhail@transmission.studio>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nannou = "0.15.0"
+
+# add-one = { path = "../add-one" }
+library = { path = "../library" }
+
+# ------------------------------------------------
+# nannou templates
+
+[[example]]
+name = "basic_nannou_app"
+path = "basic_nannou_app.rs"
