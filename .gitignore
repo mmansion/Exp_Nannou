@@ -13,6 +13,11 @@ Cargo.lock
 # nannou
 nannou/
 
+
+
+# capture folder
+captures/
+
 # Folder view configuration files
 .DS_Store
 Desktop.ini
