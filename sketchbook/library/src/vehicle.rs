@@ -1,7 +1,7 @@
 use nannou::prelude::*;
 use std::collections::VecDeque;
 
-use crate::lib::points::Point as Point;
+use super::points::Point;
 
 pub struct Vehicle {
     pub history: VecDeque<Vector2>,

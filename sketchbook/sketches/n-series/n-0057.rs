@@ -6,11 +6,11 @@ use nannou::Draw;
 use std::collections::VecDeque;
 use std::time::Duration;
 
-pub mod lib;
+use library::vehicle::Vehicle;
 
-// module tree
-use crate::lib::points::Point as Point;
-use crate::lib::vehicles::Vehicle as Vehicle;
+// // module tree
+// use crate::lib::points::Point as Point;
+// use crate::lib::vehicles::Vehicle as Vehicle;
 
 static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : f32 = 800.0;

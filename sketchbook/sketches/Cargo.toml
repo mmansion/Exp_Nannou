@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 nannou = "0.15.0"
 
+library = { path = "../library" }
 
 # ------------------------------------------------
 # n-series / daily sketches
