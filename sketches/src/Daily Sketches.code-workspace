@@ -1,13 +1,10 @@
 {
     "folders": [
         {
-            "path": ".."
+            "path": "../../sketchbook"
         },
         {
             "path": "../../nannou"
         }
-    ],
-    "settings": {
-        "git.ignoreLimitWarning": true
-    }
+    ]
 }
