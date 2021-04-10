@@ -11,7 +11,15 @@ nannou = "0.15.0"
 
 library = { path = "../library" }
 
-# ------------------------------------------------
+#--------------------------------------------------------
+# learning
+
+[[example]]
+name = "bezier_curve_cubic"
+path = "learning/bezier_curve_cubic.rs"
+
+
+#--------------------------------------------------------
 # n-series / daily sketches
 
 [[example]]

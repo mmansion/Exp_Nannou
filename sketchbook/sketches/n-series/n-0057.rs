@@ -127,7 +127,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
         let builder = nannou::geom::Path::builder();
 
         let path = builder
-         .move_to(pt2(0.0, 0.0))
+         .move_to(pt2(0.0, 0.0))    
          //.quadratic_bezier_to(pt2(-100.0, -100.0), pt2(100.0, 100.0))
          .cubic_bezier_to(pt2(0.0, 0.0), pt2(x.cos(), y), pt2(x, y))
          .build();
