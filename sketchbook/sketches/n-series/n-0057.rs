@@ -12,7 +12,7 @@ use library::vehicle::Vehicle;
 // use crate::lib::points::Point as Point;
 // use crate::lib::vehicles::Vehicle as Vehicle;
 
-static CAPTURE  : bool = true; // capture to image sequence
+static CAPTURE  : bool = false; // capture to image sequence
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 
