@@ -1,3 +1,11 @@
+/*
+* name
+*
+* description of app
+*
+* mikhail mansion YYYY
+*/
+
 use nannou::prelude::*;
 use nannou::geom::*;
 use nannou::geom::Point2;
