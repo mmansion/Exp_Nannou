@@ -22,6 +22,11 @@ path = "learning/bezier_curve_cubic.rs"
 #--------------------------------------------------------
 # n-series / daily sketches
 
+#bezier wiggle
+[[example]] 
+name = "58"
+path = "n-series/n-0058.rs" 
+
 [[example]]
 name = "57"
 path = "n-series/n-0057.rs"
