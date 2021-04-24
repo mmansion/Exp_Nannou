@@ -47,7 +47,7 @@ impl Bezier {
         self.stroke_weight = stroke_weight;
     }
 
-    pub fn draw(&self, draw: &Draw) {
+    pub fn draw(&self, draw: &Draw, col:Rgba) {
 
         let builder = nannou::geom::path::Builder::new();
 
@@ -63,7 +63,7 @@ impl Bezier {
         draw.path()
             .stroke()
             .weight(self.stroke_weight)
-            .rgba(0.0, 0.0, 0.0, 1.0)
+            .color(col)
             .events(path.iter());
 
         if self.show_handles {
