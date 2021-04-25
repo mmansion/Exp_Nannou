@@ -140,7 +140,6 @@ fn model(app: &App) -> Model {
         anims.push( Anim::new(grid.points[i], 0.1, POINT_SIZE, POINT_SIZE * 5.0));
     }
     
-
     //--------------------------------------------------------
     let mut vehicles = Vec::new();
 
