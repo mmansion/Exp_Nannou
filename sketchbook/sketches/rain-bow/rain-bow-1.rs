@@ -14,19 +14,12 @@ use nannou::Draw;
 use std::time::Duration;
 
 use library::grid;
-
+use library::vehicle;
+use library::particle::Particle;
 // mod colors;
 // mod quadtree;
 // use crate::colors::Palette;
 // use crate::grid::
-
-// use library;
-
-// pub mod library;
-
-// // module tree
-// use crate::lib::grid::Grid as Grid;
-
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence
@@ -34,15 +27,14 @@ static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 
 //--------------------------------------------------------
-fn main() {
-    nannou::app(model).update(update).run();
-}
+fn main() { nannou::app(model).update(update).run() }
 
 //--------------------------------------------------------
 struct Model {
     this_capture_frame : i32,
     last_capture_frame : i32,
     last_calc : Duration,
+    particles : Vec<Particle>,
 }
 
 //--------------------------------------------------------
@@ -54,6 +46,7 @@ fn model(app: &App) -> Model {
     // app.set_loop_mode(LoopMode::rate_fps(0.1));
     
     app.new_window()
+        .mouse_pressed(mouse_pressed)
         .size(800, 800)
         .view(view)
         .build()
@@ -65,12 +58,15 @@ fn model(app: &App) -> Model {
     let mut this_capture_frame = 0;
     let mut last_capture_frame = 0;
 
+    let mut particles = Vec::new();
+
     //--------------------------------------------------------
 
     Model {
         this_capture_frame, 
         last_capture_frame, 
         last_calc,
+        particles,
     }
 } 
 
@@ -91,6 +87,19 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     if CAPTURE {
         m.this_capture_frame += 1;
     }
+
+    //----------------------------------------------------------
+
+    for i in 0..m.particles.len() {
+        let wind = vec2(0.01, 0.0);
+        let gravity = vec2(0.0, -0.1 * m.particles[i].mass);
+        m.particles[i].apply_force(wind);
+        m.particles[i].apply_force(gravity);
+        m.particles[i].update();
+        m.particles[i].check_edges(app.window_rect());
+    }
+
+    //----------------------------------------------------------
 }
 
 fn view(app: &App, m: &Model, frame: Frame) {
@@ -103,7 +112,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //--------------------------------------------------------
     // background
 
-    let bg = rgba(0.13, 0.0, 0.1, 0.01);
+    let bg = rgba(0.93, 0.0, 1.0, 0.01);
 
     if app.elapsed_frames() == 1 { 
         draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
@@ -112,7 +121,9 @@ fn view(app: &App, m: &Model, frame: Frame) {
     }
     
     //--------------------------------------------------------
-
+    for particle in &m.particles {
+        particle.display(&draw);
+    }
     
     //--------------------------------------------------------
     // draw frame
@@ -132,4 +143,15 @@ fn view(app: &App, m: &Model, frame: Frame) {
         let path = format!("{}{}{}", directory, frame_num, extension);
         app.main_window().capture_frame(path);
     }
+}
+
+fn mouse_pressed(_app: &App, _model: &mut Model, _button: MouseButton) {
+
+    // println!("{},{}", );
+    println!("mouse pressed");
+
+    _model.particles.push( Particle::new(_app.mouse.x, _app.mouse.y) );
+
+    println!( "{}", _model.particles.len());
+
 }
