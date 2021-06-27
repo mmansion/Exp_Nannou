@@ -49,23 +49,19 @@ impl VBow {
         }
     }
 
+    fn update(&mut self, x:f32, y:f32) {
+        // let x = x;
+
+        self.cent_point.x = x;
+        self.cent_point.y = y;
+
+
+        // self.cent_point = p;
+        // self.cent_point.y = y;
+    }
+
     fn display(&self, draw: &Draw) {
 
-        // let vertices = (0..3).map(|i| {
-        //     pt2(x, y)
-        // });
-
-        // let vertices = history
-        //     .iter()
-        //     .map(|v| pt2(v.x, v.y))
-        //     .enumerate()
-        //     .map(|(_, p)| {
-        //         //let rgba = srgba(0.0, 0.0, 0.0, 1.0);
-        //         let color = hsva ( map_range( abs(app.time.sin() * 0.001 + (num*2) as f32), 0.4, 0.9, 0.3, 0.75), 1.0, 1.0, 1.0);
-        //         (p, GRAY)
-        //     });
-        // draw.polyline().caps_round().weight(1.0).points_colored(vertices);
-        
         let points = [
             self.left_point, self.cent_point, self.right_point
         ];
@@ -76,14 +72,6 @@ impl VBow {
         .color(rgba(1.0, 1.0, 1.0, 1.0))
         .points(points)
         ;
-
-        // // Display circle at x position
-        // draw.ellipse()
-        //     .xy(self.position)
-        //     .w_h(self.mass * 16.0, self.mass * 16.0)
-        //     .rgba(0.0, 0.0, 0.0, 0.5)
-        //     .stroke(BLACK)
-        //     .stroke_weight(2.0);
     }
 }
 
@@ -93,6 +81,7 @@ struct Model {
     last_capture_frame : i32,
     last_calc : Duration,
     particles : Vec<Particle>,
+    vbow : VBow,
 }
 
 //--------------------------------------------------------
@@ -118,6 +107,12 @@ fn model(app: &App) -> Model {
 
     let mut particles = Vec::new();
 
+    let p1 = pt2( -WIDTH/2.0, 0.0 );
+    let p2 = pt2( 0.0, 0.0 );
+    let p3 = pt2( WIDTH/2.0, 0.0);
+
+    let mut vbow = VBow::new(p1, p2, p3);
+
     //--------------------------------------------------------
 
     Model {
@@ -125,6 +120,7 @@ fn model(app: &App) -> Model {
         last_capture_frame, 
         last_calc,
         particles,
+        vbow
     }
 } 
 
@@ -157,6 +153,8 @@ fn update(app: &App, m: &mut Model, _update: Update) {
         m.particles[i].check_edges(app.window_rect());
     }
 
+    m.vbow.update(app.mouse.x, app.mouse.y);
+
     //----------------------------------------------------------
 }
 
@@ -170,7 +168,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //--------------------------------------------------------
     // background
 
-    let bg = rgba(0.93, 0.0, 1.0, 0.01);
+    let bg = rgba(0.0, 0.0, 0.0, 1.0);
 
     if app.elapsed_frames() == 1 { 
         draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
@@ -182,6 +180,10 @@ fn view(app: &App, m: &Model, frame: Frame) {
     for particle in &m.particles {
         particle.display(&draw);
     }
+
+   
+    m.vbow.display(&draw);
+
     
     //--------------------------------------------------------
     // draw frame
