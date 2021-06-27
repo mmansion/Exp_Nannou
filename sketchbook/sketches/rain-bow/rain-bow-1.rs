@@ -145,13 +145,21 @@ fn view(app: &App, m: &Model, frame: Frame) {
     }
 }
 
-fn mouse_pressed(_app: &App, _model: &mut Model, _button: MouseButton) {
+fn mouse_pressed(app: &App, m: &mut Model, btn: MouseButton) {
 
-    // println!("{},{}", );
-    println!("mouse pressed");
+    let last_ix = m.particles.len() as usize;
 
-    _model.particles.push( Particle::new(_app.mouse.x, _app.mouse.y) );
+    m.particles.push(Particle::new(app.mouse.x, app.mouse.y));
 
-    println!( "{}", _model.particles.len());
+    m.particles[last_ix].display_size = 20.0;
 
+    // println!("{}", m.particles[last_ix].display_size);
+    
+
+    // let l = _model.particles.len();
+    // p.display_size = 100.0;
+    // _model.particles.last_mut().display_size = 100.0;
+    // let _p = &_model.particles.last();
+
+    // println!( "{}",  _p.display_size);
 }
