@@ -1,7 +1,7 @@
 use nannou::prelude::*;
 use std::collections::VecDeque;
 
-// use super::points::Point;
+use super::math::intersects_line;
 
 pub struct Particle {
     pub history  : VecDeque<Vector2>,
@@ -62,6 +62,28 @@ impl Particle {
             .rgba(0.0, 0.0, 0.0, 0.1)
             .stroke(WHITE)
             .stroke_weight(2.0);
+    }
+
+    pub fn display_line(&self, draw: &Draw) {
+        let points = [
+            self.origin,
+            self.position
+            ];
+        draw.scale(1.0)
+            .polyline()
+            .weight(2.0)
+            .color(rgba(1.0, 1.0, 1.0, 1.0))
+            .points(points)
+            ;
+    }
+
+    pub fn check_line_bounds(&mut self, p1:Point2, p2:Point2) {
+        let has_intersect = intersects_line(self.origin, self.position, p1, p2);
+        println!("{}", has_intersect);
+        if has_intersect {
+            self.velocity.y *= -1.0;
+            // self.position.y -= self.display_size;
+        }
     }
 
     pub fn check_edges(&mut self, rect: Rect) {

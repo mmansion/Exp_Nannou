@@ -14,7 +14,9 @@ use nannou::Draw;
 use std::time::Duration;
 
 use library::particle::Particle;
-use library::lines;
+use library::math::intersects_line;
+
+
 // mod colors;
 // mod quadtree;
 // use crate::colors::Palette;
@@ -54,7 +56,6 @@ impl VBow {
 
         self.cent_point.x = x;
         self.cent_point.y = y;
-
 
         // self.cent_point = p;
         // self.cent_point.y = y;
@@ -145,15 +146,34 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     //----------------------------------------------------------
 
     for i in 0..m.particles.len() {
+
         let wind = vec2(0.01, 0.0);
         let gravity = vec2(0.0, -0.1 * m.particles[i].mass);
+
         m.particles[i].apply_force(wind);
         m.particles[i].apply_force(gravity);
         m.particles[i].update();
         m.particles[i].check_edges(app.window_rect());
+
+        //line 1
+        let orig_pt = m.particles[i].origin;
+        let pos_pt  = m.particles[i].position;
+
+     
+        // let left_intersect  = intersects_line(orig_pt, pos_pt, m.vbow.left_point, m.vbow.cent_point);
+        // let right_intersect = intersects_line(orig_pt, pos_pt, m.vbow.left_point, m.vbow.cent_point);
+        
+        m.particles[i].check_line_bounds(m.vbow.left_point, m.vbow.cent_point);
+        
+        // println!("{}", b_intersects);
+
+        //int intersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4){
+
     }
 
     m.vbow.update(app.mouse.x, app.mouse.y);
+
+    // println!("{}", intersects_line());
 
     //----------------------------------------------------------
 }
@@ -179,6 +199,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //--------------------------------------------------------
     for particle in &m.particles {
         particle.display(&draw);
+        particle.display_line(&draw);
     }
 
    
