@@ -13,9 +13,8 @@ use std::ops::Range;
 use nannou::Draw;
 use std::time::Duration;
 
-use library::grid;
-use library::vehicle;
 use library::particle::Particle;
+use library::lines;
 // mod colors;
 // mod quadtree;
 // use crate::colors::Palette;
@@ -28,6 +27,65 @@ static HEIGHT   : f32 = 800.0;
 
 //--------------------------------------------------------
 fn main() { nannou::app(model).update(update).run() }
+
+// representation of physical v-shaped bow
+struct VBow {
+    left_point  : Point2,
+    cent_point  : Point2,
+    right_point : Point2
+}
+
+impl VBow {
+
+    fn new(l_pt:Point2, c_pt:Point2, r_pt:Point2) -> Self {
+            let mut left_point  = l_pt;
+            let mut cent_point  = c_pt;
+            let mut right_point = r_pt;
+
+        VBow {
+            left_point,
+            cent_point,
+            right_point
+        }
+    }
+
+    fn display(&self, draw: &Draw) {
+
+        // let vertices = (0..3).map(|i| {
+        //     pt2(x, y)
+        // });
+
+        // let vertices = history
+        //     .iter()
+        //     .map(|v| pt2(v.x, v.y))
+        //     .enumerate()
+        //     .map(|(_, p)| {
+        //         //let rgba = srgba(0.0, 0.0, 0.0, 1.0);
+        //         let color = hsva ( map_range( abs(app.time.sin() * 0.001 + (num*2) as f32), 0.4, 0.9, 0.3, 0.75), 1.0, 1.0, 1.0);
+        //         (p, GRAY)
+        //     });
+        // draw.polyline().caps_round().weight(1.0).points_colored(vertices);
+        
+        let points = [
+            self.left_point, self.cent_point, self.right_point
+        ];
+        draw
+        .scale(1.0)
+        .polyline()
+        .weight(2.0)
+        .color(rgba(1.0, 1.0, 1.0, 1.0))
+        .points(points)
+        ;
+
+        // // Display circle at x position
+        // draw.ellipse()
+        //     .xy(self.position)
+        //     .w_h(self.mass * 16.0, self.mass * 16.0)
+        //     .rgba(0.0, 0.0, 0.0, 0.5)
+        //     .stroke(BLACK)
+        //     .stroke_weight(2.0);
+    }
+}
 
 //--------------------------------------------------------
 struct Model {
@@ -145,7 +203,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     }
 }
 
-fn mouse_pressed(app: &App, m: &mut Model, btn: MouseButton) {
+fn mouse_pressed(app: &App, m: &mut Model, b: MouseButton) {
 
     let last_ix = m.particles.len() as usize;
 
