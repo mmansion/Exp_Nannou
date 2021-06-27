@@ -15,12 +15,7 @@ use std::time::Duration;
 
 use library::particle::Particle;
 use library::math::intersects_line;
-
-
-// mod colors;
-// mod quadtree;
-// use crate::colors::Palette;
-// use crate::grid::
+use library::line::Line;
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence

@@ -6,3 +6,4 @@ pub mod particle;
 pub mod points;
 pub mod bezier;
 pub mod math;
+pub mod line;
