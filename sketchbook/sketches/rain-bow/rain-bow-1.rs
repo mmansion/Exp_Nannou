@@ -1,8 +1,6 @@
 /*
 * rain-bow-1
-*
 * creative coding application for rain bow sculpture
-*
 * mikhail mansion 2021
 */
 
@@ -27,24 +25,39 @@ fn main() { nannou::app(model).update(update).run() }
 
 // representation of physical v-shaped bow
 struct VBow {
-    left_point  : Point2,
-    cent_point  : Point2,
-    right_point : Point2
+    left_point  : Vector2,
+    cent_point  : Vector2,
+    right_point : Vector2,
+    left_line   : Line,
+
+    // left_line   : Line,
+    // right_line  : Line,
 }
 
 impl VBow {
 
-    fn new(l_pt:Point2, c_pt:Point2, r_pt:Point2) -> Self {
+    fn new(l_pt:Vector2, c_pt:Vector2, r_pt:Vector2) -> Self {
+
             let mut left_point  = l_pt;
             let mut cent_point  = c_pt;
             let mut right_point = r_pt;
+            let left_line = Line::new(left_point, cent_point);
+
+            //represent 2 lines from points
+
+            // let mut left_line = Line::new(left_point, cent_point);
+            // let mut right_line = Line::new()
 
         VBow {
             left_point,
             cent_point,
-            right_point
+            right_point,
+            left_line,
+            // right_line,
         }
     }
+
+
 
     fn update(&mut self, x:f32, y:f32) {
         // let x = x;
