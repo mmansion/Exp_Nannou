@@ -170,22 +170,13 @@ fn update(app: &App, m: &mut Model, _update: Update) {
         let orig_pt = m.particles[i].origin;
         let pos_pt  = m.particles[i].position;
 
-        if m.vbow.left_line.point_on_line(m.particles[i].position, 10.0) {
-            println!("INTERSECTED LINE");
-        } else {
-            println!("...");
-        }
 
-        // let left_intersect  = intersects_line(orig_pt, pos_pt, m.vbow.left_point, m.vbow.cent_point);
-        // let right_intersect = intersects_line(orig_pt, pos_pt, m.vbow.left_point, m.vbow.cent_point);
+        m.particles[i].check_line_bounds(&m.vbow.left_line);
+        m.particles[i].check_line_bounds(&m.vbow.right_line);
+        
         
         m.particles[i].check_edges(app.window_rect());
         
-
-        
-        // println!("{}", b_intersects);
-
-        //int intersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4){
 
     }
 
@@ -217,7 +208,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //--------------------------------------------------------
     for particle in &m.particles {
         particle.display(&draw);
-        particle.display_line(&draw);
+        // particle.display_line(&draw);
     }
 
    

@@ -1,6 +1,6 @@
 use nannou::prelude::*;
 use std::collections::VecDeque;
-
+use super::line::Line;
 use super::math::intersects_line;
 
 pub struct Particle {
@@ -76,13 +76,28 @@ impl Particle {
             .points(points)
             ;
     }
-    //deprecate this in lieu of line: point on line function
-    pub fn check_line_bounds(&mut self, p1:Point2, p2:Point2) {
-        let has_intersect = intersects_line(self.origin, self.position, p1, p2);
-        if has_intersect {
+
+    
+    // //deprecate this in lieu of line: point on line function
+    // pub fn check_line_bounds(&mut self, p1:Point2, p2:Point2) {
+        
+    //     // let has_intersect = intersects_line(self.origin, self.position, p1, p2);
+    //     // if has_intersect {
+    //     //     self.velocity.y *= -1.0;
+    //     //     // self.position.y -= self.display_size;
+    //     // }
+    // }
+
+    pub fn check_line_bounds(&mut self, line:&Line) {
+        
+        if line.point_on_line(self.position, 10.0) {
+            println!("INTERSECTED LINE");
             self.velocity.y *= -1.0;
-            // self.position.y -= self.display_size;
+        } else {
+            println!("...");
         }
+  
+        // println!("Checking line bounds");
     }
 
     pub fn check_edges(&mut self, rect: Rect) {
