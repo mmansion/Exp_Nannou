@@ -78,10 +78,6 @@ impl VBow {
         .points(points)
         ;
     }
-
-    fn intersects(&self, pt:Vector2) {
-        // check if particles intersect with line
-    }
 }
 //--------------------------------------------------------
 
@@ -153,7 +149,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     //----------------------------------------------------------
 
-    //update the vbow and its lines
+    //update the vbow and its line positions
     m.vbow.update(app.mouse.x, app.mouse.y);
 
     for i in 0..m.particles.len() {
@@ -177,7 +173,6 @@ fn update(app: &App, m: &mut Model, _update: Update) {
         
         m.particles[i].check_edges(app.window_rect());
         
-
     }
 
     

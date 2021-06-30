@@ -90,12 +90,14 @@ impl Particle {
 
     pub fn check_line_bounds(&mut self, line:&Line) {
         
-        if line.point_on_line(self.position, 10.0) {
-            println!("INTERSECTED LINE");
-            self.velocity.y *= -1.0;
-        } else {
-            println!("...");
-        }
+
+        if !line.point_above_line(self.position) { // if we fell below line
+
+            if self.position.x > line.A.x && self.position.x < line.B.x {
+                self.velocity.y *= -1.0;
+                self.position.y = line.get_y_at_x(self.position.x);
+            }
+        } 
   
         // println!("Checking line bounds");
     }

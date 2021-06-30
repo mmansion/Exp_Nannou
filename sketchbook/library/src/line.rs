@@ -54,11 +54,47 @@ impl Line {
         return diff < threshold;
     }
 
-    fn get_slope(&self, A: Vector2, B: Vector2) -> f32 {
+    pub fn point_above_line(&self, test_point:Vector2) -> bool {
+        let x = test_point.x;
+        let y = test_point.y;
+        
+        // point-slope form:
+        // y = mx + b
+   
+        let diff = y - self.m * x + self.b;
+        return diff > 0.0;
+    }
+    
+
+    pub fn get_slope(&self, A: Vector2, B: Vector2) -> f32 {
         let m = (B.y - A.y) / (B.x - A.x);
         return m;
     }
-    fn get_yintercept(&self, p:Vector2, m: f32) -> f32 {
+
+    pub fn get_y_at_x(&self, x:f32) -> f32 {
+        //Solving "Ax + By = C" for "y ="
+        
+        let C = self.A.y - self.A.x * self.m;
+
+        let y = self.m * x + C;
+
+        /*
+        var m = CalculateSlope(a, b);
+
+    // Vertical line (y-values are always the same)
+    if (double.IsPositiveInfinity(m))
+        return a.Y;
+
+    var c = a.Y - a.X * m;
+
+    return Convert.ToInt32(m * x + c);
+        */
+
+
+        return y;
+    }
+
+    pub fn get_yintercept(&self, p:Vector2, m: f32) -> f32 {
 
         // EXAMPLE:
         // -p.y = m * p.x + b;
