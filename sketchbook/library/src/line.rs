@@ -42,13 +42,16 @@ impl Line {
         }
     }
 
-    pub fn point_on_line(&self, test_point:Vector2) -> bool {
+    pub fn point_on_line(&self, test_point:Vector2, threshold:f32) -> bool {
         let x = test_point.x;
         let y = test_point.y;
         
         // point-slope form:
         // y = mx + b
-        return y == self.m * x + self.b;
+        // does x and y satisfy the equation
+        // println!("{}",abs(y - self.m * x + self.b));
+        let diff = abs(y - self.m * x + self.b);
+        return diff < threshold;
     }
 
     fn get_slope(&self, A: Vector2, B: Vector2) -> f32 {

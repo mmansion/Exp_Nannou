@@ -29,11 +29,9 @@ struct VBow {
     cent_point  : Vector2,
     right_point : Vector2,
     left_line   : Line,
-
-    // left_line   : Line,
-    // right_line  : Line,
+    right_line  : Line,
 }
-
+//--------------------------------------------------------
 impl VBow {
 
     fn new(l_pt:Vector2, c_pt:Vector2, r_pt:Vector2) -> Self {
@@ -41,29 +39,27 @@ impl VBow {
             let mut left_point  = l_pt;
             let mut cent_point  = c_pt;
             let mut right_point = r_pt;
+
+            // represent 2 lines from points on the v-bow`
             let left_line = Line::new(left_point, cent_point);
-
-            //represent 2 lines from points
-
-            // let mut left_line = Line::new(left_point, cent_point);
-            // let mut right_line = Line::new()
+            let right_line = Line::new(cent_point, right_point);
 
         VBow {
             left_point,
             cent_point,
             right_point,
             left_line,
-            // right_line,
+            right_line,
         }
     }
 
-
-
     fn update(&mut self, x:f32, y:f32) {
         // let x = x;
-
         self.cent_point.x = x;
         self.cent_point.y = y;
+
+        self.left_line.update_points(self.left_point, self.cent_point);
+        self.right_line.update_points(self.cent_point, self.right_point);
 
         // self.cent_point = p;
         // self.cent_point.y = y;
@@ -82,9 +78,13 @@ impl VBow {
         .points(points)
         ;
     }
-}
 
+    fn intersects(&self, pt:Vector2) {
+        // check if particles intersect with line
+    }
+}
 //--------------------------------------------------------
+
 struct Model {
     this_capture_frame : i32,
     last_capture_frame : i32,
@@ -153,6 +153,9 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     //----------------------------------------------------------
 
+    //update the vbow and its lines
+    m.vbow.update(app.mouse.x, app.mouse.y);
+
     for i in 0..m.particles.len() {
 
         let wind = vec2(0.01, 0.0);
@@ -167,11 +170,18 @@ fn update(app: &App, m: &mut Model, _update: Update) {
         let orig_pt = m.particles[i].origin;
         let pos_pt  = m.particles[i].position;
 
-     
+        if m.vbow.left_line.point_on_line(m.particles[i].position, 10.0) {
+            println!("INTERSECTED LINE");
+        } else {
+            println!("...");
+        }
+
         // let left_intersect  = intersects_line(orig_pt, pos_pt, m.vbow.left_point, m.vbow.cent_point);
         // let right_intersect = intersects_line(orig_pt, pos_pt, m.vbow.left_point, m.vbow.cent_point);
         
-        m.particles[i].check_line_bounds(m.vbow.left_point, m.vbow.cent_point);
+        m.particles[i].check_edges(app.window_rect());
+        
+
         
         // println!("{}", b_intersects);
 
@@ -179,7 +189,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     }
 
-    m.vbow.update(app.mouse.x, app.mouse.y);
+    
 
     // println!("{}", intersects_line());
 
