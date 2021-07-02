@@ -182,35 +182,12 @@ fn update(app: &App, m: &mut Model, _update: Update) {
         let pos_pt  = m.particles[i].position;
 
 
-        m.particles[i].check_line_bounds(&m.vbow.left_line);
-        m.particles[i].check_line_bounds(&m.vbow.right_line);
-
-        // print!("{} ", m.vbow.left_line.m);
-        
-        // println!("{}", m.vbow.right_line.m);
-
-        // m.particles[i]
-
         let bow_center = m.vbow.left_line.B;
-        let particle_x = m.particles[i].position.x;
-        let particle_y = m.particles[i].position.y;
+        
+        m.particles[i].check_line_bounds(&m.vbow.left_line, bow_center);
+        m.particles[i].check_line_bounds(&m.vbow.right_line, bow_center);
 
-        
-        //get unique angle to center point
-        m.angle = rad_to_deg( bow_center.y.atan2(bow_center.x) );
-        
-
-    
-
-        // if x > A.x && x < B.x {
-            
-        //     println!("{}", atan2(A.y, A.x) );
-        // }
-        
-        
-        
-        //m.particles[i].check_edges(app.window_rect());
-        
+       
     }
 
     

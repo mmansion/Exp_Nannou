@@ -95,7 +95,7 @@ impl Particle {
     //     // }
     // }
 
-    pub fn check_line_bounds(&mut self, line:&Line) {
+    pub fn check_line_bounds(&mut self, line:&Line, pt_used_for_angle:Vector2) {
         
 
         if !line.point_above_line(self.position) { // if we fell below line
@@ -103,40 +103,42 @@ impl Particle {
             if self.position.x > line.A.x && self.position.x < line.B.x {
 
                 self.position.y = line.get_y_at_x(self.position.x) + 0.0;
-
-            
                 self.velocity.y *= -1.0;//friction of bounce
-                
 
-                // self.velocity.rotate(line.B.y.atan2(line.B.x)*-1.0);
-             
-                // let wind = vec2(0.01, 0.0);
-                //self.apply_force(vec2(line.m * -5.0, 0.0));
+                // TODO: https://stackoverflow.com/questions/61272597/calculate-the-bouncing-angle-for-a-ball-point
+                /*
+                As for how to get the surface normal
+                if (x,y) is the vector from P1 to P2, then (-y,x) is perpendicular to it
+                */
 
-                //acceleration
+                //1. Get the surface normal
+                let p1 = line.A;
+                let p2 = line.B;
+                let surface_normal = new:Vector2(-)
 
-                //1. diff = here - there
-                //2. target.sub(location)
-                //3. set mag
+                https://docs.rs/nannou/0.14.1/nannou/geom/vector/struct.Vector2.html#method.dot
 
-                // A vector pointing from the position to the target
-                // Scale to maximum speed
-                let desired = (-self.position).normalize() * self.max_speed;
+                if(self.position.x < pt_used_for_angle.x) {
+                    let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).x;
+                    let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).y;
+    
+                    self.velocity.x = rotate_x;
+                    self.velocity.y = rotate_y;
+    
+                    print!("{} ,", rotate_x);
+                    println!("{}", rotate_y);
+                } else {
+                    // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).x;
+                    // let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).y;
+    
+                    // self.velocity.x = rotate_x;
+                    // self.velocity.y = rotate_y;
+    
+                    // print!("{} ,", rotate_x);
+                    // println!("{}", rotate_y);
+                }
 
-                self.acceleration = desired - self.velocity;
-
-                // Steering = Desired minus velocity
-                // Limit to maximum steering force
-        //(desired - *velocity).clamp_length_max(*max_force)
-
-
-                // let theta = (self.velocity.angle() + PI / 2.0) * -1.0;
-
-                //self.velocity.rotate(self.velocity.angle() +  line.B.y.atan2(line.B.x));
                
-                // self.velocity *= rad_to_deg( line.B.y.atan2(line.B.x) );
-                
-
             }
         } 
         
