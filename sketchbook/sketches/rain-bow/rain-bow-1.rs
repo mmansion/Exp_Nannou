@@ -7,6 +7,7 @@
 use nannou::prelude::*;
 use nannou::geom::*;
 use nannou::geom::Point2;
+
 use std::ops::Range;
 use nannou::Draw;
 use std::time::Duration;
@@ -87,12 +88,15 @@ struct Model {
     last_calc : Duration,
     particles : Vec<Particle>,
     vbow : VBow,
+    angle : f32,
 }
 
 //--------------------------------------------------------
 fn model(app: &App) -> Model {
 
     let rect = Rect::from_w_h( WIDTH, HEIGHT );
+
+    let mut angle = 0.0;
     
     // app.set_loop_mode(LoopMode::loop_once());
     // app.set_loop_mode(LoopMode::rate_fps(0.1));
@@ -125,7 +129,8 @@ fn model(app: &App) -> Model {
         last_capture_frame, 
         last_calc,
         particles,
-        vbow
+        vbow,
+        angle
     }
 } 
 
@@ -154,11 +159,21 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     for i in 0..m.particles.len() {
 
-        let wind = vec2(0.01, 0.0);
+        // let wind = vec2(0.01, 0.0);
         let gravity = vec2(0.0, -0.1 * m.particles[i].mass);
 
-        m.particles[i].apply_force(wind);
+        // calculate friction
+        let c = 0.9;
+        let mut friction = m.particles[i].velocity;
+        friction *= -1.0;
+        friction.normalize();
+        friction *= c;
+
+        // apply forces
         m.particles[i].apply_force(gravity);
+        m.particles[i].apply_force(friction);
+
+
         m.particles[i].update();
         m.particles[i].check_edges(app.window_rect());
 
@@ -169,9 +184,32 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
         m.particles[i].check_line_bounds(&m.vbow.left_line);
         m.particles[i].check_line_bounds(&m.vbow.right_line);
+
+        // print!("{} ", m.vbow.left_line.m);
+        
+        // println!("{}", m.vbow.right_line.m);
+
+        // m.particles[i]
+
+        let bow_center = m.vbow.left_line.B;
+        let particle_x = m.particles[i].position.x;
+        let particle_y = m.particles[i].position.y;
+
+        
+        //get unique angle to center point
+        m.angle = rad_to_deg( bow_center.y.atan2(bow_center.x) );
+        
+
+    
+
+        // if x > A.x && x < B.x {
+            
+        //     println!("{}", atan2(A.y, A.x) );
+        // }
         
         
-        m.particles[i].check_edges(app.window_rect());
+        
+        //m.particles[i].check_edges(app.window_rect());
         
     }
 
@@ -209,6 +247,21 @@ fn view(app: &App, m: &Model, frame: Frame) {
    
     m.vbow.display(&draw);
 
+    //--------------------------------------------------------
+
+    // TEXT OUTPUT
+
+    // We'll align to the window dimensions, but padded slightly.
+    let win_rect = app.main_window().rect().pad(20.0);
+
+    let text = format!("WEIRD phys{}cs", m.angle);
+
+    draw.text(&text)
+        .color(BLACK)
+        .color(WHITE)
+        .font_size(24)
+        .wh(win_rect.wh());
+
     
     //--------------------------------------------------------
     // draw frame
@@ -230,11 +283,15 @@ fn view(app: &App, m: &Model, frame: Frame) {
     }
 }
 
+
+//--------------------------------------------------------
+// EVENT HANDLERS
+
 fn mouse_pressed(app: &App, m: &mut Model, b: MouseButton) {
 
     let last_ix = m.particles.len() as usize;
 
-    m.particles.push(Particle::new(app.mouse.x, app.mouse.y));
+    m.particles.push(Particle::new(app.mouse.x, HEIGHT/2.0));
 
     m.particles[last_ix].display_size = 20.0;
 

@@ -65,7 +65,6 @@ impl Line {
         return diff > 0.0;
     }
     
-
     pub fn get_slope(&self, A: Vector2, B: Vector2) -> f32 {
         let m = (B.y - A.y) / (B.x - A.x);
         return m;
