@@ -114,7 +114,7 @@ impl Particle {
                 //1. Get the surface normal
                 let p1 = line.A;
                 let p2 = line.B;
-                let surface_normal = new:Vector2(-)
+               // let surface_normal = see Processing Sketch / surface_normal
 
                 https://docs.rs/nannou/0.14.1/nannou/geom/vector/struct.Vector2.html#method.dot
 
