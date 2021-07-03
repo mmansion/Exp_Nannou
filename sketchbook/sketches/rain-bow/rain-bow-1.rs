@@ -26,12 +26,21 @@ fn main() { nannou::app(model).update(update).run() }
 
 // representation of physical v-shaped bow
 struct VBow {
-    left_point  : Vector2,
-    cent_point  : Vector2,
-    right_point : Vector2,
-    left_line   : Line,
-    right_line  : Line,
+    left_point   : Vector2,
+    cent_point   : Vector2,
+    right_point  : Vector2,
+    left_line    : Line,
+    right_line   : Line,
+
+    right_normal_p1 : Vector2,
+    right_normal_p2 : Vector2,
+    left_normal_p1  : Vector2,
+    left_normal_p2  : Vector2,
+
+    right_normal_line : Line,
+    left_normal_line  : Line
 }
+
 //--------------------------------------------------------
 impl VBow {
 
@@ -41,9 +50,18 @@ impl VBow {
             let mut cent_point  = c_pt;
             let mut right_point = r_pt;
 
+            let mut left_normal_p1 = vec2(0.0,0.0);
+            let mut left_normal_p2 = vec2(0.0, 0.0);
+
+            let mut right_normal_p1 = vec2(0.0, 0.0);
+            let mut right_normal_p2 = vec2(0.0, 0.0);
+            
             // represent 2 lines from points on the v-bow`
             let left_line = Line::new(left_point, cent_point);
             let right_line = Line::new(cent_point, right_point);
+
+            let right_normal_line = Line::new(left_normal_p1, left_normal_p2);
+            let left_normal_line = Line::new(right_normal_p1, right_normal_p2);
 
         VBow {
             left_point,
@@ -51,6 +69,14 @@ impl VBow {
             right_point,
             left_line,
             right_line,
+
+            left_normal_p1,
+            left_normal_p2,
+            right_normal_p1,
+            right_normal_p2,
+
+            right_normal_line,
+            left_normal_line
         }
     }
 
@@ -62,13 +88,18 @@ impl VBow {
         self.left_line.update_points(self.left_point, self.cent_point);
         self.right_line.update_points(self.cent_point, self.right_point);
 
-        // self.cent_point = p;
-        // self.cent_point.y = y;
+        // calculate the surface normal for left line
+        let dx = self.left_line.B.x - self.left_line.A.x;
+        let dy = self.left_line.B.y - self.left_line.A.y;
+
+        self.left_normal_p1 = vec2(-dy, dx);
+        self.left_normal_p2 = vec2(dy, -dx);
     }
 
     fn display(&self, draw: &Draw) {
 
-        let points = [
+        //draw vbow
+        let vbow_points = [
             self.left_point, self.cent_point, self.right_point
         ];
         draw
@@ -76,7 +107,21 @@ impl VBow {
         .polyline()
         .weight(2.0)
         .color(rgba(1.0, 1.0, 1.0, 1.0))
-        .points(points)
+        .points(vbow_points)
+        ;
+
+        // TODO: translate to the midpoint
+        //let draw2 = draw.translate( pt3(-win.w()/2.0-25.0, t.sin() * win.h()/4.0, 0.0));
+
+        //draw left normal line
+        let left_normal_points = [
+            self.left_normal_p1, self.left_normal_p2
+        ];
+        draw
+        .polyline()
+        .weight(1.0)
+        .color(WHITE)
+        .points(left_normal_points)
         ;
     }
 }
@@ -181,13 +226,11 @@ fn update(app: &App, m: &mut Model, _update: Update) {
         let orig_pt = m.particles[i].origin;
         let pos_pt  = m.particles[i].position;
 
-
         let bow_center = m.vbow.left_line.B;
         
         m.particles[i].check_line_bounds(&m.vbow.left_line, bow_center);
         m.particles[i].check_line_bounds(&m.vbow.right_line, bow_center);
 
-       
     }
 
     

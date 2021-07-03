@@ -116,17 +116,19 @@ impl Particle {
                 let p2 = line.B;
                // let surface_normal = see Processing Sketch / surface_normal
 
-                https://docs.rs/nannou/0.14.1/nannou/geom/vector/struct.Vector2.html#method.dot
+             
+
+                //https://docs.rs/nannou/0.14.1/nannou/geom/vector/struct.Vector2.html#method.dot
 
                 if(self.position.x < pt_used_for_angle.x) {
-                    let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).x;
-                    let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).y;
+                    // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).x;
+                    // let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).y;
     
-                    self.velocity.x = rotate_x;
-                    self.velocity.y = rotate_y;
+                    // self.velocity.x = rotate_x;
+                    // self.velocity.y = rotate_y;
     
-                    print!("{} ,", rotate_x);
-                    println!("{}", rotate_y);
+                    // print!("{} ,", rotate_x);
+                    // println!("{}", rotate_y);
                 } else {
                     // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).x;
                     // let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).y;
@@ -138,6 +140,7 @@ impl Particle {
                     // println!("{}", rotate_y);
                 }
 
+                
                
             }
         } 
