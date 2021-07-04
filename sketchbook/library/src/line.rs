@@ -109,7 +109,7 @@ impl Line {
     }
 
     fn get_midpoint(&self) -> Vector2 {
-        return vec2( self.A.x + self.B.x) / 2.0, self.A.y + self.B.y / 2.0 );
+        return vec2( (self.A.x + self.B.x) / 2.0, (self.A.y + self.B.y) / 2.0 );
     }
     
     pub fn update(&self) {
