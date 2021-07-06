@@ -26,16 +26,16 @@ fn main() { nannou::app(model).update(update).run() }
 
 // representation of physical v-shaped bow
 struct VBow {
-    left_point   : Vector2,
-    cent_point   : Vector2,
-    right_point  : Vector2,
+    left_point   : Vec2,
+    cent_point   : Vec2,
+    right_point  : Vec2,
     left_line    : Line,
     right_line   : Line,
 
-    right_normal_p1 : Vector2,
-    right_normal_p2 : Vector2,
-    left_normal_p1  : Vector2,
-    left_normal_p2  : Vector2,
+    right_normal_p1 : Vec2,
+    right_normal_p2 : Vec2,
+    left_normal_p1  : Vec2,
+    left_normal_p2  : Vec2,
 
     right_normal_line : Line,
     left_normal_line  : Line
@@ -44,7 +44,7 @@ struct VBow {
 //--------------------------------------------------------
 impl VBow {
 
-    fn new(l_pt:Vector2, c_pt:Vector2, r_pt:Vector2) -> Self {
+    fn new(l_pt:Vec2, c_pt:Vec2, r_pt:Vec2) -> Self {
 
             let mut left_point  = l_pt;
             let mut cent_point  = c_pt;
@@ -88,12 +88,23 @@ impl VBow {
         self.left_line.update_points(self.left_point, self.cent_point);
         self.right_line.update_points(self.cent_point, self.right_point);
 
-        // calculate the surface normal for left line
-        let dx = self.left_line.B.x - self.left_line.A.x;
-        let dy = self.left_line.B.y - self.left_line.A.y;
+        // left normal:
 
-        self.left_normal_p1 = vec2(-dy, dx);
-        self.left_normal_p2 = vec2(dy, -dx);
+        // calc surface normal for left line
+        let dx1 = self.left_line.B.x - self.left_line.A.x;
+        let dy1 = self.left_line.B.y - self.left_line.A.y;
+
+        self.left_normal_p1 = vec2(-dy1, dx1);
+        self.left_normal_p2 = vec2(dy1, -dx1);
+
+        // right normal:
+
+        //calc surf norm for right line
+        let dx2 = self.right_line.B.x - self.right_line.A.x;
+        let dy2 = self.right_line.B.y - self.right_line.A.y;
+
+        self.right_normal_p1 = vec2(-dy2, dx2);
+        self.right_normal_p2 = vec2(dy2, -dx2);
     }
 
     fn display(&self, draw: &Draw) {
@@ -111,18 +122,32 @@ impl VBow {
         ;
 
         // TODO: translate to the midpoint
-        let M = self.left_line.get_midpoint();
-        let draw2 = draw.translate( pt3(M.x, M.y, 0.0));
+        let M1 = self.left_line.get_midpoint();
+        let M2 = self.right_line.get_midpoint();
+
+        let draw_left_norm = draw.translate( pt3(M1.x, M1.y, 0.0));
+        let draw_right_norm = draw.translate( pt3(M2.x, M2.y, 0.0));
 
         //draw left normal line
         let left_normal_points = [
-            self.left_normal_p1, self.left_normal_p2
+            self.left_normal_p1, vec2(0.0,0.0)
         ];
-        draw2
+        let right_normal_points = [
+            self.right_normal_p1, vec2(0.0, 0.0)
+        ];
+
+        draw_left_norm
         .polyline()
         .weight(1.0)
         .color(WHITE)
         .points(left_normal_points)
+        ;
+
+        draw_right_norm
+        .polyline()
+        .weight(1.0)
+        .color(WHITE)
+        .points(right_normal_points)
         ;
     }
 }
