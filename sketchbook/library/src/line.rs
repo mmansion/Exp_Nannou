@@ -16,16 +16,16 @@ pub struct Line {
     pub m : f32, //slow of line segment
     pub b : f32, //y-intercept of line segment
     
-    pub A : Vector2, //start pt of line segment
-    pub B : Vector2, //end pt of line
-    pub C : Vector2, //vertex @ 90d corner of right-tri, formed by line segment
+    pub A : Vec2, //start pt of line segment
+    pub B : Vec2, //end pt of line
+    pub C : Vec2, //vertex @ 90d corner of right-tri, formed by line segment
 
-    pub M : Vector2, //midpoint of line segment
+    pub M : Vec2, //midpoint of line segment
 }
 
 impl Line {
 
-    pub fn new(p1:Vector2, p2:Vector2) -> Self {
+    pub fn new(p1:Vec2, p2:Vec2) -> Self {
         
         let mut A = p1;
         let mut B = p2;
@@ -42,7 +42,7 @@ impl Line {
         }
     }
 
-    pub fn point_on_line(&self, test_point:Vector2, threshold:f32) -> bool {
+    pub fn point_on_line(&self, test_point:Vec2, threshold:f32) -> bool {
         let x = test_point.x;
         let y = test_point.y;
         
@@ -54,7 +54,7 @@ impl Line {
         return diff < threshold;
     }
 
-    pub fn point_above_line(&self, test_point:Vector2) -> bool {
+    pub fn point_above_line(&self, test_point:Vec2) -> bool {
         let x = test_point.x;
         let y = test_point.y;
         
@@ -65,7 +65,7 @@ impl Line {
         return diff > 0.0;
     }
     
-    pub fn get_slope(&self, A: Vector2, B: Vector2) -> f32 {
+    pub fn get_slope(&self, A: Vec2, B: Vec2) -> f32 {
         let m = (B.y - A.y) / (B.x - A.x);
         return m;
     }
@@ -93,7 +93,7 @@ impl Line {
         return y;
     }
 
-    pub fn get_yintercept(&self, p:Vector2, m: f32) -> f32 {
+    pub fn get_yintercept(&self, p:Vec2, m: f32) -> f32 {
 
         // EXAMPLE:
         // -p.y = m * p.x + b;
@@ -108,7 +108,7 @@ impl Line {
         return b;
     }
 
-    fn get_midpoint(&self) -> Vector2 {
+    pub fn get_midpoint(&self) -> Vec2 {
         return vec2( (self.A.x + self.B.x) / 2.0, (self.A.y + self.B.y) / 2.0 );
     }
     
@@ -116,7 +116,7 @@ impl Line {
 
     }
 
-    pub fn update_points(&mut self, A:Vector2, B:Vector2) {
+    pub fn update_points(&mut self, A:Vec2, B:Vector2) {
 
         // update A point
         self.A = A;

@@ -4,10 +4,10 @@ use std::collections::VecDeque;
 use super::points::Point;
 
 pub struct Vehicle {
-    pub history: VecDeque<Vector2>,
-    pub position: Vector2,
-    pub velocity: Vector2,
-    acceleration: Vector2,
+    pub history: VecDeque<Vec2>,
+    pub position: Vec2,
+    pub velocity: Vec2,
+    acceleration: Vec2,
     // Maximum steering force
     pub max_force: f32,
     // Maximum speed
@@ -19,9 +19,9 @@ pub struct Vehicle {
 }
 
 impl Vehicle {
-    pub fn new(x: f32, y: f32, max_speed: f32, v: Vector2, l:usize) -> Self {
+    pub fn new(x: f32, y: f32, max_speed: f32, v: Vec2, l:usize) -> Self {
         let mass     = 10.0;
-        let history  = VecDeque::<Vector2>::with_capacity(1000);
+        let history  = VecDeque::<Vec2>::with_capacity(1000);
         let line_len = l;
         let position = vec2(x, y);
         let mut velocity = v;
@@ -49,7 +49,7 @@ impl Vehicle {
         // Update velocity
         self.velocity += self.acceleration;
         // Limit speed
-        self.velocity.limit_magnitude(self.max_speed);
+        self.velocity.clamp_length_max(self.max_speed);
         
         self.position += self.velocity;
         // Reset accelerationelertion to 0 each cycle
@@ -76,7 +76,7 @@ impl Vehicle {
 
     }
 
-    pub fn apply_force(&mut self, force: Vector2) {
+    pub fn apply_force(&mut self, force: Vec2) {
         // We could add mass here if we want A = F / M
         self.acceleration += force;
     }
@@ -85,7 +85,7 @@ impl Vehicle {
     pub fn redirect(&mut self, p: &Point) {
 
         let v = self.position - p.position; // Calculate direction of force
-        let distance = v.magnitude(); // Distance between objects
+        let distance = v.length(); // Distance between objects
 
         let size = if p.size > 5.0 { p.size } else { 5.0 };
 
@@ -95,10 +95,10 @@ impl Vehicle {
         }        
     }
 
-    pub fn redirect2(&mut self, point: Vector2, size:f32) {
+    pub fn redirect2(&mut self, point: Vec2, size:f32) {
 
         let v = self.position - point; // Calculate direction of force
-        let distance = v.magnitude(); // Distance between objects
+        let distance = v.length(); // Distance between objects
 
         if distance <= size {
 
@@ -106,9 +106,9 @@ impl Vehicle {
         }        
     }
 
-    pub fn hasCollision(&mut self, point:Vector2, size:f32) -> bool {
+    pub fn hasCollision(&mut self, point:Vec2, size:f32) -> bool {
         let v = self.position - point; // Calculate direction of force
-        let distance = v.magnitude(); // Distance between objects
+        let distance = v.length(); // Distance between objects
         if distance <= size {
             return true;
         } else {
@@ -123,19 +123,30 @@ impl Vehicle {
         let top    = win.top() - self.margin as f32;
         let bottom = win.bottom() + self.margin as f32;
 
-        let desired = match self.position {
-            Vector2 { x, .. } if x < left => Some(vec2(self.max_speed, self.velocity.y)),
-            Vector2 { x, .. } if x > right => Some(vec2(-self.max_speed, self.velocity.y)),
-            Vector2 { y, .. } if y < bottom => Some(vec2(self.velocity.x, self.max_speed)),
-            Vector2 { y, .. } if y > top => Some(vec2(self.velocity.x, -self.max_speed)),
-            _ => None,
+        let desired = if self.position.x < left {
+            vec2(self.max_speed, self.velocity.y)
+        } else if self.position.x > right {
+            vec2(-self.max_speed, self.velocity.y)
+        } else if self.position.y < bottom {
+            vec2(self.velocity.x, self.max_speed)
+        } else if self.position.y > top {
+            vec2(self.velocity.x, -self.max_speed)
+        } else {
+            vec2(0.0, 0.0)
         };
+        // let desired = match self.position {
+        //     Vec2 { x, .. } if x < left => Some(vec2(self.max_speed, self.velocity.y)),
+        //     Vec2 { x, .. } if x > right => Some(vec2(-self.max_speed, self.velocity.y)),
+        //     Vec2 { y, .. } if y < bottom => Some(vec2(self.velocity.x, self.max_speed)),
+        //     Vec2 { y, .. } if y > top => Some(vec2(self.velocity.x, -self.max_speed)),
+        //     _ => None,
+        // };
 
-        if let Some(desired) = desired {
+        //if let Some(desired) = desired {
             let desired = desired.normalize() * self.max_speed;
-            let steer = (desired - self.velocity).limit_magnitude(self.max_force);
+            let steer = (desired - self.velocity).clamp_length_max(self.max_force);
             self.apply_force(steer);
-        }
+        //}
     }
 
     pub fn boundaries2(&mut self, win: &Rect, margin : i32) {
@@ -145,18 +156,52 @@ impl Vehicle {
         let top    = win.top() - margin as f32;
         let bottom = win.bottom() + margin as f32;
 
-        let desired = match self.position {
-            Vector2 { x, .. } if x < left => Some(vec2(self.max_speed, self.velocity.y)),
-            Vector2 { x, .. } if x > right => Some(vec2(-self.max_speed, self.velocity.y)),
-            Vector2 { y, .. } if y < bottom => Some(vec2(self.velocity.x, self.max_speed)),
-            Vector2 { y, .. } if y > top => Some(vec2(self.velocity.x, -self.max_speed)),
-            _ => None,
+        let desired = if self.position.x < left {
+            vec2(self.max_speed, self.velocity.y)
+        } else if self.position.x > right {
+            vec2(-self.max_speed, self.velocity.y)
+        } else if self.position.y < bottom {
+            vec2(self.velocity.x, self.max_speed)
+        } else if self.position.y > top {
+            vec2(self.velocity.x, -self.max_speed)
+        } else {
+            vec2(0.0, 0.0)
         };
 
-        if let Some(desired) = desired {
+        // let desired = match self.position {
+            
+        //     Vec2 { x, .. } if x < left => Some(vec2(self.max_speed, self.velocity.y)),
+        //     Vec2 { x, .. } if x > right => Some(vec2(-self.max_speed, self.velocity.y)),
+        //     Vec2 { y, .. } if y < bottom => Some(vec2(self.velocity.x, self.max_speed)),
+        //     Vec2 { y, .. } if y > top => Some(vec2(self.velocity.x, -self.max_speed)),
+        //     _ => None,
+        // };
+
+        
+        // let desired = 
+        //     if self.position.x < left {
+        //         vec2(self.max_speed, self.velocity.y)
+        //     } else
+                
+        //     if self.position.x > right {
+        //         vec2(-self.max_speed, self.velocity.y)
+        //     } else 
+    
+        //     if self.position.y < bottom {
+        //         vec2(self.velocity.x, self.max_speed)
+        //     } else 
+    
+        //     if self.position.y > top {
+        //         vec2(self.velocity.x, -self.max_speed)
+        //     }
+
+        
+        
+
+        //if let Some(desired) = desired {
             let desired = desired.normalize() * self.max_speed;
-            let steer = (desired - self.velocity).limit_magnitude(self.max_force);
+            let steer = (desired - self.velocity).clamp_length_max(self.max_force);
             self.apply_force(steer);
-        }
+       // }
     }
 }

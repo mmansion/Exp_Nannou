@@ -111,13 +111,14 @@ impl VBow {
         ;
 
         // TODO: translate to the midpoint
-        //let draw2 = draw.translate( pt3(-win.w()/2.0-25.0, t.sin() * win.h()/4.0, 0.0));
+        let M = self.left_line.get_midpoint();
+        let draw2 = draw.translate( pt3(M.x, M.y, 0.0));
 
         //draw left normal line
         let left_normal_points = [
             self.left_normal_p1, self.left_normal_p2
         ];
-        draw
+        draw2
         .polyline()
         .weight(1.0)
         .color(WHITE)

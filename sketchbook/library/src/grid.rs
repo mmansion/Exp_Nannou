@@ -4,13 +4,13 @@ pub struct Grid {
     pub position  : Point2,
     pub width     : i32,
     pub height    : i32,
-    pub points    : Vec <Vector2>,
+    pub points    : Vec <Vec2>,
     pub pt_size   : f32,
 
     row_spacing : i32,
     col_spacing : i32,
-    row_start_pts : Vec <Vector2>,
-    col_start_pts : Vec <Vector2>,
+    row_start_pts : Vec <Vec2>,
+    col_start_pts : Vec <Vec2>,
 }
 
 impl Grid {

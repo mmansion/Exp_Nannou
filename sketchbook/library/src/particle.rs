@@ -4,11 +4,11 @@ use super::line::Line;
 use super::math::intersects_line;
 
 pub struct Particle {
-    pub history  : VecDeque<Vector2>,
-    pub origin   : Vector2,
-    pub position : Vector2,
-    pub velocity : Vector2,
-    pub acceleration : Vector2,
+    pub history  : VecDeque<Vec2>,
+    pub origin   : Vec2,
+    pub position : Vec2,
+    pub velocity : Vec2,
+    pub acceleration : Vec2,
     pub mass : f32,
     pub display_size : f32,
     pub max_speed : f32,
@@ -16,7 +16,7 @@ pub struct Particle {
 
 impl Particle {
     pub fn new(x: f32, y: f32) -> Self {
-        let history  = VecDeque::<Vector2>::with_capacity(1000);
+        let history  = VecDeque::<Vec2>::with_capacity(1000);
         
         let display_size = 10.0;
         let mut mass = 512.0;
@@ -46,7 +46,7 @@ impl Particle {
 
     // }
 
-    pub fn apply_force(&mut self, force: Vector2) {
+    pub fn apply_force(&mut self, force: Vec2) {
         let f = force / (1000.0 - self.mass);
         self.acceleration += f;
     }
@@ -95,7 +95,7 @@ impl Particle {
     //     // }
     // }
 
-    pub fn check_line_bounds(&mut self, line:&Line, pt_used_for_angle:Vector2) {
+    pub fn check_line_bounds(&mut self, line:&Line, pt_used_for_angle:Vec2) {
         
 
         if !line.point_above_line(self.position) { // if we fell below line
@@ -118,7 +118,7 @@ impl Particle {
 
              
 
-                //https://docs.rs/nannou/0.14.1/nannou/geom/vector/struct.Vector2.html#method.dot
+                //https://docs.rs/nannou/0.14.1/nannou/geom/vector/struct.Vec2.html#method.dot
 
                 if(self.position.x < pt_used_for_angle.x) {
                     // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).x;
@@ -163,7 +163,7 @@ impl Particle {
     }
    
 
-    // pub fn hasCollision(&mut self, point:Vector2, size:f32) -> bool {
+    // pub fn hasCollision(&mut self, point:Vec2, size:f32) -> bool {
     //     let v = self.position - point; // Calculate direction of force
     //     let distance = v.magnitude(); // Distance between objects
     //     if distance <= size {
