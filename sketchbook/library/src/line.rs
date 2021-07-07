@@ -21,6 +21,9 @@ pub struct Line {
     pub C : Vec2, //vertex @ 90d corner of right-tri, formed by line segment
 
     pub M : Vec2, //midpoint of line segment
+
+    pub rise : f32,
+    pub run  : f32,
 }
 
 impl Line {
@@ -35,10 +38,13 @@ impl Line {
         let mut b = m * A.x - A.y;
         let mut M = vec2(0.0, 0.0);
 
+        let mut rise  = 0.0;
+        let mut run   = 0.0;
+
         // -----------------------------------------
 
         Line {
-            m, b, A, B, C, M
+            m, b, A, B, C, M, rise, run,
         }
     }
 

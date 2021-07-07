@@ -47,8 +47,8 @@ impl Particle {
     // }
 
     pub fn apply_force(&mut self, force: Vec2) {
-        let f = force / (1000.0 - self.mass);
-        self.acceleration += f;
+        let a = force / (1000.0 - self.mass) as f32; //Accel = Force/Mass
+        self.acceleration += a;
     }
 
     pub fn update(&mut self) {
@@ -95,15 +95,24 @@ impl Particle {
     //     // }
     // }
 
-    pub fn check_line_bounds(&mut self, line:&Line, pt_used_for_angle:Vec2) {
+    pub fn check_line_bounds(&mut self, line:&Line) {
         
+        // if we fell below line
+        if !line.point_above_line(self.position) { 
 
-        if !line.point_above_line(self.position) { // if we fell below line
-
+            // if we're in range of the line's segment
             if self.position.x > line.A.x && self.position.x < line.B.x {
 
                 self.position.y = line.get_y_at_x(self.position.x) + 0.0;
-                self.velocity.y *= -1.0;//friction of bounce
+                self.velocity.y *= -1.0;//diminish for friction of bounce
+                
+                //self.velocity = line.A;
+
+                self.apply_force(line.A);
+
+                // self.velocity.normalize();
+
+                
 
                 // TODO: https://stackoverflow.com/questions/61272597/calculate-the-bouncing-angle-for-a-ball-point
                 /*
@@ -112,33 +121,32 @@ impl Particle {
                 */
 
                 //1. Get the surface normal
-                let p1 = line.A;
-                let p2 = line.B;
+                // let p1 = line.A;
+                // let p2 = line.B;
                // let surface_normal = see Processing Sketch / surface_normal
 
-             
 
                 //https://docs.rs/nannou/0.14.1/nannou/geom/vector/struct.Vec2.html#method.dot
 
-                if(self.position.x < pt_used_for_angle.x) {
-                    // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).x;
-                    // let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).y;
+                // if(self.position.x < pt_used_for_angle.x) {
+                //     // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).x;
+                //     // let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).y;
     
-                    // self.velocity.x = rotate_x;
-                    // self.velocity.y = rotate_y;
+                //     // self.velocity.x = rotate_x;
+                //     // self.velocity.y = rotate_y;
     
-                    // print!("{} ,", rotate_x);
-                    // println!("{}", rotate_y);
-                } else {
-                    // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).x;
-                    // let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).y;
+                //     // print!("{} ,", rotate_x);
+                //     // println!("{}", rotate_y);
+                // } else {
+                //     // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).x;
+                //     // let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).y;
     
-                    // self.velocity.x = rotate_x;
-                    // self.velocity.y = rotate_y;
+                //     // self.velocity.x = rotate_x;
+                //     // self.velocity.y = rotate_y;
     
-                    // print!("{} ,", rotate_x);
-                    // println!("{}", rotate_y);
-                }
+                //     // print!("{} ,", rotate_x);
+                //     // println!("{}", rotate_y);
+                // }
 
                 
                

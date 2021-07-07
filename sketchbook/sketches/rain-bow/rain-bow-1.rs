@@ -32,13 +32,22 @@ struct VBow {
     left_line    : Line,
     right_line   : Line,
 
+    left_midpoint : Vec2,
+    right_midpoint : Vec2,
+
     right_normal_p1 : Vec2,
     right_normal_p2 : Vec2,
     left_normal_p1  : Vec2,
     left_normal_p2  : Vec2,
 
     right_normal_line : Line,
-    left_normal_line  : Line
+    left_normal_line  : Line,
+
+    left_angle_between : f32,
+    right_angle_between : f32,
+
+    left_normal_angle : f32,
+    right_normal_angle : f32,
 }
 
 //--------------------------------------------------------
@@ -63,6 +72,15 @@ impl VBow {
             let right_normal_line = Line::new(left_normal_p1, left_normal_p2);
             let left_normal_line = Line::new(right_normal_p1, right_normal_p2);
 
+            let mut left_midpoint = vec2(0.0, 0.0);
+            let mut right_midpoint = vec2(0.0, 0.0);
+
+            let mut left_angle_between = 0.0;
+            let mut right_angle_between = 0.0;
+
+            let mut left_normal_angle = 0.0;
+            let mut right_normal_angle = 0.0;
+
         VBow {
             left_point,
             cent_point,
@@ -75,8 +93,17 @@ impl VBow {
             right_normal_p1,
             right_normal_p2,
 
+            left_midpoint,
+            right_midpoint,
+
             right_normal_line,
-            left_normal_line
+            left_normal_line,
+
+            left_normal_angle,
+            right_normal_angle,
+
+            left_angle_between, 
+            right_angle_between
         }
     }
 
@@ -87,6 +114,9 @@ impl VBow {
 
         self.left_line.update_points(self.left_point, self.cent_point);
         self.right_line.update_points(self.cent_point, self.right_point);
+
+        self.left_midpoint = self.left_line.get_midpoint();
+        self.right_midpoint = self.right_line.get_midpoint();
 
         // left normal:
 
@@ -105,6 +135,12 @@ impl VBow {
 
         self.right_normal_p1 = vec2(-dy2, dx2);
         self.right_normal_p2 = vec2(dy2, -dx2);
+
+        // tmp test
+        self.left_angle_between = (self.left_line.B.angle_between(self.left_line.A));
+
+        self.left_normal_angle = (self.left_normal_p1.angle_between(self.left_normal_p2));
+        //println!("{}", self.left_normal_angle);
     }
 
     fn display(&self, draw: &Draw) {
@@ -122,11 +158,8 @@ impl VBow {
         ;
 
         // TODO: translate to the midpoint
-        let M1 = self.left_line.get_midpoint();
-        let M2 = self.right_line.get_midpoint();
-
-        let draw_left_norm = draw.translate( pt3(M1.x, M1.y, 0.0));
-        let draw_right_norm = draw.translate( pt3(M2.x, M2.y, 0.0));
+        let draw_left_norm = draw.translate( pt3(self.left_midpoint.x, self.left_midpoint.y, 0.0));
+        let draw_right_norm = draw.translate( pt3(self.right_midpoint.x, self.right_midpoint.y, 0.0));
 
         //draw left normal line
         let left_normal_points = [
@@ -139,16 +172,30 @@ impl VBow {
         draw_left_norm
         .polyline()
         .weight(1.0)
-        .color(WHITE)
+        .color(RED)
         .points(left_normal_points)
         ;
 
         draw_right_norm
         .polyline()
         .weight(1.0)
-        .color(WHITE)
+        .color(RED)
         .points(right_normal_points)
         ;
+
+        //--------------------------------------------------------
+        // let angle_line_points = [
+        //     vec2(0.0, 0.0), vec2(0.0, 100.0)
+        // ];
+        // let draw_left_angle = draw.rotate(self.left_normal_angle);
+
+        
+        // draw_left_angle
+        // .polyline()
+        // .weight(1.0)
+        // .color(YELLOW)
+        // .points(angle_line_points)
+        // ;
     }
 }
 //--------------------------------------------------------
@@ -254,9 +301,45 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
         let bow_center = m.vbow.left_line.B;
         
-        m.particles[i].check_line_bounds(&m.vbow.left_line, bow_center);
-        m.particles[i].check_line_bounds(&m.vbow.right_line, bow_center);
+        //m.particles[i].check_line_bounds(&m.vbow.left_normal_line);
+        //m.particles[i].check_line_bounds(&m.vbow.right_line, bow_center);
 
+        // if fell below line
+        if !m.vbow.left_line.point_above_line(m.particles[i].position) && 
+            m.particles[i].position.x > m.vbow.left_line.A.x && 
+            m.particles[i].position.x < m.vbow.left_line.B.x {
+
+                m.particles[i].position.y = m.vbow.left_line.get_y_at_x(m.particles[i].position.x) + 0.0;
+                m.particles[i].velocity *= -0.4;//diminish for friction of bounce
+                m.particles[i].velocity += m.vbow.left_line.B.perp().clamp_length_max(2.0);
+                // m.particles[i].velocity.normalize();
+                // m.particles[i].velocity.Vec2Rotate(PI);
+                // let slope = m.vbow.left_line.get_slope(m.vbow.left_line.A, m.vbow.left_line.B);
+                // m.particles[i].apply_force(m.vbow.left_normal_line.B);
+                // m.particles[i].velocity.x += slope;
+                // m.particles[i].velocity.y += slope;
+                // println!("{}", m);
+              
+                //m.particles[i].velocity *= m.vbow.left_line.get_slope(m.vbow.left_line.A, m.vbow.left_line.B);
+        }
+
+        if !m.vbow.right_line.point_above_line(m.particles[i].position) && 
+        m.particles[i].position.x > m.vbow.right_line.A.x && 
+        m.particles[i].position.x < m.vbow.right_line.B.x {
+
+            m.particles[i].position.y = m.vbow.right_line.get_y_at_x(m.particles[i].position.x) + 0.0;
+            m.particles[i].velocity *= -0.4;//diminish for friction of bounce
+            m.particles[i].velocity -= m.vbow.right_line.A.perp().clamp_length_max(2.0);
+            // m.particles[i].velocity.normalize();
+            // m.particles[i].velocity.Vec2Rotate(PI);
+            // let slope = m.vbow.right_line.get_slope(m.vbow.right_line.A, m.vbow.right_line.B);
+            // m.particles[i].apply_force(m.vbow.left_normal_line.B);
+            // m.particles[i].velocity.x += slope;
+            // m.particles[i].velocity.y += slope;
+            // println!("{}", m);
+          
+            //m.particles[i].velocity *= m.vbow.right_line.get_slope(m.vbow.right_line.A, m.vbow.right_line.B);
+    }
     }
 
     
