@@ -146,10 +146,10 @@ fn mouse_pressed(app: &App, m: &mut Model, btn: MouseButton) {
     let cp1_v = mouse - m.cp1;
     let cp2_v = mouse - m.cp2;
 
-    let dist_p1  = p1_v.magnitude();
-    let dist_p2  = p2_v.magnitude();
-    let dist_cp1 = cp1_v.magnitude();
-    let dist_cp2 = cp2_v.magnitude();
+    let dist_p1  = p1_v.length();
+    let dist_p2  = p2_v.length();
+    let dist_cp1 = cp1_v.length();
+    let dist_cp2 = cp2_v.length();
 
     if dist_p1 < POINT_SIZE {
         m.point_active = 1;
