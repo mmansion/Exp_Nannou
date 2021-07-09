@@ -8,10 +8,16 @@
 
 use nannou::prelude::*;
 use nannou::ui::prelude::*;
+use nannou::prelude::*;
+use nannou::geom::*;
+use nannou::geom::Point2;
+use std::ops::Range;
+use nannou::Draw;
+use std::time::Duration;
 
 //--------------------------------------------------------
-static WIDTH      : u32 = 400;
-static HEIGHT     : u32 = 400; 
+static WIDTH      : u32 = 800;
+static HEIGHT     : u32 = 800; 
 
 fn main() {
     nannou::app(model).update(update).simple_window(view).run();
@@ -20,24 +26,59 @@ fn main() {
 struct Mover {
     orig : Vec2,
     pos  : Vec2,
-    vel  : Vec2
+    vel  : Vec2,
+    max_speed : f32,
 }
 
 impl Mover {
     pub fn new(_pos:Vec2) -> Self {
+        let max_speed = 10.0;
         let orig = _pos;
         let pos  = _pos;
-        let vel  = pt2(0.0, -1.0);
+        let vel  = pt2(0.0, -max_speed);
         Mover {
             orig,
             pos,
-            vel
+            vel,
+            max_speed
         }
     }
 
-    pub fn update(&mut self, normal:Vec2) {
+    pub fn update(&mut self) {
         self.pos += self.vel;
     }
+
+    pub fn check_bounds(&mut self, A:Vec2, B:Vec2, normal:Vec2, width:f32, height:f32) {
+        
+        let clampled_normal = normal.clamp_length_max(self.max_speed);
+        println!("{}, {}", clampled_normal.x, clampled_normal.y);
+
+        // check if below line
+
+        let m = (B.y - A.y) / (B.x - A.x); //slope
+        let  b = m * A.x - A.y; //y-intercept
+        // point-slope form:
+        // y = mx + b
+        // does x and y satisfy the equation
+        let diff = self.pos.y - m * self.pos.x + b;
+
+        // check
+        if diff < 0.0 {
+            println!("true");
+            self.vel = clampled_normal;
+        } else 
+
+        if self.pos.y < -height/2.0 || 
+           self.pos.y > height/2.0  ||
+           self.pos.x < -width/2.0  ||
+           self.pos.x > width/2.0
+         {
+            self.pos.y = height/2.0;
+            self.pos.x = 0.0;
+            self.vel   = pt2(0.0, -self.max_speed);
+        }
+    }
+
     pub fn display(&self, draw: &Draw) {
         // draw.arrow().weight(5.0).color(BLUE).points(self.orig, self.pos);
         draw
@@ -71,6 +112,7 @@ widget_ids! {
 }
 
 fn model(app: &App) -> Model {
+
     // Set the loop mode to wait for events, an energy-efficient option for pure-GUI apps.
     app.set_loop_mode(LoopMode::Wait);
 
@@ -80,12 +122,12 @@ fn model(app: &App) -> Model {
     // Generate some ids for our widgets.
     let ids = Ids::new(ui.widget_id_generator());
 
+    let w = app.window_rect().w();
+    let h = app.window_rect().h();
+
     // Init our variables
     // let x_slider = 0.0;
     let y_slider = 0.0;
-
-    let w = app.window_rect().w();
-    let h = app.window_rect().h();
 
     let line_p1 = vec2(-w/2.0, -h/2.0);
     let line_p2 = vec2(w/2.0, h/2.0);
@@ -139,8 +181,12 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 
     model.normal = vec2(-diff_y, diff_x);
 
+    let w = _app.window_rect().w();
+    let h = _app.window_rect().h();
+
+    model.mover.check_bounds(model.line_p1, model.line_p2, model.normal, w, h );
     //update the mover
-    model.mover.update(model.normal);
+    model.mover.update();
 }
 
 // Draw the state of your `Model` into the given `Frame` here.
@@ -152,7 +198,9 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
     // draw vector arrow from -> to
     draw.arrow().weight(5.0).color(BLUE).points(model.line_p1, model.line_p2);
-    draw.arrow().weight(2.0).color(RED).points(vec2(0.0, 0.0), model.normal);
+
+    let midpoint = vec2( (model.line_p1.x + model.line_p2.x) / 2.0, (model.line_p1.y + model.line_p2.y) / 2.0 );
+    draw.arrow().weight(2.0).color(RED).points(midpoint, model.normal);
 
     model.mover.display(&draw);
 
