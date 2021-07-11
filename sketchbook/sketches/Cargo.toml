@@ -14,6 +14,7 @@ library = { path = "../library" }
 #--------------------------------------------------------
 # learning
 
+
 [[example]]
 name = "vec2_add"
 path = "learning/vec2_add.rs"
@@ -21,6 +22,10 @@ path = "learning/vec2_add.rs"
 [[example]]
 name = "vec2_bounce_angle"
 path = "learning/vec2_bounce_angle.rs"
+
+[[example]]
+name = "vec2_bounce_angle_bounds"
+path = "learning/vec2_bounce_angle_bounds.rs"
 
 [[example]]
 name = "slider"
