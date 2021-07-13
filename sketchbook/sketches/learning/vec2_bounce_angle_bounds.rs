@@ -8,9 +8,6 @@
 
 use nannou::prelude::*;
 use nannou::ui::prelude::*;
-use nannou::prelude::*;
-use nannou::geom::*;
-use nannou::geom::Point2;
 use std::ops::Range;
 use nannou::Draw;
 use std::time::Duration;
