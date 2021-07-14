@@ -47,6 +47,10 @@ path = "rain-bow/rain-bow-1.rs"
 # n-series / daily sketches
 
 [[example]]
+name = "64"
+path = "n-series/n-0064.rs"
+
+[[example]]
 name = "63"
 path = "n-series/n-0063.rs"
 
