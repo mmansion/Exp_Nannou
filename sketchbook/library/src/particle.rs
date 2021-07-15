@@ -6,12 +6,14 @@ use super::math::intersects_line;
 pub struct Particle {
     pub history  : VecDeque<Vec2>,
     pub origin   : Vec2,
+    pub last_position : Vec2,
     pub position : Vec2,
     pub velocity : Vec2,
     pub acceleration : Vec2,
     pub mass : f32,
     pub display_size : f32,
     pub max_speed : f32,
+    pub curr_speed: f32,
 }
 
 impl Particle {
@@ -21,20 +23,24 @@ impl Particle {
         let display_size = 10.0;
         let mut mass = 512.0;
         let position = vec2(x, y);
+        let last_position = vec2(x, y);
         let origin   = vec2(x, y);
         let velocity = vec2(0.0, 0.0);
         let acceleration = vec2(0.0, 0.0);
         let max_speed = 4.0;
+        let curr_speed = 0.0;
 
         Particle {
             mass,
             display_size,
             history,
             position,
+            last_position,
             origin,
             velocity,
             acceleration,
-            max_speed
+            max_speed,
+            curr_speed
         }
     }
 
@@ -55,9 +61,21 @@ impl Particle {
     
         // Update velocity
         self.velocity += self.acceleration;
+        
         // Limit speed
-        //self.velocity.clamp_length_max(self.max_speed);
+        self.velocity = self.velocity.clamp_length_max(self.max_speed);
+
+        //preserve last pos
+        self.last_position = self.position;
+
+        //update pos
         self.position += self.velocity;
+
+        //Get the Euclidean distance between current and previous positions
+        let dist = self.position.distance(self.last_position);
+
+        println!("{}", dist);
+
         self.acceleration *= 0.0; //reset
     }
 
@@ -84,7 +102,6 @@ impl Particle {
             ;
     }
 
-    
     // //deprecate this in lieu of line: point on line function
     // pub fn check_line_bounds(&mut self, p1:Point2, p2:Point2) {
         
@@ -111,8 +128,6 @@ impl Particle {
                 self.apply_force(line.A);
 
                 // self.velocity.normalize();
-
-                
 
                 // TODO: https://stackoverflow.com/questions/61272597/calculate-the-bouncing-angle-for-a-ball-point
                 /*
@@ -148,8 +163,6 @@ impl Particle {
                 //     // println!("{}", rotate_y);
                 // }
 
-                
-               
             }
         } 
         

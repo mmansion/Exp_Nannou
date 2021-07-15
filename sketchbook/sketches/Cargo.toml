@@ -36,8 +36,11 @@ name = "bezier_curve_cubic"
 path = "learning/bezier_curve_cubic.rs"
 
 #--------------------------------------------------------
-# rain-bow
+# rain-bow artwork development
 
+[[example]]
+name = "rain-bow-2"
+path = "rain-bow/rain-bow-2.rs"
 [[example]]
 name = "rain-bow-1"
 path = "rain-bow/rain-bow-1.rs"

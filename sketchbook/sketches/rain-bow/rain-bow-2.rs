@@ -1,9 +1,8 @@
 /*
-* rain-bow-1
+* rain-bow-2
 * creative coding application for rain bow sculpture
 * mikhail mansion 2021
 */
-
 use nannou::prelude::*;
 use nannou::geom::*;
 use nannou::geom::Point2;
@@ -291,7 +290,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
         // apply forces
         m.particles[i].apply_force(gravity);
-        m.particles[i].apply_force(friction);
+       // m.particles[i].apply_force(friction);
 
 
         m.particles[i].update();
@@ -314,6 +313,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
                 m.particles[i].position.y = m.vbow.left_line.get_y_at_x(m.particles[i].position.x) + 0.0;
                 m.particles[i].velocity *= -0.4;//diminish for friction of bounce
                 m.particles[i].velocity += m.vbow.left_line.B.perp().clamp_length_max(2.0);
+
                 // m.particles[i].velocity.normalize();
                 // m.particles[i].velocity.Vec2Rotate(PI);
                 // let slope = m.vbow.left_line.get_slope(m.vbow.left_line.A, m.vbow.left_line.B);
