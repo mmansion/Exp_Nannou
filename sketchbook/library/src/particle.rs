@@ -17,17 +17,17 @@ pub struct Particle {
 }
 
 impl Particle {
-    pub fn new(x: f32, y: f32) -> Self {
+    pub fn new(x: f32, y: f32, size:f32) -> Self {
         let history  = VecDeque::<Vec2>::with_capacity(1000);
         
-        let display_size = 10.0;
+        let mut display_size = size;
         let mut mass = 512.0;
         let position = vec2(x, y);
         let last_position = vec2(x, y);
         let origin   = vec2(x, y);
         let velocity = vec2(0.0, 0.0);
         let acceleration = vec2(0.0, 0.0);
-        let max_speed = 4.0;
+        let max_speed = 10.0;
         let curr_speed = 0.0;
 
         Particle {
@@ -40,7 +40,7 @@ impl Particle {
             velocity,
             acceleration,
             max_speed,
-            curr_speed
+            curr_speed,
         }
     }
 
@@ -74,9 +74,19 @@ impl Particle {
         //Get the Euclidean distance between current and previous positions
         let dist = self.position.distance(self.last_position);
 
-        println!("{}", dist);
+        // println!("{}", dist);
 
         self.acceleration *= 0.0; //reset
+    }
+
+    //particle collision with a line
+    pub fn collide_line(&mut self, line:&Line) {
+        self.position.y = line.get_y_at_x(self.position.x) + (self.display_size/2.0);//offset
+  
+        // self.velocity *= -self.velocity;
+        self.velocity += line.normal_p1;
+        let dist = self.position.distance(self.last_position);
+        self.velocity = self.velocity.clamp_length_max(dist);
     }
 
     pub fn display(&self, draw: &Draw) {
@@ -85,7 +95,7 @@ impl Particle {
             .xy(self.position)
             .w_h(self.display_size, self.display_size)
             .rgba(0.0, 0.0, 0.0, 0.1)
-            .stroke(WHITE)
+            .stroke(BLUE)
             .stroke_weight(2.0);
     }
 
@@ -115,7 +125,7 @@ impl Particle {
     pub fn check_line_bounds(&mut self, line:&Line) {
         
         // if we fell below line
-        if !line.point_above_line(self.position) { 
+        if !line.point_above_line(self.position, 0.0, 0.0) { 
 
             // if we're in range of the line's segment
             if self.position.x > line.A.x && self.position.x < line.B.x {

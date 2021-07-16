@@ -24,6 +24,9 @@ pub struct Line {
 
     pub rise : f32,
     pub run  : f32,
+
+    pub normal_p1 : Vec2,
+    pub normal_p2 : Vec2,
 }
 
 impl Line {
@@ -41,10 +44,13 @@ impl Line {
         let mut rise  = 0.0;
         let mut run   = 0.0;
 
+        let mut normal_p1 = vec2(0.0, 0.0);
+        let mut normal_p2 = vec2(0.0, 0.0);        
+
         // -----------------------------------------
 
         Line {
-            m, b, A, B, C, M, rise, run,
+            m, b, A, B, C, M, rise, run, normal_p1, normal_p2,
         }
     }
 
@@ -60,9 +66,9 @@ impl Line {
         return diff < threshold;
     }
 
-    pub fn point_above_line(&self, test_point:Vec2) -> bool {
-        let x = test_point.x;
-        let y = test_point.y;
+    pub fn point_above_line(&self, test_point:Vec2, point_offset_x:f32, point_offset_y:f32) -> bool {
+        let x = test_point.x + point_offset_x;
+        let y = test_point.y + point_offset_y;
         
         // point-slope form:
         // y = mx + b
@@ -86,14 +92,14 @@ impl Line {
         /*
         var m = CalculateSlope(a, b);
 
-    // Vertical line (y-values are always the same)
-    if (double.IsPositiveInfinity(m))
-        return a.Y;
+        // Vertical line (y-values are always the same)
+        if (double.IsPositiveInfinity(m))
+            return a.Y;
 
-    var c = a.Y - a.X * m;
+        var c = a.Y - a.X * m;
 
-    return Convert.ToInt32(m * x + c);
-        */
+        return Convert.ToInt32(m * x + c);
+            */
 
 
         return y;
@@ -118,7 +124,9 @@ impl Line {
         return vec2( (self.A.x + self.B.x) / 2.0, (self.A.y + self.B.y) / 2.0 );
     }
     
-    pub fn update(&self) {
+    pub fn update(&mut self) {
+
+        self.update_normal();
 
     }
 
@@ -135,6 +143,15 @@ impl Line {
 
         // update yintercept
         self.b = self.get_yintercept(self.A, self.m);
+    }
+
+    pub fn update_normal(&mut self) {
+
+        let dx1 = self.B.x - self.A.x;
+        let dy1 = self.B.y - self.A.y;
+
+        self.normal_p1 = vec2(-dy1, dx1);
+        self.normal_p2 = vec2(dy1, -dx1);
     }
 
     pub fn draw(&self, draw: &Draw) {

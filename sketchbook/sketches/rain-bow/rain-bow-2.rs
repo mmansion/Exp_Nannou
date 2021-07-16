@@ -19,6 +19,7 @@ use library::line::Line;
 static CAPTURE  : bool = false; // capture to image sequence
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
+static PARTICLE_SIZE : f32 = 100.0;
 
 //--------------------------------------------------------
 fn main() { nannou::app(model).update(update).run() }
@@ -116,6 +117,12 @@ impl VBow {
 
         self.left_midpoint = self.left_line.get_midpoint();
         self.right_midpoint = self.right_line.get_midpoint();
+
+        //--------------------------------------------------------
+        // update lines. they have internal normals they're each keeping track of
+        self.left_line.update();
+        self.right_line.update();
+        //--------------------------------------------------------
 
         // left normal:
 
@@ -302,46 +309,20 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
         let bow_center = m.vbow.left_line.B;
         
-        //m.particles[i].check_line_bounds(&m.vbow.left_normal_line);
-        //m.particles[i].check_line_bounds(&m.vbow.right_line, bow_center);
-
-        // if fell below line
-        if !m.vbow.left_line.point_above_line(m.particles[i].position) && 
+        // if particle falls below line and within x-range of line segment's points
+        if !m.vbow.left_line.point_above_line(m.particles[i].position, 0.0, -m.particles[i].display_size/2.0) && 
             m.particles[i].position.x > m.vbow.left_line.A.x && 
             m.particles[i].position.x < m.vbow.left_line.B.x {
 
-                m.particles[i].position.y = m.vbow.left_line.get_y_at_x(m.particles[i].position.x) + 0.0;
-                m.particles[i].velocity *= -0.4;//diminish for friction of bounce
-                m.particles[i].velocity += m.vbow.left_line.B.perp().clamp_length_max(2.0);
-
-                // m.particles[i].velocity.normalize();
-                // m.particles[i].velocity.Vec2Rotate(PI);
-                // let slope = m.vbow.left_line.get_slope(m.vbow.left_line.A, m.vbow.left_line.B);
-                // m.particles[i].apply_force(m.vbow.left_normal_line.B);
-                // m.particles[i].velocity.x += slope;
-                // m.particles[i].velocity.y += slope;
-                // println!("{}", m);
-              
-                //m.particles[i].velocity *= m.vbow.left_line.get_slope(m.vbow.left_line.A, m.vbow.left_line.B);
+               m.particles[i].collide_line(&m.vbow.left_line);
         }
 
-        if !m.vbow.right_line.point_above_line(m.particles[i].position) && 
-        m.particles[i].position.x > m.vbow.right_line.A.x && 
-        m.particles[i].position.x < m.vbow.right_line.B.x {
+        if !m.vbow.right_line.point_above_line(m.particles[i].position, 0.0, -m.particles[i].display_size/2.0) && 
+            m.particles[i].position.x > m.vbow.right_line.A.x && 
+            m.particles[i].position.x < m.vbow.right_line.B.x {
 
-            m.particles[i].position.y = m.vbow.right_line.get_y_at_x(m.particles[i].position.x) + 0.0;
-            m.particles[i].velocity *= -0.4;//diminish for friction of bounce
-            m.particles[i].velocity -= m.vbow.right_line.A.perp().clamp_length_max(2.0);
-            // m.particles[i].velocity.normalize();
-            // m.particles[i].velocity.Vec2Rotate(PI);
-            // let slope = m.vbow.right_line.get_slope(m.vbow.right_line.A, m.vbow.right_line.B);
-            // m.particles[i].apply_force(m.vbow.left_normal_line.B);
-            // m.particles[i].velocity.x += slope;
-            // m.particles[i].velocity.y += slope;
-            // println!("{}", m);
-          
-            //m.particles[i].velocity *= m.vbow.right_line.get_slope(m.vbow.right_line.A, m.vbow.right_line.B);
-    }
+            m.particles[i].collide_line(&m.vbow.right_line);
+        }
     }
 
     
@@ -421,18 +402,5 @@ fn view(app: &App, m: &Model, frame: Frame) {
 fn mouse_pressed(app: &App, m: &mut Model, b: MouseButton) {
 
     let last_ix = m.particles.len() as usize;
-
-    m.particles.push(Particle::new(app.mouse.x, HEIGHT/2.0));
-
-    m.particles[last_ix].display_size = 20.0;
-
-    // println!("{}", m.particles[last_ix].display_size);
-    
-
-    // let l = _model.particles.len();
-    // p.display_size = 100.0;
-    // _model.particles.last_mut().display_size = 100.0;
-    // let _p = &_model.particles.last();
-
-    // println!( "{}",  _p.display_size);
+    m.particles.push(Particle::new(app.mouse.x, HEIGHT/2.0, PARTICLE_SIZE));
 }
