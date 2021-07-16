@@ -179,18 +179,48 @@ impl Particle {
         // println!("Checking line bounds");
     }
 
-    pub fn check_edges(&mut self, rect: Rect) {
-        // if self.position.x > rect.right() {
-        //     self.position.x = rect.right();
-        //     self.velocity.x *= -1.0;
-        // } else if self.position.x < rect.left() {
-        //     self.velocity.x *= -1.0;
-        //     self.position.x = rect.left();
-        // }
-        // if self.position.y < rect.bottom() {
-        //     self.velocity.y *= -1.0;
-        //     self.position.y = rect.bottom();
-        // }
+    // pub fn check_bounds(&mut self, rect: Rect) {
+    //     if self.position.x > rect.right() {
+    //         self.position.x = rect.right();
+    //         self.velocity.x *= -1.0;
+    //     } else if self.position.x < rect.left() {
+    //         self.velocity.x *= -1.0;
+    //         self.position.x = rect.left();
+    //     }
+    //     if self.position.y < rect.bottom() {
+    //         self.velocity.y *= -1.0;
+    //         self.position.y = rect.bottom();
+    //     }
+    // }
+
+    pub fn check_bounds(&mut self, rect: Rect) {
+        
+        let MARGIN = 0.0;
+
+        let off_x = self.display_size/2.0;
+        let off_y = self.display_size/2.0;
+
+        if self.position.y > rect.w()/2.0 - off_x  { //past top edge
+            self.position.y = rect.w()/2.0 - (self.display_size/2.0) - MARGIN;
+            self.velocity.y *= -1.0;
+        } else 
+
+        if self.position.y < -rect.w()/2.0 + off_x { // past bottom edge
+            self.position.y = -rect.w()/2.0 + (self.display_size/2.0) + MARGIN;
+            self.velocity.y *= -1.0;
+        } else 
+    
+        if self.position.x < -rect.w()/2.0 + off_y { //past left edge
+            self.position.x = -rect.w()/2.0 + (self.display_size/2.0) + MARGIN;
+            self.velocity.x *= -1.0;
+            
+        } else 
+
+        if self.position.x > rect.w()/2.0 - off_y{ //past right edge
+            self.position.x = rect.w()/2.0 - (self.display_size/2.0) - MARGIN;
+            self.velocity.x *= -1.0;
+        }
+        self.velocity = self.velocity.clamp_length_max(self.max_speed*0.5);
     }
    
 

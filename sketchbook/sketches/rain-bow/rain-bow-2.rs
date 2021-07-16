@@ -301,7 +301,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
 
         m.particles[i].update();
-        m.particles[i].check_edges(app.window_rect());
+        m.particles[i].check_bounds(app.window_rect());
 
         //line 1
         let orig_pt = m.particles[i].origin;
