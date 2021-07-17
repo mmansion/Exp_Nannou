@@ -110,10 +110,11 @@ impl Mover {
                     //let rgba = srgba(0.0, 0.0, 0.0, 1.0);
 
                     let color = hsva ( map_range( 
-                                        abs(app.time.sin() * 1.0), 0.8, 0.9, 0.3, 0.75), 1.0, 1.0, 0.1);
+                                        abs(app.time.sin() * 0.01), 0.0, 1.0, 0.4, 0.95), 1.0, 1.0, 0.1);
                     (p, color)
                 });
-            draw.polyline().weight(4.0).points_colored(vertices);
+                
+            draw.polyline().weight(2.0).points_colored(vertices);
         }
     }
 }
@@ -217,7 +218,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //--------------------------------------------------------
     //modify draw
 
-    let draw = draw.rotate( time * 0.1);
+    let draw = draw.rotate( time * 0.5);
     //--------------------------------------------------------
     let mut count = 2.0;
     for mover in m.movers.iter() {

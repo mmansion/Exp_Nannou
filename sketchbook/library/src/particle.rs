@@ -83,10 +83,11 @@ impl Particle {
     pub fn collide_line(&mut self, line:&Line) {
         self.position.y = line.get_y_at_x(self.position.x) + (self.display_size/2.0);//offset
   
-        // self.velocity *= -self.velocity;
+        // self.velocity *= -self.velocity * 0.1;
         self.velocity += line.normal_p1;
         let dist = self.position.distance(self.last_position);
-        self.velocity = self.velocity.clamp_length_max(dist);
+
+        self.velocity = self.velocity.clamp_length_max(dist*2.0);
     }
 
     pub fn display(&self, draw: &Draw) {
@@ -131,7 +132,7 @@ impl Particle {
             if self.position.x > line.A.x && self.position.x < line.B.x {
 
                 self.position.y = line.get_y_at_x(self.position.x) + 0.0;
-                self.velocity.y *= -1.0;//diminish for friction of bounce
+                self.velocity.y *= -2.0;//diminish for friction of bounce
                 
                 //self.velocity = line.A;
 
