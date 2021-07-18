@@ -51,6 +51,16 @@
 		]
 	},
 
+	// points array
+	"points_array": {
+		"prefix": "points_array",
+		"body": [
+			"let points = ["
+            "	//p1, p2, etc"
+			"];"
+		]
+	},
+
 	// drawing shapes
 	"draw.polyline": {
 		"prefix": "polyline",
@@ -62,6 +72,34 @@
 			".color(rgba(0.0, 0.0, 0.0, 1.0))",
 			".points(${1:points})",
 			";"
+		]
+	},
+
+	// structure
+	"struct": {
+		"prefix": "struct",
+		"body": [
+			"struct MyStruct {",
+			"	A:Vec2,",
+			"	B:Vec2,",
+			"}"
+			""
+			"impl MyStruct {"
+				""
+				"	fn new(p1:Vec2, p2:Vec2) -> Self {"
+				"		let A = p1;"
+				"		let B = p2;"
+				""
+				"		MyStruct {"
+				"			A,"
+				"			B,"
+				"		}"
+				"	}"
+				""
+				"	pub fn update(&mut self) {}"
+				""
+				"	pub fn display(&mut self) {}"
+			"}"
 		]
 	},
 
