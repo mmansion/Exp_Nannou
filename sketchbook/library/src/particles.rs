@@ -17,10 +17,11 @@ pub struct Particle2 {
     pub size  : f32,
 
     pub max_speed : f32,
-    // pub last_pos : Vec2,
+    pub last_pos : Vec2,
 }
 
 impl Particle2 {
+
     pub fn new(_x: f32, _y: f32, _mass:f32, _size:f32) -> Self {
         let history  = VecDeque::<Vec2>::with_capacity(1000);
         
@@ -28,12 +29,12 @@ impl Particle2 {
         let mut pos      = vec2(_x, _y);
         let mut size     = _size;
         let mut mass     = _mass;
-        // let mut last_pos = vec2(_x, _y);
+        let mut last_pos = vec2(_x, _y);
 
         let vel = vec2(0.0, 0.0);
         let acc = vec2(0.0, 0.0);
 
-        let max_speed = 10.0;
+        let max_speed = 100.0;
         let speed = 0.0;
 
         Particle2 {
@@ -47,11 +48,41 @@ impl Particle2 {
             history,
             last_pos,
             max_speed,
+        }
     }
 
     pub fn apply_force(&mut self, _force: Vec2) {
         let force = _force / self.mass; //Accel = Force/Mass
         self.acc += force;
+    }
+
+    pub fn avoid(&mut self, _target: Vec2) {
+        let d = self.pos.distance(_target);
+        
+        let mut diff = vec2(0.0, 0.0);
+
+        if d < self.size {
+            diff = _target - self.pos;
+
+            diff *= -1.0;
+
+            diff = diff.normalize();
+            // diff = diff.clamp_length_max(self.max_speed); //can use another speed for avoid
+
+            diff *= self.max_speed;
+
+        }
+
+        // reynold's steering: steering = desired - velocity
+        let mut steer = diff - self.vel;
+
+        // steer = steer
+        let max_avoid_force = 0.1;
+        steer = steer.clamp_length_max(steer.length() * max_avoid_force);
+
+        self.apply_force(steer);
+
+
     }
 
     pub fn update(&mut self) {
@@ -63,13 +94,13 @@ impl Particle2 {
         self.vel = self.vel.clamp_length_max(self.max_speed);
 
         // 3. preserve our last pos
-        // self.last_pos = self.pos;
+        self.last_pos = self.pos;
 
         //4. update the position based on the velocity
         self.pos += self.vel;
 
         //Get the Euclidean distance between current and previous poss
-        //let dist = self.pos.distance(self.last_pos);
+        let dist = self.pos.distance(self.last_pos);
 
         // println!("{}", dist);
 
@@ -79,20 +110,51 @@ impl Particle2 {
 
     //particle collision with a line
     pub fn collide_line(&mut self, line:&Line) {
-        self.pos.y = line.get_y_at_x(self.pos.x) + (self.display_size/2.0);//offset
-  
+
+        // 1. adjust position (don't fall through line)
+        self.pos.y = line.get_y_at_x(self.pos.x) + (self.size/2.0);//offset
+        
+        // 2. bounce
+
         // self.vel *= -self.vel * 0.1;
         self.vel += line.normal_p1;
         let dist = self.pos.distance(self.last_pos);
+        self.vel = self.vel.clamp_length_max(dist*0.5);
 
-        self.vel = self.vel.clamp_length_max(dist*2.0);
+        // let mut diff =  line.normal_p1 - self.pos;
+        let mut p = vec2(0.0, 0.0);
+        if line.A.y < line.B.y {
+            p = line.A;
+        } else {
+            p = line.B;
+        }
+        let mut diff =  p - self.pos;
+
+        //diff *= -1.0;
+
+        diff = diff.normalize();
+            // diff = diff.clamp_length_max(self.max_speed); //can use another speed for avoid
+
+        diff *= self.max_speed;
+
+        // reynold's steering: steering = desired - velocity
+        let mut steer = diff - self.vel;
+
+        // steer = steer
+        let max_avoid_force = 0.1;
+        steer = steer.clamp_length_max(steer.length() * max_avoid_force);
+
+        self.apply_force(steer);
+        //let dist = self.pos.distance(self.last_pos);
+        
+        // self.vel = self.vel.clamp_length_max(self.max_speed);
     }
 
     pub fn display(&self, draw: &Draw) {
         // Display circle at x pos
         draw.ellipse()
             .xy(self.pos)
-            .w_h(self.display_size, self.display_size)
+            .w_h(self.size, self.size)
             .rgba(0.0, 0.0, 0.0, 0.1)
             .stroke(BLUE)
             .stroke_weight(2.0);
@@ -117,7 +179,7 @@ impl Particle2 {
     //     // let has_intersect = intersects_line(self.orig, self.pos, p1, p2);
     //     // if has_intersect {
     //     //     self.vel.y *= -1.0;
-    //     //     // self.pos.y -= self.display_size;
+    //     //     // self.pos.y -= self.size;
     //     // }
     // }
 
@@ -196,27 +258,27 @@ impl Particle2 {
         
         let MARGIN = 0.0;
 
-        let off_x = self.display_size/2.0;
-        let off_y = self.display_size/2.0;
+        let off_x = self.size/2.0;
+        let off_y = self.size/2.0;
 
         if self.pos.y > rect.w()/2.0 - off_x  { //past top edge
-            self.pos.y = rect.w()/2.0 - (self.display_size/2.0) - MARGIN;
+            self.pos.y = rect.w()/2.0 - (self.size/2.0) - MARGIN;
             self.vel.y *= -1.0;
         } else 
 
         if self.pos.y < -rect.w()/2.0 + off_x { // past bottom edge
-            self.pos.y = -rect.w()/2.0 + (self.display_size/2.0) + MARGIN;
+            self.pos.y = -rect.w()/2.0 + (self.size/2.0) + MARGIN;
             self.vel.y *= -1.0;
         } else 
     
         if self.pos.x < -rect.w()/2.0 + off_y { //past left edge
-            self.pos.x = -rect.w()/2.0 + (self.display_size/2.0) + MARGIN;
+            self.pos.x = -rect.w()/2.0 + (self.size/2.0) + MARGIN;
             self.vel.x *= -1.0;
             
         } else 
 
         if self.pos.x > rect.w()/2.0 - off_y{ //past right edge
-            self.pos.x = rect.w()/2.0 - (self.display_size/2.0) - MARGIN;
+            self.pos.x = rect.w()/2.0 - (self.size/2.0) - MARGIN;
             self.vel.x *= -1.0;
         }
         self.vel = self.vel.clamp_length_max(self.max_speed*0.5);
