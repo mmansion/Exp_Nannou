@@ -98,7 +98,7 @@
 				""
 				"	pub fn update(&mut self) {}"
 				""
-				"	pub fn display(&mut self) {}"
+				"	pub fn display(&self) {}"
 			"}"
 		]
 	},

@@ -27,7 +27,6 @@ use library::grid;
 // // module tree
 // use crate::lib::grid::Grid as Grid;
 
-
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence
 static WIDTH    : f32 = 800.0;
