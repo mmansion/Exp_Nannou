@@ -71,6 +71,8 @@ impl Particle2 {
 
             diff *= self.max_speed;
 
+            
+
         }
 
         // reynold's steering: steering = desired - velocity
@@ -81,6 +83,8 @@ impl Particle2 {
         steer = steer.clamp_length_max(steer.length() * max_avoid_force);
 
         self.apply_force(steer);
+
+        
 
 
     }
@@ -100,7 +104,7 @@ impl Particle2 {
         self.pos += self.vel;
 
         //Get the Euclidean distance between current and previous poss
-        let dist = self.pos.distance(self.last_pos);
+        //let dist = self.pos.distance(self.last_pos);
 
         // println!("{}", dist);
 
@@ -110,6 +114,7 @@ impl Particle2 {
 
     //particle collision with a line
     pub fn collide_line(&mut self, line:&Line) {
+        
 
         // 1. adjust position (don't fall through line)
         self.pos.y = line.get_y_at_x(self.pos.x) + (self.size/2.0);//offset
@@ -119,7 +124,8 @@ impl Particle2 {
         // self.vel *= -self.vel * 0.1;
         self.vel += line.normal_p1;
         let dist = self.pos.distance(self.last_pos);
-        self.vel = self.vel.clamp_length_max(dist*0.5);
+        self.vel = self.vel.clamp_length_max(dist);
+
 
         // let mut diff =  line.normal_p1 - self.pos;
         let mut p = vec2(0.0, 0.0);
@@ -128,23 +134,23 @@ impl Particle2 {
         } else {
             p = line.B;
         }
-        let mut diff =  p - self.pos;
+        // let mut diff =  p - self.pos;
 
-        //diff *= -1.0;
+        // //diff *= -1.0;
 
-        diff = diff.normalize();
-            // diff = diff.clamp_length_max(self.max_speed); //can use another speed for avoid
+        // diff = diff.normalize();
+        //     // diff = diff.clamp_length_max(self.max_speed); //can use another speed for avoid
 
-        diff *= self.max_speed;
+        // diff *= self.max_speed;
 
-        // reynold's steering: steering = desired - velocity
-        let mut steer = diff - self.vel;
+        // // reynold's steering: steering = desired - velocity
+        // let mut steer = diff - self.vel;
 
-        // steer = steer
-        let max_avoid_force = 0.1;
-        steer = steer.clamp_length_max(steer.length() * max_avoid_force);
+        // // steer = steer
+        // let max_avoid_force = 0.1;
+        // steer = steer.clamp_length_max(steer.length() * max_avoid_force);
 
-        self.apply_force(steer);
+        // self.apply_force(steer);
         //let dist = self.pos.distance(self.last_pos);
         
         // self.vel = self.vel.clamp_length_max(self.max_speed);

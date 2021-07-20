@@ -20,7 +20,7 @@ static CAPTURE  : bool = false; // capture to image sequence
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 static PARTICLE_SIZE : f32 = 80.0;
-static PARTICLE_MASS : f32 = 20.0;
+static PARTICLE_MASS : f32 = 1000.0;
 
 //--------------------------------------------------------
 fn main() { nannou::app(model).update(update).run() }
