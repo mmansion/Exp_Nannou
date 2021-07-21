@@ -34,7 +34,7 @@ impl Particle2 {
         let vel = vec2(0.0, 0.0);
         let acc = vec2(0.0, 0.0);
 
-        let max_speed = 100.0;
+        let max_speed = 50.0;
         let speed = 0.0;
 
         Particle2 {
@@ -125,7 +125,7 @@ impl Particle2 {
         self.vel += line.normal_p1;
         let dist = self.pos.distance(self.last_pos);
         self.vel = self.vel.clamp_length_max(dist);
-
+        self.vel = self.vel.clamp_length_max(self.max_speed);
 
         // let mut diff =  line.normal_p1 - self.pos;
         let mut p = vec2(0.0, 0.0);
@@ -162,8 +162,8 @@ impl Particle2 {
             .xy(self.pos)
             .w_h(self.size, self.size)
             .rgba(0.0, 0.0, 0.0, 0.1)
-            .stroke(BLUE)
-            .stroke_weight(2.0);
+            .stroke(WHITE)
+            .stroke_weight(3.0);
     }
 
     pub fn display_line(&self, draw: &Draw) {

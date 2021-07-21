@@ -39,18 +39,24 @@ path = "learning/bezier_curve_cubic.rs"
 # rain-bow artwork development
 
 [[example]]
+name = "rain-bow-5"
+path = "rain-bow/rain-bow-5.rs"
+
+[[example]]
 name = "rain-bow-4"
 path = "rain-bow/rain-bow-4.rs"
+
 [[example]]
 name = "rain-bow-3"
 path = "rain-bow/rain-bow-3.rs"
+
 [[example]]
 name = "rain-bow-2"
 path = "rain-bow/rain-bow-2.rs"
+
 [[example]]
 name = "rain-bow-1"
 path = "rain-bow/rain-bow-1.rs"
-
 
 #--------------------------------------------------------
 # n-series / daily sketches
