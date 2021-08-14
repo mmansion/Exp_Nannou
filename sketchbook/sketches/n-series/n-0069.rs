@@ -1,9 +1,8 @@
 /*
-* name
+* daily sketching
+* blob shape
 *
-* description of app
-*
-* mikhail mansion YYYY
+* mikhail mansion Jul 24 2021
 */
 
 use nannou::prelude::*;
@@ -13,15 +12,13 @@ use std::ops::Range;
 use nannou::Draw;
 use std::time::Duration;
 
-use library::grid;
+// use library::grid;
 
 // mod colors;
 // mod quadtree;
 // use crate::colors::Palette;
 // use crate::grid::
-
 // use library;
-
 // pub mod library;
 
 // // module tree
@@ -104,15 +101,55 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     let bg = rgba(0.13, 0.0, 0.1, 0.01);
 
-    if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
+    if app.elapsed_frames() == 10 { 
         draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
     } else {
         draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
     }
     
     //--------------------------------------------------------
+    let r = 200.0; //radius value
 
-    
+    let angles = 360;
+    // initialize array with 360 Vec2 vars
+    // let mut points = [vec2(0.0,0.0); angles];
+
+    // create a vec array type
+    // initialize each array position with a value (vec2)
+    let mut points = vec![vec2(0.0, 0.0); angles];
+
+    //let a = [0; 30], initializes zero to the first 30 elements
+
+    for i in (0..angles).step_by(20) {
+        // let i = i as f32;
+        let a = (i as f32).to_radians();
+        // println!("{}", a.sin() * 100.0);
+        let offset = map_range((app.elapsed_frames() as f32 * 0.01).sin(), -1.0, 1.0, -25.0, 25.0);
+
+        let offset_r = r + offset;
+
+        let x = a.cos() * offset_r;
+        let y = a.sin() * offset_r;
+
+        // points[i]
+        points[i] = vec2(x, y);
+
+        draw.rotate(app.time*0.1)
+        .ellipse()
+        .x_y(x, y)
+        .radius(3.0)
+        .color(RED);
+        // ...
+    }
+
+    // draw
+    // .rotate(app.time)
+    // .polyline()
+    // .stroke_weight(1.0)
+    // .caps_round()
+    // .color(WHITE)
+    // .points(points)
+    // ;
     //--------------------------------------------------------
     // draw frame
     

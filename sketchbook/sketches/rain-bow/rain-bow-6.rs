@@ -233,6 +233,8 @@ fn model(app: &App) -> Model {
 
     app.new_window()
         .mouse_pressed(mouse_pressed)
+        // .fullscreen()
+        // .fullscreen( Some(nannou::winit::window::Fullscreen::Borderless(app.primary_monitor(),)) )
         .size(1920, 800)
         .view(view)
         .build()
@@ -444,3 +446,32 @@ fn mouse_pressed(app: &App, m: &mut Model, b: MouseButton) {
     let last_ix = m.particles.len() as usize;
     m.particles.push(Particle2::new(app.mouse.x, HEIGHT/2.0, PARTICLE_MASS, PARTICLE_SIZE));
 }
+
+// fn event(app: &App, model: &mut Model, event: Event) {
+    
+//     if let Event::WindowEvent {
+//         id: _,
+//         simple: window_event,
+//     } = event
+
+//     {
+//         if let Some(window_event) = window_event {
+//             if let KeyPressed(key) = window_event {
+//                 match key {
+//                     Key::F => {
+//                         let window = app.window(model.window).unwrap();
+//                         let new_fullscreen = if let Some(_) = window.fullscreen() {
+//                             None
+//                         } else {
+//                             Some(nannou::winit::window::Fullscreen::Borderless(
+//                                 app.primary_monitor(),
+//                             ))
+//                         };
+//                         window.set_fullscreen(new_fullscreen);
+//                     }
+//                     _ => (),
+//                 }
+//             }
+//         }
+//     }
+// }

@@ -7,8 +7,14 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nannou = "0.17.0"
+# nannou = "0.17.1"
+nannou = { path = "../../nannou/nannou" }
+# nannou = { version ="0.16.0", path = "../../test/nannou/nannou" }
 
+[patch.crates-io]
+# nannou = { version ="0.16.0", path = "../../test/nannou" }
+
+# mikhail's stuffs
 library = { path = "../library" }
 
 #--------------------------------------------------------
@@ -39,6 +45,10 @@ path = "learning/bezier_curve_cubic.rs"
 # rain-bow artwork development
 
 [[example]]
+name = "rain-bow-6"
+path = "rain-bow/rain-bow-6.rs"
+
+[[example]]
 name = "rain-bow-5"
 path = "rain-bow/rain-bow-5.rs"
 
@@ -60,6 +70,22 @@ path = "rain-bow/rain-bow-1.rs"
 
 #--------------------------------------------------------
 # n-series / daily sketches
+
+[[example]]
+name = "69"
+path = "n-series/n-0069.rs"
+
+[[example]]
+name = "68"
+path = "n-series/n-0068.rs"
+
+[[example]]
+name = "67"
+path = "n-series/n-0067.rs"
+
+[[example]]
+name = "66"
+path = "n-series/n-0066.rs"
 
 [[example]]
 name = "65"
