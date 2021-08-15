@@ -7,11 +7,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# nannou = "0.17.1"
-nannou = { path = "../../nannou/nannou" }
+nannou = "0.17.1"
+# nannou = { path = "../../nannou/nannou" }
 # nannou = { version ="0.16.0", path = "../../test/nannou/nannou" }
 
-[patch.crates-io]
+# [patch.crates-io]
 # nannou = { version ="0.16.0", path = "../../test/nannou" }
 
 # mikhail's stuffs
@@ -70,6 +70,10 @@ path = "rain-bow/rain-bow-1.rs"
 
 #--------------------------------------------------------
 # n-series / daily sketches
+
+[[example]]
+name = "70"
+path = "n-series/n-0070.rs"
 
 [[example]]
 name = "69"

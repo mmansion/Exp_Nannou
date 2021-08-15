@@ -20,12 +20,13 @@ use std::time::Duration;
 // use crate::grid::
 // use library;
 // pub mod library;
+use library::grid::Grid as Grid;
 
 // // module tree
-// use crate::lib::grid::Grid as Grid;
+//use crate::grid::Grid as Grid;
 
 //--------------------------------------------------------
-static CAPTURE  : bool = true; // capture to image sequence
+static CAPTURE  : bool = false; // capture to image sequence
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 
@@ -39,6 +40,8 @@ struct Model {
     this_capture_frame : i32,
     last_capture_frame : i32,
     last_calc : Duration,
+    
+    grid: Grid,
 }
 
 //--------------------------------------------------------
@@ -57,6 +60,8 @@ fn model(app: &App) -> Model {
 
     let mut last_calc = Duration::from_millis(0);
 
+    let grid = Grid::new(10.0, 10.0, 10, 10, &rect);
+
     //--------------------------------------------------------
     let mut this_capture_frame = 0;
     let mut last_capture_frame = 0;
@@ -67,6 +72,7 @@ fn model(app: &App) -> Model {
         this_capture_frame, 
         last_capture_frame, 
         last_calc,
+        grid
     }
 } 
 
@@ -106,6 +112,9 @@ fn view(app: &App, m: &Model, frame: Frame) {
     } else {
         draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
     }
+
+    //--------------------------------------------------------
+    m.grid.draw(&draw);
     
     //--------------------------------------------------------
     let r = 200.0; //radius value

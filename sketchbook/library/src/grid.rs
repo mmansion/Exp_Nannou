@@ -14,7 +14,16 @@ pub struct Grid {
 }
 
 impl Grid {
+    /** 
+    
+    @params:
+        rows : 
+        cols :
+        row_spacing:
+        col_spacing:
+        rect: determin w/h of grid
 
+    */
     pub fn new(rows: f32, cols: f32, row_spacing: i32, col_spacing: i32, rect: &Rect) -> Self {
         
         let width    = rect.w() as i32;
