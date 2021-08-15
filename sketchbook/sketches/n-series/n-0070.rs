@@ -26,7 +26,7 @@ use library::grid::Grid as Grid;
 //use crate::grid::Grid as Grid;
 
 //--------------------------------------------------------
-static CAPTURE  : bool = false; // capture to image sequence
+static CAPTURE  : bool = true; // capture to image sequence
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 
@@ -42,6 +42,9 @@ struct Model {
     last_calc : Duration,
     
     grid: Grid,
+    dir : f32,
+    scale : f32,
+    color: Hsva
 }
 
 //--------------------------------------------------------
@@ -66,13 +69,20 @@ fn model(app: &App) -> Model {
     let mut this_capture_frame = 0;
     let mut last_capture_frame = 0;
 
+    let dir = 1.0;
+    let scale = 0.0;
+    let color = hsva(1.0, 1.0, 1.0, 1.0);
+
     //--------------------------------------------------------
 
     Model {
         this_capture_frame, 
         last_capture_frame, 
         last_calc,
-        grid
+        grid,
+        dir,
+        scale,
+        color
     }
 } 
 
@@ -93,6 +103,22 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     if CAPTURE {
         m.this_capture_frame += 1;
     }
+
+    //--------------------------------------------------------
+
+    if m.scale > 1.5 { 
+        m.dir = -1.0; 
+    }
+
+    if m.scale < 0.0 {
+        m.dir = 1.0;
+    }
+
+    let speed = 0.03;
+    m.scale = app.time * speed * m.dir;
+
+    m.color = hsva(map_range( (app.time * 0.1), -1.0, 1.0, 0.0, 1.0), 1.0, 1.0, 1.0);
+
 }
 
 fn view(app: &App, m: &Model, frame: Frame) {
@@ -105,42 +131,31 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //--------------------------------------------------------
     // background
 
-    let bg = rgba(1.0, 1.0, 1.0, 0.001);
+    let bg = rgba(0.0, 0.0, 0.0, 0.001);
 
     if app.elapsed_frames() == 10 { 
-        draw.background().color(rgba(1.0, 1.0, 1.0, 1.0));
+        // draw.background().color(rgba(1.0, 1.0, 1.0, 1.0));
+        draw.background().color(rgba(0.0, 0.0, 0.0, 1.0));
     } else {
         draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
     }
 
     //--------------------------------------------------------
-    m.grid.draw(&draw);
+    //m.grid.draw(&draw);
     
     //--------------------------------------------------------
     let r = 200.0; //radius value
 
     let angles = 360;
-    // initialize array with 360 Vec2 vars
-    // let mut points = [vec2(0.0,0.0); angles];
-
-    // create a vec array type
-    // initialize each array position with a value (vec2)
-    // let a = [0; 30], initializes zero to the first 30 elements
     let mut points = vec![vec2(0.0, 0.0); angles];
+    let offset_size = 20.0;
+    let draw = draw.rotate(app.time*0.1).scale(m.scale);
 
-    let offset_size = 50.0;
-
-    let draw = draw.rotate(app.time*0.1);
-    let draw = draw.scale( map_range(time.sin()*0.2, -1.0, 1.0, 0.01, 3.0));
-
-    for i in (0..angles).step_by(20) {
-        // let i = i as f32;
+    for i in (0..angles).step_by(30) {
         let a = (i as f32).to_radians();
-        // println!("{}", a.sin() * 100.0);
-        //let offset = map_range((app.elapsed_frames() as f32 * 0.05).sin() * 50.0, -50.0, 50.0, -offset_size, offset_size);
+        let offset = map_range((app.elapsed_frames() as f32 * 0.05).sin(), -1.0, 1.0, -offset_size, offset_size);
 
-        // let offset_r = r + offset;
-        let offset_r = r;
+        let offset_r = r + offset;
 
         let x = a.cos() * offset_r;
         let y = a.sin() * offset_r;
@@ -151,19 +166,12 @@ fn view(app: &App, m: &Model, frame: Frame) {
         draw.rotate(app.time*0.2)
         .ellipse()
         .x_y(x, y)
-        .radius(map_range( abs(time.sin() * 0.2), 0.0, 1.0, 1.0, 4.0))
-        .hsva(map_range( abs(time.sin() * 0.1), 0.4, 0.9, 0.1, 0.75), 1.0, 1.0, 0.4);
-        // ...
+        .radius(m.scale * 2.0)
+        .color(m.color)
+        ;
     }
 
-    // draw
-    // .rotate(app.time)
-    // .polyline()
-    // .stroke_weight(1.0)
-    // .caps_round()
-    // .color(WHITE)
-    // .points(points)
-    // ;
+
     //--------------------------------------------------------
     // draw frame
     
