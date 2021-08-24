@@ -7,7 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nannou = "0.15.0"
+nannou = "0.17.1"
+nannou_osc = "0.17.0"
 
 # add-one = { path = "../add-one" }
 library = { path = "../library" }
@@ -18,3 +19,7 @@ library = { path = "../library" }
 [[example]]
 name = "basic_nannou_app"
 path = "basic_nannou_app.rs"
+
+[[example]]
+name = "mm_nannou_app"
+path = "mm_nannou_app.rs"

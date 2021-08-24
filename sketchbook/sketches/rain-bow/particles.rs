@@ -1,5 +1,9 @@
 use nannou::prelude::*;
 use std::collections::VecDeque;
+
+// trying to import parallel module
+// https://dev.to/stevepryde/intro-to-rust-modules-3g8k
+
 use super::line::Line;
 
 pub struct Particle2 {
