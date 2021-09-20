@@ -13,12 +13,17 @@ use std::ops::Range;
 use nannou::Draw;
 use std::time::Duration;
 
-use library::easing;
+use library::easing as easing;
 
 //--------------------------------------------------------
-static CAPTURE  : bool = false; // capture to image sequence
+static CAPTURE  : bool = false; // capture to image sequence (or use obs)
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
+static OFFSET   : f32 = 150.0;
+
+static TOP : usize = 0;
+static MID : usize = 1;
+static BTM : usize = 2;
 
 //--------------------------------------------------------
 fn main() {
@@ -27,26 +32,52 @@ fn main() {
 
 //--------------------------------------------------------
 struct Model {
+    // Store the window ID so we can refer to this specific window later if needed.
+    _window: WindowId,
     this_capture_frame : i32,
     last_capture_frame : i32,
     last_calc : Duration,
+    left_line  : Vec<Vec2>,
+    right_line : Vec<Vec2>,
+    left_orig  : Vec2, 
+    right_orig : Vec2,
 }
 
 //--------------------------------------------------------
 fn model(app: &App) -> Model {
 
     let rect = Rect::from_w_h( WIDTH, HEIGHT );
-    
-    // app.set_loop_mode(LoopMode::loop_once());
-    // app.set_loop_mode(LoopMode::rate_fps(0.1));
-    
-    app.new_window()
-        .size(800, 800)
+
+    let _window = app
+        .new_window()
+        .size(WIDTH as u32, HEIGHT as u32)
+        .decorations(false) //creates a borderless window
         .view(view)
         .build()
-        .unwrap();
+        .unwrap()
+        ;
+
 
     let mut last_calc = Duration::from_millis(0);
+
+    
+    //--------------------------------------------------------
+    let mut left_line = Vec::new();
+    let mut right_line  = Vec::new();
+
+    
+    let left_orig = vec2(-rect.w()/2.0 + OFFSET * 2.0 , 0.0);
+    let right_orig = vec2(rect.w()/2.0 - OFFSET * 2.0 , 0.0);
+
+    left_line.push(vec2(-rect.w()/2.0 + OFFSET, rect.h() - OFFSET));
+    left_line.push(vec2(-rect.w()/2.0 + OFFSET * 2.0 , 0.0));
+    left_line.push(vec2(-rect.w()/2.0 + OFFSET, -rect.h() + OFFSET));
+
+    
+    right_line.push(vec2(rect.w()/2.0 - OFFSET, rect.h() - OFFSET));
+    right_line.push(vec2(rect.w()/2.0 - OFFSET * 2.0 , 0.0));
+    right_line.push(vec2(rect.w()/2.0 - OFFSET, -rect.h() + OFFSET));
+    
 
     //--------------------------------------------------------
     let mut this_capture_frame = 0;
@@ -55,9 +86,14 @@ fn model(app: &App) -> Model {
     //--------------------------------------------------------
 
     Model {
+        _window,
         this_capture_frame, 
         last_capture_frame, 
         last_calc,
+        left_line,
+        right_line,
+        left_orig,
+        right_orig
     }
 } 
 
@@ -78,6 +114,19 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     if CAPTURE {
         m.this_capture_frame += 1;
     }
+
+    //--------------------------------------------------------
+    // update line points
+
+    let t = app.time;
+    let x = app.time.sin() * 0.9;
+    // println!("{}", x);
+
+    m.left_line[MID].x = m.left_orig.x + easing::ease_in_sin(x) * OFFSET;
+    m.right_line[MID].x = m.right_orig.x + easing::ease_in_sin(x) * -OFFSET;
+
+    //--------------------------------------------------------
+
 }
 
 fn view(app: &App, m: &Model, frame: Frame) {
@@ -90,16 +139,44 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //--------------------------------------------------------
     // background
 
-    let bg = rgba(0.13, 0.0, 0.1, 0.01);
+    let bg = rgba(1.0, 1.0, 1.0, 0.001);
 
-    if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
+    if app.elapsed_frames() == 1 { //must clear render context once for fullscreen
         draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
     } else {
         draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
     }
-    
-    //--------------------------------------------------------
 
+
+    //--------------------------------------------------------
+    let draw = draw.rotate( time * 0.5);
+
+    //--------------------------------------------------------
+    let left_line_points = [
+        m.left_line[TOP], 
+        m.left_line[MID], 
+        m.left_line[BTM]
+    ];
+
+    draw
+    .polyline()
+    .weight(1.0)
+    .color(BLACK)
+    .points(left_line_points)
+    ;
+
+    let right_line_points = [
+        m.right_line[TOP], 
+        m.right_line[MID], 
+        m.right_line[BTM]
+    ];
+
+    draw
+    .polyline()
+    .weight(1.0)
+    .color(BLACK)
+    .points(right_line_points)
+    ;
     
     //--------------------------------------------------------
     // draw frame
