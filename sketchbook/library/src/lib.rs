@@ -1,3 +1,4 @@
+pub mod easing;
 pub mod foo;
 pub mod grid;
 pub mod grid2;
