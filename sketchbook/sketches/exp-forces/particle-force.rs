@@ -59,6 +59,9 @@ fn model(app: &App) -> Model {
 
     //--------------------------------------------------------
     let mut particles = Vec::new(); 
+    let particle_mass = 100.0;
+    let particle_size = 300.0;
+    particles.push( Particle::new(0.0, 0.0, particle_mass, particle_size) );
 
     //--------------------------------------------------------
     let mut this_capture_frame = 0;
@@ -93,6 +96,24 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     if CAPTURE {
         m.this_capture_frame += 1;
+    }
+
+    //--------------------------------------------------------
+
+    for i in 0..m.particles.len() { 
+
+        //avoid
+        //return
+        //update
+        //render
+
+        // let wind = vec2(0.01, 0.0);
+        let gravity = vec2(0.0, -0.1 * m.particles[i].mass);
+
+        m.particles[i].apply_force(gravity);
+
+        m.particles[i].update();
+        m.particles[i].check_bounds(app.window_rect());
     }
 
     //--------------------------------------------------------
@@ -135,7 +156,10 @@ fn view(app: &App, m: &Model, frame: Frame) {
     }
     
     //--------------------------------------------------------
-    
+    for particle in &m.particles {
+        particle.display(&draw);
+        // particle.display_line(&draw);
+    }
 
     //--------------------------------------------------------
     // draw frame
