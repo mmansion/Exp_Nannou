@@ -72,7 +72,6 @@ impl Particle2 {
 
             diff *= self.max_speed;
 
-            
 
         }
 

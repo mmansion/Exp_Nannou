@@ -6,7 +6,7 @@ use std::ops::Range;
 use nannou::Draw;
 use std::time::Duration;
 
-//use library::grid;
+use library::particles::Particle2 as Particle;
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
@@ -30,6 +30,8 @@ struct Model {
     last_calc : Duration,
     receiver: osc::Receiver,
     received_packets: Vec<(std::net::SocketAddr, osc::Packet)>,
+
+    particles: Vec<Particle>,
 }
 
 //--------------------------------------------------------
@@ -56,6 +58,9 @@ fn model(app: &App) -> Model {
     let mut last_calc = Duration::from_millis(0);
 
     //--------------------------------------------------------
+    let mut particles = Vec::new(); 
+
+    //--------------------------------------------------------
     let mut this_capture_frame = 0;
     let mut last_capture_frame = 0;
 
@@ -67,7 +72,8 @@ fn model(app: &App) -> Model {
         last_capture_frame, 
         last_calc,
         receiver,
-        received_packets
+        received_packets,
+        particles
     }
 } 
 

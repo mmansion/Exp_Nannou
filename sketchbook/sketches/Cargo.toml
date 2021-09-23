@@ -8,6 +8,8 @@ edition = "2018"
 
 [dependencies]
 nannou = "0.17.1"
+nannou_osc = "0.17.0"
+
 # nannou = { path = "../../nannou/nannou" }
 # nannou = { version ="0.16.0", path = "../../test/nannou/nannou" }
 
@@ -71,6 +73,13 @@ path = "rain-bow/rain-bow-2.rs"
 [[example]]
 name = "rain-bow-1"
 path = "rain-bow/rain-bow-1.rs"
+
+#--------------------------------------------------------
+# exp-forces
+
+[[example]]
+name="particle-force"
+path="exp-forces/particle-force.rs"
 
 #--------------------------------------------------------
 # n-series / daily sketches
