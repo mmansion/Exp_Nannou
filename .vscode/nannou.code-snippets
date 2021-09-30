@@ -52,14 +52,14 @@
 	},
 
 	// points array
-	"points_array": {
-		"prefix": "points_array",
-		"body": [
-			"let points = ["
-            "	//p1, p2, etc"
-			"];"
-		]
-	},
+	// "points_array": {
+	// 	"prefix": "points_array",
+	// 	"body": [
+	// 		"let points = ["
+    //         "	//p1, p2, etc"
+	// 		"];"
+	// 	]
+	// },
 
 	// drawing shapes
 	"draw.polyline": {
@@ -80,25 +80,25 @@
 		"prefix": "struct",
 		"body": [
 			"struct MyStruct {",
-			"	A:Vec2,",
-			"	B:Vec2,",
-			"}"
-			""
-			"impl MyStruct {"
-				""
-				"	fn new(p1:Vec2, p2:Vec2) -> Self {"
-				"		let A = p1;"
-				"		let B = p2;"
-				""
-				"		MyStruct {"
-				"			A,"
-				"			B,"
-				"		}"
-				"	}"
-				""
-				"	pub fn update(&mut self) {}"
-				""
-				"	pub fn display(&self) {}"
+			"\tA:Vec2,",
+			"\tB:Vec2,",
+			"}",
+			"",
+			"impl MyStruct {",
+				"",
+				"\tfn new(p1:Vec2, p2:Vec2) -> Self {",
+				"\t\tlet A = p1;",
+				"\t\tlet B = p2;",
+				"",
+				"\t\tMyStruct {",
+				"\t\t\tA,",
+				"\t\t\tB,",
+				"\t\t}",
+				"\t}",
+				"",
+				"\tpub fn update(&mut self) {}",
+				"",
+				"\tpub fn display(&self) {}",
 			"}"
 		]
 	},
