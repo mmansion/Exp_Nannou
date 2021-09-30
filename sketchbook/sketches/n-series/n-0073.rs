@@ -1,29 +1,21 @@
-/*
-* n-0072
-*
-* daily sketching
-*
-* mikhail mansion 2021
-*/
-
 use nannou::prelude::*;
 use nannou::geom::*;
 use nannou::geom::Point2;
+use nannou_osc as osc;
 use std::ops::Range;
 use nannou::Draw;
 use std::time::Duration;
 
-use library::easing as easing;
+//use library::grid;
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
+static FRAME    : bool = true; //hide window chrome when set to false
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
-static OFFSET   : f32 = 150.0;
 
-static TOP : usize = 0;
-static MID : usize = 1;
-static BTM : usize = 2;
+// Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
+const PORT: u16 = 6555;
 
 //--------------------------------------------------------
 fn main() {
@@ -32,73 +24,50 @@ fn main() {
 
 //--------------------------------------------------------
 struct Model {
-    // Store the window ID so we can refer to this specific window later if needed.
-    _window: WindowId,
+    window_id: WindowId,
     this_capture_frame : i32,
     last_capture_frame : i32,
     last_calc : Duration,
-    left_line  : Vec<Vec2>,
-    right_line : Vec<Vec2>,
-    left_orig  : Vec2, 
-    right_orig : Vec2,
-
-    draw_seed_pos : Vec2,
+    receiver: osc::Receiver,
+    received_packets: Vec<(std::net::SocketAddr, osc::Packet)>,
 }
 
 //--------------------------------------------------------
 fn model(app: &App) -> Model {
 
-    let rect = Rect::from_w_h( WIDTH, HEIGHT );
-
-    let _window = app
+    let window_id = app
         .new_window()
         .size(WIDTH as u32, HEIGHT as u32)
-        .decorations(false) //creates a borderless window
+        .decorations(FRAME) //creates a borderless window
         .view(view)
         .build()
         .unwrap()
         ;
 
+    // Bind an `osc::Receiver` to a port.
+    let receiver = osc::receiver(PORT).unwrap();
 
+    // A vec for collecting packets and their source address.
+    let received_packets = vec![];
+    
+    // app.set_loop_mode(LoopMode::loop_once());
+    // app.set_loop_mode(LoopMode::rate_fps(0.1));
+    
     let mut last_calc = Duration::from_millis(0);
-
-    
-    //--------------------------------------------------------
-    let mut left_line = Vec::new();
-    let mut right_line  = Vec::new();
-
-    
-    let left_orig = vec2(-rect.w()/2.0 + OFFSET * 2.0 , 0.0);
-    let right_orig = vec2(rect.w()/2.0 - OFFSET * 2.0 , 0.0);
-
-    left_line.push(vec2(-rect.w()/2.0 + OFFSET, rect.h() - OFFSET));
-    left_line.push(vec2(-rect.w()/2.0 + OFFSET * 2.0 , 0.0));
-    left_line.push(vec2(-rect.w()/2.0 + OFFSET, -rect.h() + OFFSET));
-
-    
-    right_line.push(vec2(rect.w()/2.0 - OFFSET, rect.h() - OFFSET));
-    right_line.push(vec2(rect.w()/2.0 - OFFSET * 2.0 , 0.0));
-    right_line.push(vec2(rect.w()/2.0 - OFFSET, -rect.h() + OFFSET));
-    
 
     //--------------------------------------------------------
     let mut this_capture_frame = 0;
     let mut last_capture_frame = 0;
 
-    let mut draw_seed_pos = vec2(0.0, 0.0);
-
     //--------------------------------------------------------
 
     Model {
-        _window,
+        window_id,
         this_capture_frame, 
         last_capture_frame, 
         last_calc,
-        left_line,
-        right_line,
-        left_orig,
-        right_orig,
-        draw_seed_pos
+        receiver,
+        received_packets
     }
 } 
 
@@ -121,19 +90,24 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     }
 
     //--------------------------------------------------------
-    // update line points
 
-    let t = app.time;
-    let x = app.time.sin() * 0.9;
-    // println!("{}", x);
+    //OSC
 
-    m.left_line[MID].x = m.left_orig.x + easing::ease_in_sin(x) * OFFSET;
-    m.right_line[MID].x = m.right_orig.x + easing::ease_in_sin(x) * -OFFSET;
+    // Receive any pending osc packets.
+    for (packet, addr) in m.receiver.try_iter() {
+        m.received_packets.push((addr, packet));
+    }
 
-    //--------------------------------------------------------
-    
-    //--------------------------------------------------------
+    //handle received packets
+    for &(addr, ref packet) in m.received_packets.iter().rev() {
+        println!("{}: {:?}\n", addr, packet);
+    }
 
+
+    while m.received_packets.len() > 0 {
+        m.received_packets.remove(0);
+    }
+ 
 }
 
 fn view(app: &App, m: &Model, frame: Frame) {
@@ -146,45 +120,17 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //--------------------------------------------------------
     // background
 
-    let bg = rgba(1.0, 1.0, 1.0, 0.001);
+    let bg = rgba(0.13, 0.0, 0.1, 0.01);
 
-    if app.elapsed_frames() == 1 { //must clear render context once for fullscreen
+    if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
         draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
     } else {
         draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
     }
-
-
-    //--------------------------------------------------------
-    let draw = draw.rotate( time * 0.5);
-
-    //--------------------------------------------------------
-    let left_line_points = [
-        m.left_line[TOP], 
-        m.left_line[MID], 
-        m.left_line[BTM]
-    ];
-
-    draw
-    .polyline()
-    .weight(1.0)
-    .color(BLACK)
-    .points(left_line_points)
-    ;
-
-    let right_line_points = [
-        m.right_line[TOP], 
-        m.right_line[MID], 
-        m.right_line[BTM]
-    ];
-
-    draw
-    .polyline()
-    .weight(1.0)
-    .color(BLACK)
-    .points(right_line_points)
-    ;
     
+    //--------------------------------------------------------
+    
+
     //--------------------------------------------------------
     // draw frame
     
