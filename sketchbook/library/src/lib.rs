@@ -9,4 +9,4 @@ pub mod points;
 pub mod bezier;
 pub mod math;
 pub mod line;
-pub mod cont_line; //continuous line
+pub mod lines; //collection of line-types

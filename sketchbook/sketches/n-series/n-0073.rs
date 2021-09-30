@@ -6,7 +6,7 @@ use std::ops::Range;
 use nannou::Draw;
 use std::time::Duration;
 
-//use library::grid;
+use library::lines::ContinousLine as ContinousLine;
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
@@ -30,6 +30,12 @@ struct Model {
     last_calc : Duration,
     receiver: osc::Receiver,
     received_packets: Vec<(std::net::SocketAddr, osc::Packet)>,
+
+    cont_line: ContinousLine,
+    position : Vec2,
+    speed : f32, //speed
+    x_dir: f32,
+    y_dir: f32,
 }
 
 //--------------------------------------------------------
@@ -56,6 +62,17 @@ fn model(app: &App) -> Model {
     let mut last_calc = Duration::from_millis(0);
 
     //--------------------------------------------------------
+   
+    let mut position = vec2(0.0, 0.0);
+    let mut speed = 1.0;
+    let mut x_dir = 1.0;
+    let mut y_dir = 1.0;
+
+    let mut cont_line = ContinousLine::new( position );
+
+    cont_line.stroke = rgba(1.0, 1.0, 1.0, 1.0);
+
+    //--------------------------------------------------------
     let mut this_capture_frame = 0;
     let mut last_capture_frame = 0;
 
@@ -67,7 +84,12 @@ fn model(app: &App) -> Model {
         last_capture_frame, 
         last_calc,
         receiver,
-        received_packets
+        received_packets,
+        position,
+        speed,
+        x_dir,
+        y_dir,
+        cont_line,
     }
 } 
 
@@ -107,6 +129,40 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     while m.received_packets.len() > 0 {
         m.received_packets.remove(0);
     }
+
+    //--------------------------------------------------------
+    // vertices
+
+    let win   = app.window_rect();
+
+    m.position.x += (m.speed * m.x_dir);
+    m.position.y += (m.speed * m.y_dir);
+
+    let mut v = vec2( m.position.x, m.position.y);
+
+    v.x += (app.time).cos() * 100.0;
+    v.y += (app.time).sin() * (app.time * 250.0).sin() * (app.time * 0.1).sin() * random_range(1.0, 100.0);
+    // v.y += (app.time * 0.1).sin() * random_range(1.0, 100.0);
+
+    m.cont_line.history.push(v);
+
+    if(m.position.x > win.w()/2.0 || m.position.x < -win.w()/2.0 ) {
+        m.x_dir *= -1.0;
+    }
+    
+    if(m.position.y > win.h()/2.0 || m.position.y < -win.h()/2.0 ) {
+        m.y_dir *= -1.0;
+    }
+
+    m.cont_line.weight=  (app.time * 0.1).sin() + 1.0;
+    let dist = (v - vec2(0.0, 0.0)).length();
+
+    m.cont_line.stroke = rgba(
+        map_range(dist, 1.0, win.w()/4.0, 1.0, 0.0), 
+        map_range(dist, 1.0, win.w()/4.0, 1.0, 0.0),
+        map_range(dist, 1.0, win.w()/4.0, 1.0, 0.0), 
+        1.0);
+    // println!("{}", )
  
 }
 
@@ -127,9 +183,14 @@ fn view(app: &App, m: &Model, frame: Frame) {
     } else {
         draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
     }
+
+    //--------------------------------------------------------
+
+    let draw = draw.rotate( app.time * 0.05);
     
     //--------------------------------------------------------
     
+    m.cont_line.display(&draw);
 
     //--------------------------------------------------------
     // draw frame
