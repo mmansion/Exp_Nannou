@@ -123,6 +123,9 @@ impl Vehicle {
         let top    = win.top() - self.margin as f32;
         let bottom = win.bottom() + self.margin as f32;
 
+        //update bc Vector2 was updated to geom::Vec2
+        // https://docs.rs/nannou/0.18.0/nannou/glam/struct.Vec2.html
+        
         let desired = if self.position.x < left {
             vec2(self.max_speed, self.velocity.y)
         } else if self.position.x > right {

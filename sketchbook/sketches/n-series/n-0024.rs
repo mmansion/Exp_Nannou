@@ -12,7 +12,7 @@ fn main() {
 
 struct Model {
     debug : bool,
-    // points : Vec<Vector2>, // points bin no.1
+    // points : Vec<Vec2>, // points bin no.1
     points: Vec<Point>,
     this_capture_frame : i32,
     last_capture_frame : i32,
@@ -23,8 +23,8 @@ struct Model {
 // ---------------------------------------------------------------------------
 struct Point {
     position: Point2,
-    velocity: Vector2,
-    acceleration: Vector2,
+    velocity: Vec2,
+    acceleration: Vec2,
     mass : f32,
     size : f32,
 }
@@ -54,10 +54,10 @@ impl Point {
 // ---------------------------------------------------------------------------
 
 struct Vehicle {
-    history: VecDeque<Vector2>,
-    position: Vector2,
-    velocity: Vector2,
-    acceleration: Vector2,
+    history: VecDeque<Vec2>,
+    position: Vec2,
+    velocity: Vec2,
+    acceleration: Vec2,
     r: f32,
     // Maximum steering force
     max_force: f32,
@@ -69,7 +69,7 @@ struct Vehicle {
 impl Vehicle {
     fn new(x: f32, y: f32) -> Self {
         let mass = 10.0;
-        let history = VecDeque::<Vector2>::with_capacity(10000);
+        let history = VecDeque::<Vec2>::with_capacity(10000);
         let position = vec2(x, y);
         let velocity = vec2(3.0, -2.0);
         let acceleration = vec2(0.0, 0.0);
@@ -94,7 +94,8 @@ impl Vehicle {
         // Update velocity
         self.velocity += self.acceleration;
         // Limit speed
-        self.velocity.limit_magnitude(self.max_speed);
+        self.velocity.clamp_length_max(self.max_speed);
+
         self.position += self.velocity;
         // Reset accelerationelertion to 0 each cycle
         self.acceleration *= 0.0;
@@ -104,15 +105,15 @@ impl Vehicle {
         }
     }
 
-    fn apply_force(&mut self, force: Vector2) {
+    fn apply_force(&mut self, force: Vec2) {
         // We could add mass here if we want A = F / M
         self.acceleration += force;
     }
 
-    fn repel(&self, p: &Point) -> Vector2 {
+    fn repel(&self, p: &Point) -> Vec2 {
 
         let mut force = self.position - p.position; // Calculate direction of force
-        let mut distance = force.magnitude(); // Distance between objects
+        let mut distance = force.length(); // Distance between objects
         distance = distance.max(1.0).min(10000.0); // Limiting the distance to eliminate "extreme" results for very cose or very far object
         force = force.normalize(); // Normalize vector (distance doesn't matter, we just want this vector for direction)
         let g = 1.0;
@@ -127,28 +128,38 @@ impl Vehicle {
         let top = win.top() - d;
         let bottom = win.bottom() + d;
 
-        let desired = match self.position {
-            Vector2 { x, .. } if x < left => Some(vec2(self.max_speed, self.velocity.y)),
-            Vector2 { x, .. } if x > right => Some(vec2(-self.max_speed, self.velocity.y)),
-            Vector2 { y, .. } if y < bottom => Some(vec2(self.velocity.x, self.max_speed)),
-            Vector2 { y, .. } if y > top => Some(vec2(self.velocity.x, -self.max_speed)),
-            _ => None,
+        let desired = if self.position.x < left {
+            vec2(self.max_speed, self.velocity.y)
+        } else if self.position.x > right {
+            vec2(-self.max_speed, self.velocity.y)
+        } else if self.position.y < bottom {
+            vec2(self.velocity.x, self.max_speed)
+        } else if self.position.y > top {
+            vec2(self.velocity.x, -self.max_speed)
+        } else {
+            vec2(0.0, 0.0)
         };
 
-        if let Some(desired) = desired {
+        // let desired = match self.position {
+        //     Vec2 { x, .. } if x < left => Some(vec2(self.max_speed, self.velocity.y)),
+        //     Vec2 { x, .. } if x > right => Some(vec2(-self.max_speed, self.velocity.y)),
+        //     Vec2 { y, .. } if y < bottom => Some(vec2(self.velocity.x, self.max_speed)),
+        //     Vec2 { y, .. } if y > top => Some(vec2(self.velocity.x, -self.max_speed)),
+        //     _ => None,
+        // };
+
+        //if let Some(desired) = desired {
             let desired = desired.normalize() * self.max_speed;
-            let steer = (desired - self.velocity).limit_magnitude(self.max_force);
+            let steer = (desired - self.velocity).clamp_length_max(self.max_force);
             self.apply_force(steer);
-        }
+        //}
     }
 }
 // ----------------------------------------------------------------------
 fn model(app: &App) -> Model {
 
-    let rect = Rect::from_w_h( WIDTH, HEIGHT );
-
     app.new_window()
-        .size(800, 800)
+        .size(WIDTH as u32, HEIGHT as u32)
         .view(view)
         .mouse_pressed(mouse_pressed)
         .build()
@@ -211,7 +222,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
 
     for i in 0..model.points.len() {
         let force = model.vehicle.repel( &model.points[i] );
-        let steer = force.limit_magnitude(model.vehicle.max_force);
+        let steer = force.clamp_length_max(model.vehicle.max_force);
         model.vehicle.apply_force(steer);
     }
     
