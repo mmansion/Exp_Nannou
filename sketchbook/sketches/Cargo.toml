@@ -85,6 +85,10 @@ path="exp-forces/particle-force.rs"
 # n-series / daily sketches
 
 [[example]]
+name = "78"
+path = "n-series/n-0078.rs"
+
+[[example]]
 name = "77"
 path = "n-series/n-0077.rs"
 

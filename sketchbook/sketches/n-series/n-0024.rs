@@ -205,7 +205,11 @@ fn model(app: &App) -> Model {
     }
 
 
-    Model { points, this_capture_frame, last_capture_frame, vehicle, debug, d }
+    Model { 
+        points, 
+        this_capture_frame, 
+        last_capture_frame, 
+        vehicle, debug, d }
 } 
 
 fn update(app: &App, model: &mut Model, _update: Update) {

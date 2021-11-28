@@ -5,7 +5,6 @@ use nannou_osc as osc;
 use std::ops::Range;
 use nannou::Draw;
 use std::time::Duration;
-use nannou::noise::*;
 
 //use library::grid;
 
@@ -14,7 +13,6 @@ static CAPTURE  : bool = false; // capture to image sequence (or use obs)
 static FRAME    : bool = false; //hide window chrome when set to false
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
-static BORDER   : f32 = 10.0;
 
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 6555;
@@ -32,8 +30,8 @@ struct Model {
     last_calc : Duration,
     receiver: osc::Receiver,
     received_packets: Vec<(std::net::SocketAddr, osc::Packet)>,
-    noise: Perlin,
-    last_pos: Vec2,
+
+    theta:f32,
 }
 
 //--------------------------------------------------------
@@ -47,8 +45,6 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap()
         ;
-
-    // app.set_loop_mode(LoopMode::loop_ntimes(1));
 
     // Bind an `osc::Receiver` to a port.
     let receiver = osc::receiver(PORT).unwrap();
@@ -67,12 +63,6 @@ fn model(app: &App) -> Model {
 
     //--------------------------------------------------------
 
-    let noise = Perlin::new();
-
-    let mut last_pos = vec2(WIDTH/2.0 + BORDER, 0.0);
-
-    //--------------------------------------------------------
-
     Model {
         window_id,
         this_capture_frame, 
@@ -80,8 +70,7 @@ fn model(app: &App) -> Model {
         last_calc,
         receiver,
         received_packets,
-        noise,
-        last_pos,
+        theta: 0.0
     }
 } 
 
@@ -121,6 +110,13 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     while m.received_packets.len() > 0 {
         m.received_packets.remove(0);
     }
+
+    //--------------------------------------------------------
+    let win   = app.window_rect();
+
+    let x = app.time.sin() * win.w() * 0.5;
+
+    m.theta = map_range(x, win.left(), win.right(), 0.0, PI / 2.0);
  
 }
 
@@ -134,158 +130,48 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //--------------------------------------------------------
     // background
 
-    let bg = rgba(0.0, 0.0, 0.0, 1.0);
+    let bg = rgba(0.1, 0.1, 0.2, 0.01);
 
-    draw.background().color(bg);
+    // draw.background().color(bg);
 
-    // if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
-    //     draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
-    // } else {
-    //     draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
-    // }
+    if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
+        draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
+    } else {
+        draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
+    }
     
     //--------------------------------------------------------
+    let draw = draw.rotate(app.time * 0.25);
+    let draw = draw.scale(2.0);
+    let draw = draw.scale((app.time * 0.5 * 0.35).sin());
 
-    /*
-    let mut last = 0;
-    let mut range_y = (win.h()/8.0) as i32;
-    let mut range_x = (win.w()/8.0) as i32;
-    
-    let x_start = random_f32() * 10.0;
-    let mut y_noise = random_f32() * 10.0;
-
-    for y in -range_y..range_y {
-        
-        y_noise += 0.02;
-        let mut x_noise = x_start;
-
-        for x in -range_x..range_x {
-            x_noise += 0.02;
-
-            let n_factor = (m.noise.get( [x_noise as f64, y_noise as f64] ) * 4.0) as f32;
-
-            let draw = draw.translate( 
-                    pt3((x as f32) * n_factor, 
-                        (y as f32) * n_factor, 
-                        (-y as f32)
-                    ));
-
-            let edge_size = n_factor * 10.0;
-
-            draw
-            .ellipse()
-            .x_y(0.0, 0.0)
-            .w_h(edge_size, edge_size)
-            .stroke_weight(0.5)
-            .color(hsl(x_noise, x_noise, 1.0))
-            ;
+    let length = 120.0;
+    branch(&draw, length, m.theta);
+    let draw = draw.rotate(PI/2.0);
+    branch(&draw, length, m.theta);
+    let draw = draw.rotate(PI/2.0);
+    branch(&draw, length, m.theta);
+    let draw = draw.rotate(PI/2.0);
+    branch(&draw, length, m.theta);
 
 
-        }
-    }
-    */
+    let draw = draw.rotate(app.time * 0.25 * -1.0);
+    let draw = draw.scale((app.time * 0.5 * 0.25).sin() * -1.0);
 
-    let from = (-WIDTH/2.0 + BORDER) as i32;
-    let to   = (WIDTH/2.0 - BORDER) as i32;
-    let step_x = 10;
-    let step_y = 10;
-    
-    let mut y_noise = random_f64() * 10.0; //seed
-    let variance = 10.0;
-
-    for y_off in ((-HEIGHT/2.0 + BORDER) as i32 .. (HEIGHT/2.0 - BORDER) as i32).step_by(step_y) {
-
-        let mut last_x = from as f32;
-        let mut last_y = 0.0;
-        
-        for x in (from..to).step_by(step_x) {
-    
-            let x = x as f32;
-            let n = m.noise.get( [0.0 as f64, y_noise]) as f32;
-            let y = n * variance + y_off as f32;
-            
-            if last_y != 0.0 {
-
-                draw.line()
-                .weight(1.0)
-                .caps_round()
-                .color(rgba(238.0/255.0, 232.0/255.0, 170.0/255.0, ( (y-400.0) * -1.0 / HEIGHT) as f32))
-                //.color(DARKGREEN)
-                .points(pt2(x, y), pt2(last_x, last_y) );
-            }
-    
-            last_x = x;
-            last_y = y;
-    
-            y_noise+=0.1;
-        }
-    }
+    let length = 120.0;
+    branch(&draw, length, m.theta);
+    let draw = draw.rotate(PI/2.0);
+    branch(&draw, length, m.theta);
+    let draw = draw.rotate(PI/2.0);
+    branch(&draw, length, m.theta);
+    let draw = draw.rotate(PI/2.0);
+    branch(&draw, length, m.theta);
 
     //--------------------------------------------------------
 
-    let mut last = 0;
-    let mut range_y = (win.h()/8.0) as i32;
-    let mut range_x = (win.w()/8.0) as i32;
-    
-    let x_start = random_f32() * 10.0;
-    let mut y_noise = random_f32() * 10.0;
+    draw.ellipse().x_y(0.0,0.0).w_h(200.0, 200.0).color(bg);
+    draw.ellipse().x_y(0.0,0.0).w_h(100.0, 100.0).color(bg);
 
-    for y in -range_y..range_y {
-        
-        y_noise += 0.02;
-        let mut x_noise = x_start;
-
-        for x in -range_x..range_x {
-            x_noise += 0.02;
-
-            let n_factor = (m.noise.get( [x_noise as f64, y_noise as f64] ) * 50.0) as f32;
-
-            let draw = draw.translate( 
-                    pt3((x as f32) * n_factor, 
-                        (y as f32) * n_factor, 
-                        (-y as f32)
-                    ));
-
-            let edge_size = n_factor;
-
-            draw.quad()
-            .stroke_weight(0.5)
-            .x_y(0.0, 0.0)
-            .w_h(edge_size, edge_size)
-            .color(rgba(238.0/255.0, 232.0/255.0, 170.0/255.0, ( (-400.0) * -1.0 / HEIGHT) as f32))
-            .rotate(time)
-            ;
-
-            draw
-            .ellipse()
-            .x_y(0.0, 0.0)
-            .w_h(edge_size*0.5, edge_size*0.5)
-            .stroke_weight(1.5)
-            .stroke(WHITE)
-            .color(rgba(238.0/255.0, 232.0/255.0, 170.0/255.0, ( n_factor / 255.0) as f32))
-            ;
-
-        }
-    }
-
-     let r = 200.0;
-    let pts = (0..360).rev().map(|i| {
-        let x = (i as f32).cos() * r;
-        let y = (i as f32).sin() * r;
-        pt2(x, y)
-    });
-
-    draw
-    .polygon()
-    .no_fill()
-    .stroke(WHITE)
-    .stroke_weight(200.0)
-    .points(pts)
-    ;
-
-    //draw.scale(0.5).rotate(t.sin() * 1.0* t.sin() * 0.9).texture(&m.texture);
-
-    
 
     //--------------------------------------------------------
     // draw frame
@@ -304,5 +190,36 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
         let path = format!("{}{}{}", directory, frame_num, extension);
         app.main_window().capture_frame(path);
+    }
+}
+
+fn branch(draw: &Draw, len: f32, theta: f32) {
+    let mut length = len;
+    // Each branch will be 2/3rds the size of the previous one
+    let mut sw = map_range(length, 1.0, 120.0, 1.0, 10.0);
+    let hue = map_range(theta, 0.0, PI*2.0, 0.0, 1.0) as f32;
+
+    if sw > 3.0 {
+        sw = 3.0;
+    }
+    draw.line()
+        .start(pt2(0.0, 0.0))
+        .end(pt2(0.0, length))
+        .weight(sw)
+        .color(hsva(hue, 1.0, 1.0, 0.1));
+    // Move to the end of that line
+    let draw = draw.x_y(0.0, length);
+
+    length *= 0.36;
+
+    // All recursive functions must have an exit condition!!!!
+    // Here, ours is when the length of the branch is 2 pixels or less
+    if len > 2.0 {
+        let draw2 = draw.rotate(theta); // Save the current state of transformation (i.e. where are we now) and Rotate by theta
+        branch(&draw2, length, theta); // Ok, now call myself to draw two new branches!!
+
+        // Repeat the same thing, only branch off to the "left" this time!
+        let draw3 = draw.rotate(-theta);
+        branch(&draw3, length, theta);
     }
 }
