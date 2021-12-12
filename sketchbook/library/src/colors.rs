@@ -6,6 +6,7 @@ pub struct Palette {
     pub winter_sky: Rgb8,
     pub blue_violet: Rgb8,
     pub azure: Rgb8,
+    pub col_arr : [Rgb8; 5],
 }
  
 impl Palette {
@@ -16,12 +17,15 @@ impl Palette {
         let blue_violet = rgb8(131, 56, 236);
         let azure = rgb8(58, 134, 255);
 
+        let col_arr : [Rgb8; 5] = [mango, orange_pantone, winter_sky, blue_violet, azure];
+
         Palette {
             mango,
             orange_pantone,
             winter_sky,
             blue_violet,
-            azure
+            azure,
+            col_arr,
         }
     }
 }

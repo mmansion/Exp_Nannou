@@ -11,7 +11,7 @@ use library::colors::Palette;
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
-static FRAME    : bool = true; //hide window chrome when set to false
+static FRAME    : bool = false; //hide window chrome when set to false
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 
@@ -124,22 +124,54 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     //--------------------------------------------------------
     // background
-    draw.background().color(m.colors.mango);
+    // background
+
+    let bg = rgba(0.1, 0.1, 0.2, 0.01);
+
+    // draw.background().color(bg);
+
+    if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
+        draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
+    } else {
+        draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
+    }
+
+    let draw = draw.rotate(app.time * -10.0);
+    let draw = draw.translate( vec3(app.time.cos() * -200.0, 0.0, 0.0));
 
     //--------------------------------------------------------
-    let points_arr_1 = [
-        pt2( 0.0, 0.0 ),
-        pt2( win.w()/2.0, 0.0 ),
-        pt2( 0.0, -win.h()/2.0),
-        pt2(0.0, 0.0)
-    ];
-    draw
-    .polygon()
-    .stroke_weight(1.0)
-    .caps_round()
-    .color(m.colors.azure)
-    .points(points_arr_1)
-    ;
+    for i in 0..2 {
+
+        let draw = draw.rotate(app.time * i as f32 * 0.01);
+        let draw = draw.scale(abs(time.sin())+0.1);
+
+        for j in 0..4 {
+    
+            let xOff = abs(j as f32 * time.cos() * 20.0);
+            let yOff = abs(j as f32 * time.sin() * 20.0);
+    
+            let trns = vec3(time.cos() * xOff, time.sin() * yOff , 0.0);
+            let draw = draw.translate( trns );
+    
+            let points = [
+                pt2( xOff, 0.0 ),
+                pt2( 100.0 + win.w()/6.0, 0.0 ),
+                pt2( 100.0, -win.h()/6.0),
+                pt2( 100.0, 0.0)
+            ];
+    
+            draw
+                .polygon()
+                .stroke_weight(abs(time.sin()*10.0)+1.0)
+                .caps_round()
+                .color(m.colors.col_arr[j])
+                .points(points)
+                ;
+    
+        }
+        
+    }
+
     //--------------------------------------------------------
     // draw frame
     
