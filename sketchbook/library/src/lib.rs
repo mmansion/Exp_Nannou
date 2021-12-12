@@ -1,3 +1,4 @@
+pub mod colors;
 pub mod easing;
 pub mod foo;
 pub mod grid;

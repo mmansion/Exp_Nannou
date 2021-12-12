@@ -56,7 +56,7 @@ impl FocalLine {
 
         let curr_len = length;
 
-        let color = rgba(1.0, 1.0, 1.0, 1.0);
+        let color =     
 
         FocalLine {
             A,
