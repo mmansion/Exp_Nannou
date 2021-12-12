@@ -124,19 +124,22 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     //--------------------------------------------------------
     // background
+    draw.background().color(m.colors.mango);
 
-    // let bg = rgba(0.13, 0.0, 0.1, 0.01);
-    let bg = m.colors.mango;
-
-    if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
-        draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
-    } else {
-        draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
-    }
-    
     //--------------------------------------------------------
-    
-
+    let points_arr_1 = [
+        pt2( 0.0, 0.0 ),
+        pt2( win.w()/2.0, 0.0 ),
+        pt2( 0.0, -win.h()/2.0),
+        pt2(0.0, 0.0)
+    ];
+    draw
+    .polygon()
+    .stroke_weight(1.0)
+    .caps_round()
+    .color(m.colors.azure)
+    .points(points_arr_1)
+    ;
     //--------------------------------------------------------
     // draw frame
     
