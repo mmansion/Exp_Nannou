@@ -32,7 +32,7 @@ struct Model {
     last_calc : Duration,
     receiver: osc::Receiver,
     received_packets: Vec<(std::net::SocketAddr, osc::Packet)>,
-    colors::Palette,
+    colors:Palette,
     redraw:bool,
     last_redraw: u128
 }
