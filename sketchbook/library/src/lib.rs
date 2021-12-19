@@ -1,4 +1,5 @@
 pub mod colors;
+pub mod lines; //collection of line-types
 pub mod easing;
 pub mod foo;
 pub mod grid;
@@ -10,4 +11,3 @@ pub mod points;
 pub mod bezier;
 pub mod math;
 pub mod line;
-pub mod lines; //collection of line-types
