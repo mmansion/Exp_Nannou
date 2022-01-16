@@ -1,12 +1,14 @@
 use nannou::prelude::*;
 
+const TOTAL_COLORS : usize = 6;
 pub struct Palette {
     pub mango : Rgb8,
     pub orange_pantone: Rgb8,
     pub winter_sky: Rgb8,
     pub blue_violet: Rgb8,
     pub azure: Rgb8,
-    pub col_arr : [Rgb8; 5],
+    pub black: Rgb8,
+    pub col_arr : [Rgb8; TOTAL_COLORS],
 }
  
 impl Palette {
@@ -16,8 +18,9 @@ impl Palette {
         let winter_sky = rgb8(255, 0, 110);
         let blue_violet = rgb8(131, 56, 236);
         let azure = rgb8(58, 134, 255);
+        let black = rgb8(0, 0, 0);
 
-        let col_arr : [Rgb8; 5] = [mango, orange_pantone, winter_sky, blue_violet, azure];
+        let col_arr : [Rgb8; TOTAL_COLORS] = [mango, orange_pantone, winter_sky, blue_violet, azure, black];
 
         Palette {
             mango,
@@ -25,6 +28,7 @@ impl Palette {
             winter_sky,
             blue_violet,
             azure,
+            black,
             col_arr,
         }
     }

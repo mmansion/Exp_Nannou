@@ -10,6 +10,7 @@ use nannou::noise::*;
 //use library::grid;
 
 use library::colors::Palette;
+use library::lines::ContinousLine;
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
@@ -17,7 +18,7 @@ static FRAME    : bool = false; //hide window chrome when set to false
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 static BORDER   : f32 = 10.0;
-static WAIT     : u128 = 100;
+static WAIT     : u128 = 10;
 
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 6555;
@@ -40,6 +41,7 @@ struct Model {
     colors: Palette,
     redraw: bool,
     last_redraw: u128,
+    squiggle: ContinousLine,
 }
 
 //--------------------------------------------------------
@@ -82,6 +84,8 @@ fn model(app: &App) -> Model {
     let mut redraw = false;
     let mut last_redraw = 0;
 
+    let mut squiggle = ContinousLine::new( vec2(0.0, 0.0) );
+
     //--------------------------------------------------------
 
     Model {
@@ -95,7 +99,8 @@ fn model(app: &App) -> Model {
         last_pos,
         colors,
         redraw,
-        last_redraw
+        last_redraw,
+        squiggle
     }
 } 
 
@@ -219,7 +224,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
         let step_x = 10;
         let step_y = 10;
         
-        let mut y_noise = random_f64() * 10.0; //seed
+        let mut y_noise = random_f64() * app.time as f64; //seed
         let variance = 10.0;
     
         for y_off in ((-HEIGHT/2.0 + BORDER) as i32 .. (HEIGHT/2.0 - BORDER) as i32).step_by(step_y) {
@@ -232,16 +237,15 @@ fn view(app: &App, m: &Model, frame: Frame) {
                 let x = x as f32;
                 let n = m.noise.get( [0.0 as f64, y_noise]) as f32;
                 let y = n * variance + y_off as f32;
-                
+                let num_cols = m.colors.col_arr.len();
                 if last_y != 0.0 {
 
                     let draw = draw.translate(vec3(x, y, 0.0));
     
                     draw.line()
-                    .weight(y*n*0.5)
+                    .weight(y*n*0.2)
                     .caps_round()
-                    // .color(rgba(238.0/255.0, 232.0/255.0, 170.0/255.0, ( (y-400.0) * -1.0 / HEIGHT) as f32))
-                    .color(m.colors.col_arr[random_range(0, 2)])
+                    .color(m.colors.col_arr[random_range(0, num_cols)])
                     .points(pt2(x, y), pt2(last_x, last_y) );
                 }
         
@@ -251,55 +255,6 @@ fn view(app: &App, m: &Model, frame: Frame) {
                 y_noise+=0.1;
             }
         }
-    
-        //--------------------------------------------------------
-    
-        let mut last = 0;
-        let mut range_y = (win.h()/8.0) as i32;
-        let mut range_x = (win.w()/8.0) as i32;
-        
-        let x_start = random_f32() * 10.0;
-        let mut y_noise = random_f32() * 10.0;
-    
-        for y in -range_y..range_y {
-            
-            y_noise += 0.02;
-            let mut x_noise = x_start;
-    
-            for x in -range_x..range_x {
-                x_noise += 0.02;
-    
-                let n_factor = (m.noise.get( [x_noise as f64, y_noise as f64] ) * 50.0) as f32;
-    
-                let draw = draw.translate( 
-                        pt3((x as f32) * n_factor, 
-                            (y as f32) * n_factor, 
-                            (-y as f32)
-                        ));
-    
-                let edge_size = n_factor;
-    
-                draw.quad()
-                .stroke_weight(x_noise*0.25)
-                .x_y(0.0, 0.0)
-                .w_h(edge_size, edge_size)
-                .color(m.colors.col_arr[random_range(2, 4)])
-                .rotate(time)
-                ;
-    
-                // draw
-                // .ellipse()
-                // .x_y(0.0, 0.0)
-                // .w_h(edge_size, edge_size)
-                // .stroke_weight(0.5)
-                // .stroke(PALEGOLDENROD)
-                // .color(rgba(238.0/255.0, 232.0/255.0, 170.0/255.0, ( n_factor / 255.0) as f32))
-                // ;
-    
-            }
-        }
-    
-        
     
         //--------------------------------------------------------
         // draw frame
