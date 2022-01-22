@@ -7,8 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nannou = "0.17.1"
-nannou_osc = "0.17.0"
+nannou = "0.18.1"
+nannou_osc = "0.18.0"
 
 # nannou = { path = "../../nannou/nannou" }
 # nannou = { version ="0.16.0", path = "../../test/nannou/nannou" }
@@ -18,6 +18,10 @@ nannou_osc = "0.17.0"
 
 # mikhail's stuffs
 library = { path = "../library" }
+
+#--------------------------------------------------------
+
+
 
 #--------------------------------------------------------
 # learning
@@ -83,6 +87,10 @@ path="exp-forces/particle-force.rs"
 
 #--------------------------------------------------------
 # n-series / daily sketches
+
+[[example]]
+name = "82"
+path = "n-series/n-0082.rs"
 
 [[example]]
 name = "81"

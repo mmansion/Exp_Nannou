@@ -34,7 +34,9 @@ struct Model {
     received_packets: Vec<(std::net::SocketAddr, osc::Packet)>,
     colors:Palette,
     redraw:bool,
-    last_redraw: u128
+    last_redraw: u128,
+    points: Vec<(Vec2)>,
+    incs    : Vec<f32>
 }
 
 //--------------------------------------------------------
@@ -44,6 +46,7 @@ fn model(app: &App) -> Model {
         .new_window()
         .size(WIDTH as u32, HEIGHT as u32)
         .decorations(FRAME) //creates a borderless window
+        .mouse_pressed(mouse_pressed)
         .view(view)
         .build()
         .unwrap()
@@ -72,6 +75,9 @@ fn model(app: &App) -> Model {
 
     let colors = Palette::new();
 
+    let points = Vec::new();
+    let incs = Vec::new();
+
     //--------------------------------------------------------
 
     Model {
@@ -83,7 +89,9 @@ fn model(app: &App) -> Model {
         received_packets,
         colors,
         redraw,
-        last_redraw
+        last_redraw,
+        points,
+        incs
     }
 } 
 
@@ -149,16 +157,33 @@ fn view(app: &App, m: &Model, frame: Frame) {
         //--------------------------------------------------------
         // background
     
-        let bg = rgba(0.13, 0.0, 0.1, 0.01);
+        let bg = rgba(1.0, 0.0, 1.0, 1.0);
     
         if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
-            draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
+            draw.background().color(rgba(1.0, 1.0, 1.0, 1.0));
         } else {
             draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
         }
         
         //--------------------------------------------------------
+        let p_iter = m.points.iter();
+        let mut ix = 0;
+        for p in p_iter {
+
+            let inc:f32 = m.incs[ix];
+
+            let transform = inc.sin() * 100.0;
+
+            ix+=1;
         
+            //println!("{}, {}", p.x, p.y);
+
+        draw.rect()
+            .x_y(p.x + transform, p.y)
+            .w(transform)
+            .rotate(transform)
+            .hsv(1.0, 1.0, 1.0);
+        }
 
         //--------------------------------------------------------
         // draw frame
@@ -180,4 +205,9 @@ fn view(app: &App, m: &Model, frame: Frame) {
         }
     }
 
+}
+fn mouse_pressed(app: &App, m: &mut Model, btn: MouseButton) {
+    m.points.push(vec2(app.mouse.x, app.mouse.y));
+    m.incs.push(random_f32()); 
+    println!("added point at ({}, {})", app.mouse.x, app.mouse.y);
 }

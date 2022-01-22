@@ -1,6 +1,10 @@
 [workspace]
+
 members = [
-    "library",
-    "templates",
-    "sketches",
+    # "library",
+    # "templates",
+    # "sketches",
+    "tutorials/schotter1"
 ]
+
+resolver = "2"
