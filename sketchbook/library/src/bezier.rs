@@ -6,7 +6,7 @@ pub struct Bezier {
     pub end_point       : Point2,
     pub control_point_1 : Point2,
     pub control_point_2 : Point2,
-    pub position        : Vector2,
+    pub position        : Vec2,
     pub show_handles    : bool,
 
     stroke_weight : f32,
@@ -52,7 +52,7 @@ impl Bezier {
         let builder = nannou::geom::path::Builder::new();
 
         let path = builder
-            .move_to( self.position )
+            .begin( self.position )
             .cubic_bezier_to(
                 self.control_point_1, 
                 self.control_point_2, 

@@ -1,10 +1,11 @@
 [workspace]
 
 members = [
-    # "library",
+    "library",
     # "templates",
-    # "sketches",
-    "tutorials/schotter1"
+    "sketches",
+    "tutorials/schotter1",
+    # n-series (2022)
 ]
 
 resolver = "2"
