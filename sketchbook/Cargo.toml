@@ -3,9 +3,9 @@
 members = [
     "library",
     # "templates",
-    "sketches",
+    "n-series",
+    # "sketches",
     "tutorials/schotter1",
-    # n-series (2022)
 ]
 
 resolver = "2"

@@ -155,6 +155,13 @@ impl Line {
     }
 
     pub fn draw(&self, draw: &Draw) {
-        
+
+        // Draw a line!
+        draw.line()
+            .weight(1.0)
+            .caps_round()
+            .color(BLACK)
+            .points(self.A, self.B)
+            ;
     }
 }

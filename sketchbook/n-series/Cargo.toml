@@ -1,0 +1,28 @@
+[package]
+name = "n-series"
+version = "0.1.0"
+authors = ["mmansion <mikhail@transmission.studio>"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nannou = "0.18.1"
+nannou_osc = "0.18.0"
+
+# nannou = { path = "../../nannou/nannou" }
+# nannou = { version ="0.16.0", path = "../../test/nannou/nannou" }
+
+# [patch.crates-io]
+# nannou = { version ="0.16.0", path = "../../test/nannou" }
+
+# mikhail's stuffs
+library = { path = "../library" }
+
+#--------------------------------------------------------
+# n-series / daily sketches
+
+[[example]]
+name = "n-0083"
+path = "n-0083.rs"
+
