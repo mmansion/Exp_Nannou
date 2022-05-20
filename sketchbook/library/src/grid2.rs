@@ -4,20 +4,20 @@ pub struct Grid2 {
     pub position  : Point2,
     pub width     : i32,
     pub height    : i32,
-    pub points    : Vec <Vector2>,
+    pub points    : Vec <Vec2>,
     pub pt_size   : f32,
 
-    pub angles : Vec<Vector2>,
+    pub angles : Vec<Vec2>,
 
     row_spacing : i32,
     col_spacing : i32,
-    row_start_pts : Vec <Vector2>,
-    col_start_pts : Vec <Vector2>,
+    row_start_pts : Vec <Vec2>,
+    col_start_pts : Vec <Vec2>,
 }
 
 impl Grid2 {
 
-    pub fn new(rows: f32, cols: f32, row_spacing: i32, col_spacing: i32, rect: &Rect) -> Self {
+    pub fn new(rows: i32, cols: i32, row_spacing: i32, col_spacing: i32, rect: &Rect) -> Self {
         
         let width    = rect.w() as i32;
         let height   = rect.h() as i32;
@@ -72,18 +72,12 @@ impl Grid2 {
         }
     }
 
-    pub fn set_angle(&mut self, index:usize, angle:Vector2) {
+    pub fn set_angle(&mut self, index:usize, angle:Vec2) {
         self.angles[index] = angle;
     }
 
     pub fn draw(&self, draw: &Draw) {
 
-        for p in 0..self.points.len() {
-            draw.ellipse()
-            .xy(self.points[p])
-            .radius( self.pt_size )
-            .color(BLACK); 
-        }
 
         // draw row lines
         for r in 0..self.row_start_pts.len() {
@@ -117,10 +111,14 @@ impl Grid2 {
             ;
         }
 
-     
+        // draw points
 
-
-
+        for p in 0..self.points.len() {
+            draw.ellipse()
+            .xy(self.points[p])
+            .radius( self.pt_size )
+            .color(BLACK); 
+        }
         
     }
 }

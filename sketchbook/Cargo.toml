@@ -5,7 +5,7 @@ members = [
     # "templates",
     "n-series",
     # "sketches",
-    "tutorials/schotter1",
+    #"tutorials/schotter1",
 ]
 
 resolver = "2"

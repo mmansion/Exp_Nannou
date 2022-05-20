@@ -23,6 +23,12 @@ library = { path = "../library" }
 # n-series / daily sketches
 
 [[example]]
+name = "n-0084"
+path = "n-0084.rs"
+
+[[example]]
 name = "n-0083"
 path = "n-0083.rs"
+
+
 

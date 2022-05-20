@@ -22,7 +22,6 @@ library = { path = "../library" }
 #--------------------------------------------------------
 # learning
 
-
 [[example]]
 name = "vec2_add"
 path = "learning/vec2_add.rs"
