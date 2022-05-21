@@ -32,4 +32,8 @@ impl Palette {
             col_arr,
         }
     }
+    pub fn get_random(&self) -> Rgb8 {
+        let i = random_range(0, self.col_arr.len());
+        return self.col_arr[i];
+    }
 }
