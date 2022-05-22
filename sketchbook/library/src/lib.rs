@@ -11,3 +11,4 @@ pub mod points;
 pub mod bezier;
 pub mod math;
 pub mod line;
+pub mod touchosc;

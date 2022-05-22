@@ -15,6 +15,9 @@ use library::colors::Palette;
 // use library::line::Line;
 use library::grid2::Grid2 as Grid;
 
+// beginning of touch library for nannou
+use library::touchosc::TouchOscFader as Fader;
+
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
 static FRAME    : bool = true; //hide window chrome when set to false
@@ -22,6 +25,8 @@ static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 static BORDER   : f32 = 10.0;
 static WAIT     : u128 = 100;
+
+static NUM_SLIDERS  : usize  = 4; //num of sliders used 
 
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 6555;
@@ -45,6 +50,7 @@ struct Model {
     last_redraw: u128,
     shape_size: f32,
     rot_speed: f32,
+    faders: Vec<Fader>,
     grid: Grid
 }
 
@@ -88,6 +94,12 @@ fn model(app: &App) -> Model {
     let rot_speed = 0.0;
     let shape_size = 10.0;
 
+    let faders = Vec::new();
+
+    for x in 0..NUM_SLIDERS {
+        faders.push(Fader::new())
+    }
+
     //--------------------------------------------------------
     let rect = Rect::from_w_h( WIDTH, HEIGHT );
     let mut grid = Grid::new(10, 10, 10, 10, &rect);
@@ -107,6 +119,7 @@ fn model(app: &App) -> Model {
         last_redraw,
         rot_speed,
         shape_size,
+        sliders,
         grid
     }
 } 
@@ -141,7 +154,6 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     }
     //--------------------------------------------------------
 
-
     //OSC
 
     // Receive any pending osc packets.
@@ -150,10 +162,24 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
         let mut val = 0.0;
 
+
         for msg in packet.into_msgs() {
             let args = msg.args.unwrap();
-            match (&msg.addr[..], &args[..]) {
-                ("/button1", [osc::Type::Float(i)]) => val = *i,
+
+            for i in m.sliders.iter_mut() {
+                match (&msg.addr[..], &args[..]) {
+                    ("/fader1", [osc::Type::Float(i)]) => sliders = *i,
+                }
+            // loop code here
+            }
+
+
+                
+
+                for i in 0..sliders.len() {
+                // loop code here
+                }
+                
                 // ("/button2", [osc::Type::Float(x), osc::Type::Float(y)]) => println!("{:?}", (x, y)),
                 _etc => (),
             }
