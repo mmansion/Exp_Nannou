@@ -8,13 +8,9 @@ pub struct TouchOscFader {
 }
 
 impl TouchOscFader {
-    pub fn new(addr:String, val:Option<f32>) -> Self {
+    pub fn new(addr:String, val:f32) -> Self {
         let osc_address = addr;
-        
-        let osc_value = match val {
-            Some(number) => number,
-            None => 0.0
-        };
+        let osc_value = val;
 
         TouchOscFader {
             osc_address,

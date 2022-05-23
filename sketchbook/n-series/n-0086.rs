@@ -1,4 +1,9 @@
+/*
+FEATURES
+> osc receive, vec of faders, matched and loaded osc float values,
+*/
 // use nannou::lyon::path::AttributeStore;
+
 use nannou::prelude::*;
 use std::any::type_name;
 fn type_of<T>(_: T) -> &'static str {
@@ -94,10 +99,10 @@ fn model(app: &App) -> Model {
     let rot_speed = 0.0;
     let shape_size = 10.0;
 
-    let faders = Vec::new();
+    let mut faders = Vec::new();
 
-    for x in 0..NUM_SLIDERS {
-        faders.push(Fader::new())
+    for n in 0..NUM_SLIDERS {
+        faders.push( Fader::new(format!("/fader{}", n+1), 0.0));
     }
 
     //--------------------------------------------------------
@@ -119,7 +124,7 @@ fn model(app: &App) -> Model {
         last_redraw,
         rot_speed,
         shape_size,
-        sliders,
+        faders,
         grid
     }
 } 
@@ -158,39 +163,24 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     // Receive any pending osc packets.
     for (packet, addr) in m.receiver.try_iter() {
-         //m.received_packets.push((addr, packet));
-
-        let mut val = 0.0;
-
 
         for msg in packet.into_msgs() {
             let args = msg.args.unwrap();
 
-            for i in m.sliders.iter_mut() {
-                match (&msg.addr[..], &args[..]) {
-                    ("/fader1", [osc::Type::Float(i)]) => sliders = *i,
+            for fader in m.faders.iter_mut() {
+                let _addr = &fader.osc_address;
+
+                if msg.addr == fader.osc_address {
+                    fader.osc_value = match &args[..] {
+                        [osc::Type::Float(x)] => *x,
+                        _etc => fader.osc_value 
+                    }
                 }
-            // loop code here
-            }
-
-
-                
-
-                for i in 0..sliders.len() {
-                // loop code here
-                }
-                
-                // ("/button2", [osc::Type::Float(x), osc::Type::Float(y)]) => println!("{:?}", (x, y)),
-                _etc => (),
             }
         }
 
-        println!("{}", val);
-
-        if val > 0.0 {
-            m.bg_color = m.colors.get_random();
-            m.rot_speed = random_range(10., 100.);
-            m.shape_size = random_range(10., 100.);
+        for fader in m.faders.iter() {
+            println!("/fader{} {}", fader.osc_address, fader.osc_value);
         }
     }
 
