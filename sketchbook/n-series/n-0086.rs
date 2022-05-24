@@ -21,7 +21,7 @@ use library::colors::Palette;
 use library::grid2::Grid2 as Grid;
 
 // beginning of touch library for nannou
-use library::touchosc::TouchOscFader as Fader;
+use library::touchosc1::TouchOscFader as Fader;
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
