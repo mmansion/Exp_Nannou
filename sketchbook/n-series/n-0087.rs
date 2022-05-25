@@ -11,7 +11,6 @@ fn type_of<T>(_: T) -> &'static str {
 }
 // use nannou::geom::*;
 // use nannou::geom::Point2;
-use nannou_osc as osc;
 // use std::ops::Range;
 // use nannou::Draw;
 use std::time::Duration;
@@ -21,7 +20,7 @@ use library::colors::Palette;
 use library::grid2::Grid2 as Grid;
 
 // beginning of touch library for nannou
-use library::touchosc1::TouchOscFader as Fader;
+use library::touchosc2::TouchOscClient as TouchOscClient;
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
@@ -47,15 +46,13 @@ struct Model {
     this_capture_frame : i32,
     last_capture_frame : i32,
     last_calc : Duration,
-    receiver: osc::Receiver,
-    received_packets: Vec<(std::net::SocketAddr, osc::Packet)>,
     colors:Palette,
     bg_color:Rgb8,
     redraw:bool,
     last_redraw: u128,
     shape_size: f32,
     rot_speed: f32,
-    faders: Vec<Fader>,
+    touchosc_client: TouchOscClient,
     grid: Grid
 }
 
@@ -72,11 +69,7 @@ fn model(app: &App) -> Model {
         .unwrap()
         ;
 
-    // Bind an `osc::Receiver` to a port.
-    let receiver = osc::receiver(PORT).unwrap();
-
-    // A vec for collecting packets and their source address.
-    let received_packets = vec![];
+   
     
     // app.set_loop_mode(LoopMode::loop_once());
     // app.set_loop_mode(LoopMode::rate_fps(0.1));
@@ -99,10 +92,12 @@ fn model(app: &App) -> Model {
     let rot_speed = 0.0;
     let shape_size = 10.0;
 
-    let mut faders = Vec::new();
+    let mut touchosc_client = TouchOscClient::new("/nannou".to_string(), 6555);
 
     for n in 0..NUM_SLIDERS {
-        faders.push( Fader::new(format!("/fader{}", n+1), 0.0));
+        let path = format!("/fader{}", n+1);
+        touchosc_client.add_fader(path);
+        //faders.push( Fader::new(format!("/fader{}", n+1), 0.0));
     }
 
     //--------------------------------------------------------
@@ -116,15 +111,13 @@ fn model(app: &App) -> Model {
         this_capture_frame, 
         last_capture_frame, 
         last_calc,
-        receiver,
-        received_packets,
         colors,
         bg_color,
         redraw,
         last_redraw,
         rot_speed,
         shape_size,
-        faders,
+        touchosc_client,
         grid
     }
 } 
@@ -161,44 +154,8 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     //OSC
 
-    // Receive any pending osc packets.
-    for (packet, addr) in m.receiver.try_iter() {
-
-        for msg in packet.into_msgs() {
-            let args = msg.args.unwrap();
-
-            for fader in m.faders.iter_mut() {
-                let _addr = &fader.osc_address;
-
-                if msg.addr == fader.osc_address {
-                    fader.osc_value = match &args[..] {
-                        [osc::Type::Float(x)] => *x,
-                        _etc => fader.osc_value 
-                    }
-                }
-            }
-        }
-
-        for fader in m.faders.iter() {
-            println!("/fader{} {}", fader.osc_address, fader.osc_value);
-        }
-    }
-
-    
-
-    //handle received packets
-    for &(addr, ref packet) in m.received_packets.iter().rev() {
-       //println!("{}: {:?}\n", addr, packet);    
-    }
-
-
-    while m.received_packets.len() > 0 {
-        //m.received_packets.remove(0);
-    }
-
-    //--------------------------------------------------------
- 
- 
+   m.touchosc_client.update();
+     
 }
 
 fn view(app: &App, m: &Model, frame: Frame) {
@@ -214,11 +171,13 @@ fn view(app: &App, m: &Model, frame: Frame) {
         // let c = m.colors.mango;
         // let c = m.colors.get_random();
         // let bg = rgba8(c.red, c.green, c.blue, 15);
+
+        let bg = hsva( *m.touchosc_client.touchosc_faders[3].arg(),1.0,1.0, 1.0);
     
         if app.elapsed_frames() < 10 { //must clear render context once for fullscreen
             draw.background().color(BLACK);
         } else {
-            draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(m.bg_color);
+            draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
         }
         
         //--------------------------------------------------------
@@ -235,9 +194,12 @@ fn view(app: &App, m: &Model, frame: Frame) {
             _draw.line().points( pt2(0.0, 0.0), rotation);
 
             _draw.rect()
-            .w_h(m.shape_size, m.shape_size)
-            .rotate(m.rot_speed)
-            .xy(position)
+            .w_h(
+                *m.touchosc_client.touchosc_faders[0].arg()*100.0, 
+                *m.touchosc_client.touchosc_faders[0].arg()*100.0
+            )
+            .rotate(*m.touchosc_client.touchosc_faders[1].arg()*PI)
+            .xy( vec2(map_range( *m.touchosc_client.touchosc_faders[2].arg(), 0.0, 1.0, -100.0, 100.0),0.0) )
             .stroke_weight(10.0)
             .color(BLACK)
             ;

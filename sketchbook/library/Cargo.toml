@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 nannou = "0.18.0"
 nannou_osc = "0.18.0"
+derivative = "2.2.0"
