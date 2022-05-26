@@ -23,6 +23,10 @@ library = { path = "../library" }
 # n-series / daily sketches
 
 [[example]]
+name = "n-0088"
+path = "n-0088.rs"
+
+[[example]] # uses 4 faders with touchosc
 name = "n-0087"
 path = "n-0087.rs"
 

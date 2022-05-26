@@ -17,7 +17,8 @@ impl Bezier {
     pub fn new(
         start_point: Point2, 
         control_point1: Point2, 
-        control_point_2: Point2, 
+        control_point_2: Point2,
+
         end_point: Point2) -> Self {
         
         let start_point     = start_point;
