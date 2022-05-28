@@ -86,11 +86,14 @@ fn model(app: &App) -> Model {
 
     let mut touchosc = TouchOscClient::new("/nannou".to_string(), 6555);
 
-    for n in 0..NUM_FADERS {
-        let path = format!("/fader{}", n+1);
-        touchosc.add_fader(path);
-        //faders.push( Fader::new(format!("/fader{}", n+1), 0.0));
-    }
+    touchosc.add_fader(format!("/grid/rows")); //1
+    touchosc.add_fader(format!("/grid/cols")); //2
+
+    // for n in 0..NUM_FADERS {
+    //     let path = format!("/fader{}", n+1);
+    //     touchosc.add_fader(path);
+    //     //faders.push( Fader::new(format!("/fader{}", n+1), 0.0));
+    // }
 
     //--------------------------------------------------------
     let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
@@ -148,8 +151,17 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     //--------------------------------------------------------
 
     //OSC
+    m.touchosc.update();//update vals
 
-   m.touchosc.update();
+    //GRID
+    let fader_rows = m.touchosc.fader(0).value;
+    let fader_cols = m.touchosc.fader(1).value;
+    let n_rows = map_range(fader_rows, 0.0, 1.0, 2.0, 12.0) as i32;
+    let n_cols = map_range(fader_cols, 0.0, 1.0, 2.0, 12.0) as i32;
+    println!("{}, {}", n_rows, n_cols);
+    m.grid.rows(n_rows);
+    m.grid.rows(n_cols);
+
      
 }
 
@@ -176,49 +188,49 @@ fn view(app: &App, m: &Model, frame: Frame) {
         m.grid.draw(&draw);
 
         
-        for i in 0..m.grid.points.len() {
+        // for i in 0..m.grid.points.len() {
 
-            let rotation = m.grid.angles[i];
-            let position =  m.grid.points[i];
+        //     let rotation = m.grid.angles[i];
+        //     let position =  m.grid.points[i];
 
-            //let d = draw.rotate( rotation.angle()  );
-            let _draw = draw.translate(pt3(position.x, position.y, 0.0));
+        //     //let d = draw.rotate( rotation.angle()  );
+        //     let _draw = draw.translate(pt3(position.x, position.y, 0.0));
 
-            _draw.line().points( pt2(0.0, 0.0), rotation);
+        //     _draw.line().points( pt2(0.0, 0.0), rotation);
 
-            // touch.fader(1).value
+        //     // touch.fader(1).value
          
-            let circles = (m.touchosc.fader(0).value * 100.0) as i32;
+        //     let circles = (m.touchosc.fader(0).value * 100.0) as i32;
 
-            let circle_res   = (m.touchosc.fader(1).value * 32.0).round() as i32;
-            let scale_factor = m.touchosc.fader(2).value;
-            let angle = TAU / circle_res as f32;
-            let rad = 100.0;
+        //     let circle_res   = (m.touchosc.fader(1).value * 32.0).round() as i32;
+        //     let scale_factor = m.touchosc.fader(2).value;
+        //     let angle = TAU / circle_res as f32;
+        //     let rad = 100.0;
 
-            for c in 0..circles {
-                let draw2 = _draw.rotate(m.touchosc.fader(3).value * PI*2.0);
-                let points = (0..=circle_res+3).map(|i| {
-                    let x = (angle * i as f32).cos() * rad*2.0;
-                    let y = (angle * i as f32).sin() * rad*2.0;
-                    pt2(x, y)
-                });
-                draw2.scale(c as f32 * scale_factor).polyline()
-                .color(m.colors.black)
-                .weight(2.0)
-                .points(points); // Submit our points.
-            }
+        //     for c in 0..circles {
+        //         let draw2 = _draw.rotate(m.touchosc.fader(3).value * PI*2.0);
+        //         let points = (0..=circle_res+3).map(|i| {
+        //             let x = (angle * i as f32).cos() * rad*2.0;
+        //             let y = (angle * i as f32).sin() * rad*2.0;
+        //             pt2(x, y)
+        //         });
+        //         draw2.scale(c as f32 * scale_factor).polyline()
+        //         .color(m.colors.black)
+        //         .weight(2.0)
+        //         .points(points); // Submit our points.
+        //     }
 
-            // _draw.rect()
-            // .w_h(
-            //     *m.touchosc.touchosc_faders[0].arg()*100.0, 
-            //     *m.touchosc.touchosc_faders[0].arg()*100.0
-            // )
-            // .rotate(*m.touchosc.touchosc_faders[1].arg()*PI)
-            // .xy( vec2(map_range( *m.touchosc.touchosc_faders[2].arg(), 0.0, 1.0, -100.0, 100.0),0.0) )
-            // .stroke_weight(10.0)
-            // .color(BLACK)
-            // ;
-        }
+        //     // _draw.rect()
+        //     // .w_h(
+        //     //     *m.touchosc.touchosc_faders[0].arg()*100.0, 
+        //     //     *m.touchosc.touchosc_faders[0].arg()*100.0
+        //     // )
+        //     // .rotate(*m.touchosc.touchosc_faders[1].arg()*PI)
+        //     // .xy( vec2(map_range( *m.touchosc.touchosc_faders[2].arg(), 0.0, 1.0, -100.0, 100.0),0.0) )
+        //     // .stroke_weight(10.0)
+        //     // .color(BLACK)
+        //     // ;
+        // }
         
 
         //--------------------------------------------------------
