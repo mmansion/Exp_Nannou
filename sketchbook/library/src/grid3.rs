@@ -1,16 +1,13 @@
 use nannou::prelude::*;
 
 pub struct Grid3 {
-    pub position  : Point2,
     pub width     : i32,
     pub height    : i32,
     pub points    : Vec <Vec2>,
     pub pt_size   : f32,
-
-    pub angles : Vec<Vec2>,
-
-    row_spacing : i32,
-    col_spacing : i32,
+    pub angles    : Vec<Vec2>,
+    row_spacing   : i32,
+    col_spacing   : i32,
     row_start_pts : Vec <Vec2>,
     col_start_pts : Vec <Vec2>,
 }
@@ -19,10 +16,9 @@ impl Grid3 {
 
     pub fn new(rows: i32, cols: i32, width: i32, height:i32) -> Self {
         
-        let width    = rect.w() as i32;
-        let height   = rect.h() as i32;
+        let width    = width;
+        let height   = height;
 
-        let mut position  = vec2(0.0, 0.0);
         let mut points    = Vec::new();
         let mut row_start_pts = Vec::new();
         let mut col_start_pts = Vec::new();
@@ -37,11 +33,15 @@ impl Grid3 {
 
         //--------------------------------------------------------
 
-        for row in 0..( row_spacing + 1 ) {
-            let y =  ((height / row_spacing * row) + (-height/2)) as f32;
+        //offset for coord sys
+        let y_off = -height/2;
+        let x_off = -width/2;
+
+        for row in 0..(rows+1) {
+            let y =  (height / rows * row + y_off) as f32;
             
-            for col in 0..(col_spacing + 1) {
-                let x =  ( (width/col_spacing  * col) + (-width/2) ) as f32;
+            for col in 0..(cols+1) {
+                let x =  (width / cols  * col + x_off) as f32;
                 
                 points.push(pt2(x, y));
 
@@ -59,7 +59,6 @@ impl Grid3 {
         //--------------------------------------------------------
 
         Grid3 {
-            position,
             width,
             height,
             points,
@@ -122,34 +121,3 @@ impl Grid3 {
         
     }
 }
-
-//--------------------------------------------------------
-
-// pub struct Grid3Point {
-//     pub position: Point2,
-//     pub size : f32,
-//     pub show : bool
-// }
-
-// impl Grid3Point {
-//     pub fn new(x: f32, y: f32, s: f32) -> Self {
-//         let position = pt2(x, y);
-//         let size = s;
-//         let show = false;
-
-//         Grid3Point {
-//             position,
-//             size,
-//             show
-//         }
-//     }
-//     pub fn display(&self, draw: &Draw) {
-
-//         if(self.show) {
-//             draw.ellipse()
-//             .xy(self.position)
-//             .radius( self.size )
-//             .color(GRAY);
-//         }
-//     }
-// }

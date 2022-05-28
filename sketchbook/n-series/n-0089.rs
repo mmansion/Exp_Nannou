@@ -15,7 +15,7 @@ use std::time::Duration;
 
 use library::colors::Palette;
 // use library::line::Line;
-use library::grid2::Grid2 as Grid;
+use library::grid3::Grid3 as Grid;
 
 // beginning of touch library for nannou
 use library::touchosc2::TouchOscClient as TouchOscClient;
@@ -23,8 +23,8 @@ use library::touchosc2::TouchOscClient as TouchOscClient;
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
 static FRAME    : bool = true; //hide window chrome when set to false
-static WIDTH    : f32 = 800.0;
-static HEIGHT   : f32 = 800.0; 
+static WIDTH    : i32 = 800;
+static HEIGHT   : i32 = 800; 
 static BORDER   : f32 = 10.0;
 static WAIT     : u128 = 100;
 
@@ -93,8 +93,7 @@ fn model(app: &App) -> Model {
     }
 
     //--------------------------------------------------------
-    let rect = Rect::from_w_h( WIDTH, HEIGHT );
-    let mut grid = Grid::new(10, 10, 10, 10, &rect);
+    let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
 
     //--------------------------------------------------------
     let mut points = Vec::new();
