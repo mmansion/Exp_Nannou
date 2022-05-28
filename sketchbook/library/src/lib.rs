@@ -4,6 +4,7 @@ pub mod easing;
 pub mod foo;
 pub mod grid;
 pub mod grid2;
+pub mod grid3;
 pub mod vehicle;
 pub mod particle;
 pub mod particles;

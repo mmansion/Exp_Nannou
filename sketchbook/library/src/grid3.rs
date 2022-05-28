@@ -17,7 +17,7 @@ pub struct Grid3 {
 
 impl Grid3 {
 
-    pub fn new(rows: i32, cols: i32, row_spacing: i32, col_spacing: i32, rect: &Rect) -> Self {
+    pub fn new(rows: i32, cols: i32, width: i32, height:i32) -> Self {
         
         let width    = rect.w() as i32;
         let height   = rect.h() as i32;
@@ -29,8 +29,8 @@ impl Grid3 {
         
         let pt_size  = 5.0;
 
-        let row_spacing = row_spacing;
-        let col_spacing = col_spacing;
+        let row_spacing = width/rows;
+        let col_spacing = height/rows;
 
         //--------------------------------------------------------
         let mut angles = Vec::new();
