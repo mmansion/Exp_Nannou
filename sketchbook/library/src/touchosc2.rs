@@ -1,4 +1,4 @@
-use nannou::prelude::*;
+use nannou::{prelude::*, lyon::geom::arrayvec::Array};
 use nannou_osc as osc;
 use derivative::Derivative;
 
@@ -59,6 +59,10 @@ impl TouchOscClient {
         }
     }
 
+    pub fn fader(&self, index:usize) -> &TouchOscFader {//borrowed ref
+        return &self.touchosc_faders[index];
+    }
+
     pub fn add_fader(&mut self, path:String) {
         self.touchosc_faders.push(TouchOscFader::new(path));
     }
@@ -78,6 +82,8 @@ impl TouchOscClient {
 pub struct TouchOscFader {
     path : String, //appened to base osc addr
     arg  : f32,
+    // args : Array<f32;0.0>,
+    pub value: f32, //always results in first argument
 }
 
 impl TouchOscFader {
@@ -85,14 +91,17 @@ impl TouchOscFader {
     pub fn new(path:String) -> Self {
         let path = path;
         let arg = 0.0;
+        let value = 0.0;
     
         TouchOscFader {
             path,
-            arg
+            arg,
+            value
         }
     }
 
     pub fn set_arg(&mut self, v:f32) {
+        self.value = v;
         self.arg = v;
     }
 
