@@ -6,10 +6,13 @@ pub struct Grid3 {
     pub points    : Vec <Vec2>,
     pub pt_size   : f32,
     pub angles    : Vec<Vec2>,
-    row_spacing   : i32,
-    col_spacing   : i32,
     row_start_pts : Vec <Vec2>,
     col_start_pts : Vec <Vec2>,
+
+    pub line_color  : Rgba,
+    pub point_color : Rgba,
+    pub show_lines  : bool,
+    pub show_points : bool
 }
 
 impl Grid3 {
