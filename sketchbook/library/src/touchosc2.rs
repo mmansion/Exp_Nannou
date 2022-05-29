@@ -53,9 +53,9 @@ impl TouchOscClient {
                 }
             }
 
-            for fader in self.touchosc_faders.iter() {
-                println!("{} {}", fader.path, fader.arg);
-            }
+            // for fader in self.touchosc_faders.iter() {
+            //     println!("{} {}", fader.path, fader.arg);
+            // }
         }
     }
 

@@ -158,9 +158,9 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     let fader_cols = m.touchosc.fader(1).value;
     let n_rows = map_range(fader_rows, 0.0, 1.0, 2.0, 12.0) as i32;
     let n_cols = map_range(fader_cols, 0.0, 1.0, 2.0, 12.0) as i32;
-    println!("{}, {}", n_rows, n_cols);
+    // println!("{}, {}", n_rows, n_cols);
     m.grid.rows(n_rows);
-    m.grid.rows(n_cols);
+    m.grid.cols(n_cols);
 
      
 }
