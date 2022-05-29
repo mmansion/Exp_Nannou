@@ -40,16 +40,26 @@ impl Grid3 {
         //default settings
         let point_size  = 5.0;
         let point_color = rgba(0.0, 0.0, 0.0, 1.0);
-        let line_weight = 10.0;
-        let line_color  = rgba(0.1, 0.1, 1.0, 1.0);
+        let line_weight = 1.0;
+        let line_color  = rgba(0.1, 0.1, 0.1, 1.0);
         
         let show_points = true;
         let show_lines  = true;
 
         //--------------------------------------------------------
         for row in 0..(rows+1) {
+            let f_height = height as f32;
+            let f_rows = rows as f32;
+            let f_row = row as f32;
+            let y =  (f_height / f_rows * f_row) + y_off;
+            
             for col in 0..(cols+1) {
-                points.push(pt2(0.0, 0.0));
+                let f_width = width as f32;
+                let f_cols = cols as f32;
+                let f_col = col as f32;
+                let x = (f_width / f_cols * f_col) + x_off;
+                points.push(pt2(x, y));
+
             } 
         }
 
@@ -137,15 +147,6 @@ impl Grid3 {
         for r in 0..(self.rows + 1) as usize {
             let r = r * (self.cols + 1) as usize;
             let start_pt = self.points[r];
-          
-            if r == (self.points.len() - (self.cols + 1) as usize) {
-                println!("{}", self.points[r]);
-
-                draw.ellipse()
-                .xy(self.points[r])
-                .radius( 50.0 )
-                .color(RED); 
-            }
 
             let end_pt = pt2(
                 self.points[r].x + self.width as f32, 
@@ -155,7 +156,7 @@ impl Grid3 {
             draw
             .line()
             .stroke_weight(self.line_weight)
-            .color(GREEN)
+            .color(self.line_color)
             .points(start_pt, end_pt)
             ;
         }
@@ -166,7 +167,7 @@ impl Grid3 {
             draw.ellipse()
             .xy(self.points[p])
             .radius( self.point_size )
-            .color(BLACK); 
+            .color(self.point_color); 
         }
         
     }
