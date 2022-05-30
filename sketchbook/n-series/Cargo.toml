@@ -23,7 +23,11 @@ library = { path = "../library" }
 # n-series / daily sketches
 
 [[example]]
-name = "n-0090"
+name = "n-0091" #uses touchosc4, grid3
+path = "n-0091.rs"
+
+[[example]]
+name = "n-0090" # uses lib: touchosc3, grid3
 path = "n-0090.rs"
 
 [[example]]

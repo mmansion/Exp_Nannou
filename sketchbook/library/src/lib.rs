@@ -15,3 +15,4 @@ pub mod line;
 pub mod touchosc1;
 pub mod touchosc2;
 pub mod touchosc3;
+pub mod touchosc4;
