@@ -4,6 +4,7 @@ members = [
     "library",
     # "templates",
     "n-series",
+    "scratch",
     # "sketches",
     #"tutorials/schotter1",
 ]
