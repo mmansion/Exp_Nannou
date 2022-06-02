@@ -1,117 +1,142 @@
 use nannou::prelude::*;
 use std::collections::HashMap;
-use std::collections::BTreeMap;
+
+//--------------------------------------------------------
+fn main() {
+
+    let mut touchosc = TouchOscClient::new();
+
+    let fader1 = touchosc.add_fader("/fader1", 0.0, 10.0, 3.0);
+    let fader2 = touchosc.add_fader("/fader2", 0.0, 1.0, 1.0);
+
+    let button1 = touchosc.add_button("/button1", false);
+    let button2 = touchosc.add_button("/button2", true);
+
+    println!("fader value = {}", touchosc.fader("/fader1"));
+    println!("button value = {}", touchosc.button("/button1"));
+
+}
+//--------------------------------------------------------
 
 #[derive(Debug)]
-pub enum TouchOscInputType {
-    Button, Fader, Grid, Encoder, Radar, Radial, Radio, XY
-}
-
+pub enum TouchOscInputType { Button, Fader, Grid, Encoder, Radar, Radial, Radio, XY }
 pub struct TouchOscClient {
-    inputs_count : u16,
-    inputs_map   : HashMap<u16, String>, //all touchosc inputs
+    //reference
+    lookup_table : HashMap<String, TouchOscInputType>,
 
-    //touchosc input refs
-    touchosc_faders  : HashMap<String, TouchOscFader>,
-    touchosc_buttons : HashMap<String, TouchOscButton>,
+    //inputs
+    touchosc_buttons  : HashMap<String, TouchOscButton>,
+    touchosc_faders   : HashMap<String, TouchOscFader>,
+    touchosc_grids    : HashMap<String, TouchOscGrid>,
+    touchosc_encoders : HashMap<String, TouchOscEncoder>,
+    touchosc_radars   : HashMap<String, TouchOscRadar>,
+    touchosc_radials  : HashMap<String, TouchOscRadial>,
+    touchosc_radios   : HashMap<String, TouchOscRadio>,
+    touchosc_xys      : HashMap<String, TouchOscXY>,
 }
 
 impl TouchOscClient {
     pub fn new() -> Self {
         TouchOscClient {
-            inputs_count     : 0,
-            inputs_map       : HashMap::new(),
-            touchosc_faders  : HashMap::new(),
-            touchosc_buttons : HashMap::new()
+            lookup_table      : HashMap::new(),
+            touchosc_buttons  : HashMap::new(),
+            touchosc_faders   : HashMap::new(),
+            touchosc_grids    : HashMap::new(),
+            touchosc_encoders : HashMap::new(),
+            touchosc_radars   : HashMap::new(),
+            touchosc_radials  : HashMap::new(),
+            touchosc_radios   : HashMap::new(),
+            touchosc_xys      : HashMap::new(),
         }
     }
-
+    pub fn add_button(&mut self, addr:&str, default:bool) {
+        self.verify_free_addr(addr);
+        self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Button);
+        self.touchosc_buttons.insert((&addr).to_string(), TouchOscButton::new(default));
+    }
     pub fn add_fader(&mut self, addr:&str, min:f32, max:f32, default:f32) {
-        if self.addr_inuse(addr) {
-            panic!("address \"{}\" already used!", addr);
-        } else {
-            let fader = TouchOscFader::new(min, max, default);
-            self.touchosc_faders.insert((&addr).to_string(), fader);
-            self.inputs_map.insert(self.inputs_count, (&addr).to_string());
-            self.inputs_count = self.inputs_count + 1;
-            println!("Count = {}", self.inputs_count);
-        }
+        self.verify_free_addr(addr);
+        self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Fader);
+        self.touchosc_faders.insert((&addr).to_string(), TouchOscFader::new(min, max, default));
     }
+    pub fn add_grid() {
 
+    }
+    pub fn add_encoder() {
+
+    }
+    pub fn add_radar() {
+
+    }
+    pub fn add_radial() {
+
+    }
+    pub fn add_radio() {
+
+    }
     pub fn add_xy(&mut self, path:&str, min:f32, max:f32, default:f32) {
        // self.touchosc_xys.insert(path.to_string(), TouchOscXY::new(path, min, max, default));
     }
 
-    pub fn add_button(&mut self, addr:&str, default:bool) {
-        if self.addr_inuse(addr) {
-            panic!("address \"{}\" already used!", addr);
-        } else {
-            let button = TouchOscButton::new(default);
-            self.touchosc_buttons.insert((&addr).to_string(), button);
-            self.inputs_map.insert(self.inputs_count, (&addr).to_string());
-            self.inputs_count = self.inputs_count + 1;
-            println!("Count = {}", self.inputs_count);
+    pub fn button(&self, addr:&str) -> bool {
+        self.verify_has_addr(addr);
+        for (key, input_type) in &self.lookup_table {
+            if key == addr {
+                return match &input_type { 
+                    TouchOscInputType::Button => { self.touchosc_buttons[addr].state() },
+                    _ => { false }
+                };
+            }
+        } return false;
+    }
+
+    pub fn fader(&self, addr:&str) -> f32 {
+        self.verify_has_addr(addr);
+        for (key, input_type) in &self.lookup_table {
+            if key == addr {
+                return match &input_type { //verify correct type at addr
+                    TouchOscInputType::Fader => { self.touchosc_faders[addr].value() },
+                    _ => { 0.0 }
+                };
+            }
+        } return 0.0;
+        
+    }
+    pub fn verify_has_addr(&self, addr:&str) {
+        if !self.lookup_table.keys().any(|val| *val == *addr) {
+            panic!("\"{}\" is not an address!", addr);
         }
     }
 
-    pub fn addr_inuse(&self, addr:&str) -> bool {
-        return self.inputs_map.values().any(|val| *val == *addr);
+    pub fn verify_free_addr(&self, addr:&str) {
+        if self.lookup_table.keys().any(|val| *val == *addr) {
+            panic!("\"{}\" address in use!", addr);
+        }
     }
     
 }
-
-
-fn main() {
-
-    let mut client = TouchOscClient::new();
-
-    let fader1 = client.add_fader("/fader1", 0.0, 1.0, 1.0);
-    let fader2 = client.add_fader("/fader2", 0.0, 1.0, 1.0);
-
-    let button1 = client.add_button("/button1", true);
-    let button2 = client.add_button("/button2", true);
-
-
-    // let fader = TouchOscInput::new("/grid/rows", TouchOscInputType::Fader { value: 0.0 });
-    // let button = TouchOscInput::new("/grid/rows", TouchOscInputType::Button { state: false });
-
-    // let value = fader.get(true);
-    // let state = button.get(false);
-
-    // let fader_value = match &value {
-    //     TouchOscValue::Fader(x)  => *x,
-    //     TouchOscValue::Button(b) => *b,
-    //     _ => ()
-    //     // TouchOscValue::Button(x) => *x,
-    // };
-
-    // let button_state = match &state {
-    //     TouchOscValue::Fader(value)  => *value,
-    //     TouchOscValue::Button(state) => *state,
-    // };
-
-    //println!("{}", fader_value);
-    // println!("{}", button_state);
-    // nannou::app(model).update(update).run();
-}
-
 //--------------------------------------------------------
-
-
-//--------------------------------------------------------
-pub struct TouchOscInput {
-    touchosc_input_addr : String,
-    touchosc_input_type : String
+pub struct TouchOscButton {
+    state : bool
 }
-impl TouchOscInput  {
-    pub fn new(touchosc_input_addr:&str, touchosc_input_type:&str) -> Self {
-        TouchOscInput { 
-            touchosc_input_addr: touchosc_input_addr.to_string(),
-            touchosc_input_type: touchosc_input_type.to_string()
+impl TouchOscButton {
+    pub fn new(state:bool) -> Self {
+        TouchOscButton { 
+            state: state 
         }
     }
-}
+    pub fn set_state (&mut self, arg:f32) {
+        if arg > 0.0 {
+            self.state = true;
+        } else {
+            self.state = false;
+        }
+    }
+    pub fn state(&self) -> bool { // get
+        return self.state;
+    }
 
+}
 //--------------------------------------------------------
 pub struct TouchOscFader {
     min : f32,
@@ -142,25 +167,57 @@ impl TouchOscFader {
         return self.value;
     }
 }
+//--------------------------------------------------------
+pub struct TouchOscGrid { 
 
-pub struct TouchOscButton {
-    state : bool
 }
-impl TouchOscButton {
-    pub fn new(state:bool) -> Self {
-        TouchOscButton { 
-            state: state 
-        }
+impl TouchOscGrid {
+    pub fn new() -> Self {
+        TouchOscGrid {}
     }
-    pub fn set_state (&mut self, arg:f32) {
-        if arg > 0.0 {
-            self.state = true;
-        } else {
-            self.state = false;
-        }
+}
+//--------------------------------------------------------
+pub struct TouchOscEncoder { 
+    
+}
+impl TouchOscEncoder {
+    pub fn new() -> Self {
+        TouchOscEncoder {}
     }
-    pub fn state(&self) -> bool { // get
-        return self.state;
+}
+//--------------------------------------------------------
+pub struct TouchOscRadar { 
+    
+}
+impl TouchOscRadar {
+    pub fn new() -> Self {
+        TouchOscRadar {}
     }
-
+}
+//--------------------------------------------------------
+pub struct TouchOscRadial { 
+    
+}
+impl TouchOscRadial {
+    pub fn new() -> Self {
+        TouchOscRadial {}
+    }
+}
+//--------------------------------------------------------
+pub struct TouchOscRadio { 
+    
+}
+impl TouchOscRadio {
+    pub fn new() -> Self {
+        TouchOscRadio {}
+    }
+}
+//--------------------------------------------------------
+pub struct TouchOscXY { 
+    
+}
+impl TouchOscXY {
+    pub fn new() -> Self {
+        TouchOscXY {}
+    }
 }
