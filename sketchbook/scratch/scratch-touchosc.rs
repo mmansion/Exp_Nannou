@@ -12,9 +12,12 @@ fn main() {
     let button1 = touchosc.add_button("/button1", false);
     let button2 = touchosc.add_button("/button2", true);
 
+    let grid = touchosc.add_grid("/grid", 2, 0.0, 100.0, 50.0);
+
     println!("fader value = {}", touchosc.fader("/fader1"));
     println!("button value = {}", touchosc.button("/button1"));
 
+    println!("grid value 1 = {}", touchosc.grid("/grid", 1) );
 }
 //--------------------------------------------------------
 
@@ -59,8 +62,10 @@ impl TouchOscClient {
         self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Fader);
         self.touchosc_faders.insert((&addr).to_string(), TouchOscFader::new(min, max, default));
     }
-    pub fn add_grid() {
-
+    pub fn add_grid(&mut self, addr:&str, size:usize, min:f32, max:f32, default:f32) {
+        self.verify_free_addr(addr);
+        self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Grid);
+        self.touchosc_grids.insert((&addr).to_string(), TouchOscGrid::new(size, min, max, default));
     }
     pub fn add_encoder() {
 
@@ -77,7 +82,6 @@ impl TouchOscClient {
     pub fn add_xy(&mut self, path:&str, min:f32, max:f32, default:f32) {
        // self.touchosc_xys.insert(path.to_string(), TouchOscXY::new(path, min, max, default));
     }
-
     pub fn button(&self, addr:&str) -> bool {
         self.verify_has_addr(addr);
         for (key, input_type) in &self.lookup_table {
@@ -89,7 +93,6 @@ impl TouchOscClient {
             }
         } return false;
     }
-
     pub fn fader(&self, addr:&str) -> f32 {
         self.verify_has_addr(addr);
         for (key, input_type) in &self.lookup_table {
@@ -102,12 +105,23 @@ impl TouchOscClient {
         } return 0.0;
         
     }
+    pub fn grid(&self, addr:&str, index:usize) -> f32 {
+        self.verify_has_addr(addr);
+        for (key, input_type) in &self.lookup_table {
+            if key == addr {
+                return match &input_type { //verify correct type at addr
+                    TouchOscInputType::Grid => { self.touchosc_grids[addr].value(index) },
+                    _ => { 0.0 }
+                };
+            }
+        } return 0.0;
+        
+    }
     pub fn verify_has_addr(&self, addr:&str) {
         if !self.lookup_table.keys().any(|val| *val == *addr) {
             panic!("\"{}\" is not an address!", addr);
         }
     }
-
     pub fn verify_free_addr(&self, addr:&str) {
         if self.lookup_table.keys().any(|val| *val == *addr) {
             panic!("\"{}\" address in use!", addr);
@@ -169,13 +183,32 @@ impl TouchOscFader {
 }
 //--------------------------------------------------------
 pub struct TouchOscGrid { 
-
+    faders : Vec<TouchOscFader>,
+    zero_index: bool
 }
 impl TouchOscGrid {
-    pub fn new() -> Self {
-        TouchOscGrid {}
+    pub fn new(size:usize, min:f32, max:f32, default:f32) -> Self {
+        let mut faders =  Vec::new();
+        for i in 0..size {
+            faders.push(TouchOscFader::new(min, max, default));
+        }
+        TouchOscGrid {
+            zero_index: false,
+            faders
+        }
+    }
+    pub fn set_zero_index(&mut self, bool:bool) {
+        self.zero_index = bool;
+    }
+    pub fn value(&self, index:usize) -> f32 {
+        if self.zero_index {
+            return self.faders[index].value;
+        } else {
+            return self.faders[index-1].value;
+        }
     }
 }
+
 //--------------------------------------------------------
 pub struct TouchOscEncoder { 
     
