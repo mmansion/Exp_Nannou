@@ -18,7 +18,7 @@ use library::colors::Palette;
 use library::grid3::Grid3 as Grid;
 
 // beginning of touch library for nannou
-use library::touchosc4::TouchOscClient as TouchOscClient;
+use library::touchosc5::TouchOscClient as TouchOscClient;
 
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)

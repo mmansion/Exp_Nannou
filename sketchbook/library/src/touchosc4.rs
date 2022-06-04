@@ -2,7 +2,6 @@ use nannou::prelude::*;
 use nannou_osc as osc;
 use std::collections::HashMap;
 
-
 pub enum TouchOscInputType {
     Button(TouchOscButton),
     Fader (TouchOscFader),

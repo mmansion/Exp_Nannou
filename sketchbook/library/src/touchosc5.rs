@@ -2,28 +2,10 @@ use nannou::prelude::*;
 use nannou_osc as osc;
 use std::collections::HashMap;
 
-//--------------------------------------------------------
-fn main() {
-
-    let mut touchosc = TouchOscClient::new(6555);
-
-    let fader1 = touchosc.add_fader("/fader1", 0.0, 10.0, 3.0);
-    let fader2 = touchosc.add_fader("/fader2", 0.0, 1.0, 1.0);
-
-    let button1 = touchosc.add_button("/button1", false);
-    let button2 = touchosc.add_button("/button2", true);
-
-    let grid = touchosc.add_grid("/grid", 2, 0.0, 100.0, 50.0);
-
-    println!("fader value = {}", touchosc.fader("/fader1"));
-    println!("button value = {}", touchosc.button("/button1"));
-
-    println!("grid value 1 = {}", touchosc.grid("/grid", 1) );
-}
-//--------------------------------------------------------
-
 #[derive(Debug)]
 pub enum TouchOscInputType { Button, Fader, Grid, Encoder, Radar, Radial, Radio, XY }
+
+
 pub struct TouchOscClient {
     osc_receiver : osc::Receiver,
 
@@ -57,27 +39,39 @@ impl TouchOscClient {
         }
     }
     pub fn update(&mut self) {
-        for (packet, addr) in self.osc_receiver.try_iter() {
+        for (packet, ip_addr) in self.osc_receiver.try_iter() {
             for msg in packet.into_msgs() {
                 let args = msg.args.unwrap();
 
-                if self.lookup_table.keys().any(|val| *val == msg.addr) {
-                    println!("RECEIVED DATA");
+                for (key, input_type) in &self.lookup_table {
+                    if key == &msg.addr {
+                        match &input_type {
+                            TouchOscInputType::Button => { 
+                                match self.touchosc_buttons.get_mut(&msg.addr) {
+                                     Some(button) => { 
+                                         button.set_state(match &args[..] { 
+                                            [osc::Type::Float(x)] => *x, 
+                                            _etc => button.value }); }, None => ()
+                                }   
+                            },
+                            TouchOscInputType::Fader => { 
+                                match self.touchosc_faders.get_mut(&msg.addr) {
+                                     Some(fader) => { 
+                                         fader.set_value(match &args[..] { 
+                                            [osc::Type::Float(x)] => *x, 
+                                            _etc => fader.value }); }, None => ()
+                                }   
+                            },
+                            TouchOscInputType::Grid => { 
+                                println!("Grid") 
+                            },
+                            
+                            _ => { println!("Other") }
+                        };
+                    }
                 }
 
-
-                // for (key, input_type) in &self.lookup_table {
-                //     if key == addr {
-                //         return match &input_type { 
-                //             TouchOscInputType::Button => { self.touchosc_buttons[addr].state() },
-                //             _ => { false }
-                //         };
-                //     }
-                // } return false;
-
-                // match self.lookup_table.get_mut(&msg.addr) {
-                    
-                // }
+                
                 
                 // match self.touchosc_faders.get_mut(&msg.addr) {
                 //     Some(fader) => { fader.set (match &args[..] { 
@@ -92,12 +86,12 @@ impl TouchOscClient {
                 // }
             }
         }
-        for (path, fader) in &self.touchosc_faders {
-            //println!("{} {}", path, fader.value);
-        }
-        for (path, button) in &self.touchosc_buttons {
-            //println!("{} {}", path, button.state);
-        }
+        // for (path, fader) in &self.touchosc_faders {
+        //     //println!("{} {}", path, fader.value);
+        // }
+        // for (path, button) in &self.touchosc_buttons {
+        //     //println!("{} {}", path, button.state);
+        // }
     }
     pub fn add_button(&mut self, addr:&str, default:bool) {
         self.verify_free_addr(addr);
@@ -178,12 +172,15 @@ impl TouchOscClient {
 }
 //--------------------------------------------------------
 pub struct TouchOscButton {
-    state : bool
+    state : bool,
+    value : f32
 }
 impl TouchOscButton {
     pub fn new(state:bool) -> Self {
+        let value = match state { true => 1.0, _ => 0.0};
         TouchOscButton { 
-            state: state 
+            state: state,
+            value
         }
     }
     pub fn set_state (&mut self, arg:f32) {
@@ -196,7 +193,6 @@ impl TouchOscButton {
     pub fn state(&self) -> bool { // get
         return self.state;
     }
-
 }
 //--------------------------------------------------------
 pub struct TouchOscFader {
