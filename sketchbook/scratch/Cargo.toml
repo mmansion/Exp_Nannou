@@ -22,5 +22,9 @@ library = { path = "../library" }
 #--------------------------------------------------------
 
 [[example]]
+name = "pattern-matching" #uses touchosc4, grid3
+path = "pattern-matching.rs"
+
+[[example]]
 name = "scratch-touchosc" #uses touchosc4, grid3
 path = "scratch-touchosc.rs"

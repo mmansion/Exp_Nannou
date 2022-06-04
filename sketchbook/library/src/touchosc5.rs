@@ -1,6 +1,8 @@
 use nannou::prelude::*;
 use nannou_osc as osc;
 use std::collections::HashMap;
+use regex::Regex;
+use regex::escape;
 
 #[derive(Debug)]
 pub enum TouchOscInputType { Button, Fader, Grid, Encoder, Radar, Radial, Radio, XY }
@@ -41,9 +43,10 @@ impl TouchOscClient {
         for (packet, ip_addr) in self.osc_receiver.try_iter() {
             for msg in packet.into_msgs() {
                 let args = msg.args.unwrap();
-
+                let mut found_key = false;
                 for (key, input_type) in &self.lookup_table {
-                    if key == &msg.addr {
+                    if key == &msg.addr { //exact addr match
+                        println!("exact match");
                         match &input_type {
                             TouchOscInputType::Button => { 
                                 match self.touchosc_buttons.get_mut(&msg.addr) {
@@ -52,6 +55,7 @@ impl TouchOscClient {
                                             [osc::Type::Float(x)] => *x, 
                                             _etc => button.value() }); 
                                             button.print(&msg.addr);
+                                            found_key = true;
                                         }, None => ()
                                 }
                             },
@@ -62,11 +66,9 @@ impl TouchOscClient {
                                             [osc::Type::Float(x)] => *x, 
                                             _etc => fader.value() }); 
                                             fader.print(&msg.addr);
+                                            found_key = true;
                                         }, None => ()
                                 }
-                            },
-                            TouchOscInputType::Grid => { 
-                                println!("Grid") 
                             },
                             TouchOscInputType::Encoder => { 
                                 match self.touchosc_encoders.get_mut(&msg.addr) {
@@ -75,12 +77,29 @@ impl TouchOscClient {
                                             [osc::Type::Float(x)] => *x, 
                                             _etc => encoder.value() }); 
                                             encoder.print(&msg.addr);
+                                            found_key = true;
                                         }, None => ()
                                 }
                             },
-                            
                             _ => { println!("Other") }
                         };
+
+                    } else if Regex::new(format!(r#"{}/\d+"#, 
+                        escape(key)).as_str()).unwrap().is_match(&msg.addr) && !found_key
+                        { //partial addr match
+                        match &input_type {
+                            TouchOscInputType::Grid => { 
+                                match self.touchosc_grids.get_mut(key) {
+                                     Some(grid) => { 
+                                        grid.set_value(&msg.addr, match &args[..] { 
+                                            [osc::Type::Float(x)] => *x, 
+                                            _etc => grid.value(&msg.addr) }); 
+                                            grid.print(&msg.addr);
+                                            found_key = true;
+                                        }, None => ()
+                                }
+                            }, _ => { println!("Other") }
+                        }
                     }
                 }
             }
@@ -104,8 +123,9 @@ impl TouchOscClient {
     }
     pub fn add_grid(&mut self, addr:&str, size:usize, min:f32, max:f32, default:f32) {
         self.verify_free_addr(addr);
+        println!("{}", addr);
         self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Grid);
-        self.touchosc_grids.insert((&addr).to_string(), TouchOscGrid::new(size, min, max, default));
+        self.touchosc_grids.insert((&addr).to_string(), TouchOscGrid::new(addr, size, min, max, default));
     }
     pub fn add_encoder(&mut self, addr:&str, min:f32, max:f32, default:f32) {
         self.verify_free_addr(addr);
@@ -147,17 +167,17 @@ impl TouchOscClient {
         } return 0.0;
         
     }
-    pub fn grid(&self, addr:&str, index:usize) -> f32 {
-        self.verify_has_addr(addr);
+    pub fn grid(&self, addr:&str) -> f32 {
         for (key, input_type) in &self.lookup_table {
-            if key == addr {
-                return match &input_type { //verify correct type at addr
-                    TouchOscInputType::Grid => { self.touchosc_grids[addr].value(index) },
-                    _ => { 0.0 }
-                };
+            let re = Regex::new(format!(r#"{}/\d+"#, escape(key)).as_str()).unwrap();
+            if re.is_match(addr) {
+                return match &input_type {
+                    TouchOscInputType::Grid => { 
+                        self.touchosc_grids[key].value(addr)
+                    }, _ => { 0.0 }
+                }
             }
         } return 0.0;
-        
     }
     pub fn encoder(&self, addr:&str) -> f32 {
         self.verify_has_addr(addr);
@@ -169,7 +189,6 @@ impl TouchOscClient {
                 };
             }
         } return 0.0;
-        
     }
     pub fn verify_has_addr(&self, addr:&str) {
         if !self.lookup_table.keys().any(|val| *val == *addr) {
@@ -199,8 +218,8 @@ impl TouchOscButton {
     pub fn print(&self, addr:&str) {
         println!("{} {}", addr, self.state);
     }
-    pub fn set_state (&mut self, arg:f32) {
-        if arg > 0.0 {
+    pub fn set_state (&mut self, value:f32) {
+        if value > 0.0 {
             self.state = true;
         } else {
             self.state = false;
@@ -236,8 +255,8 @@ impl TouchOscFader {
     pub fn set_max (&mut self, max:f32) { 
         self.max = max; 
     }
-    pub fn set_value (&mut self, arg:f32) {
-        self.value = self.range(arg); 
+    pub fn set_value (&mut self, value:f32) {
+        self.value = self.range(value); 
     }
     pub fn range(&self, arg:f32) -> f32 {
         return map_range(arg, 0.0, 1.0, self.min, self.max);
@@ -248,29 +267,38 @@ impl TouchOscFader {
 }
 //--------------------------------------------------------
 pub struct TouchOscGrid { 
-    faders : Vec<TouchOscFader>,
-    zero_index: bool
+    base_addr : String,
+    faders : HashMap<String, TouchOscFader>,
 }
 impl TouchOscGrid {
-    pub fn new(size:usize, min:f32, max:f32, default:f32) -> Self {
-        let mut faders =  Vec::new();
+    pub fn new(base_addr:&str, size:usize, min:f32, max:f32, default:f32) -> Self { 
+        let mut faders = HashMap::new();
         for i in 0..size {
-            faders.push(TouchOscFader::new(min, max, default));
+            let addr = format!("{}/{}", base_addr, (i+1).to_string());
+            faders.insert((&addr).to_string(), TouchOscFader::new(min, max, default));
         }
         TouchOscGrid {
-            zero_index: false,
+            base_addr  : base_addr.to_string(),
             faders
         }
     }
-    pub fn set_zero_index(&mut self, bool:bool) {
-        self.zero_index = bool;
-    }
-    pub fn value(&self, index:usize) -> f32 {
-        if self.zero_index {
-            return self.faders[index].value;
-        } else {
-            return self.faders[index-1].value;
+    pub fn print(&self, addr:&str) {
+        if self.faders.contains_key(addr) {
+            println!("{} {}", addr, self.faders[addr].value());
         }
+    }
+    pub fn base_addr(&self) -> &str {
+        return &self.base_addr;
+    }
+    pub fn set_value (&mut self, addr:&str, value:f32) {
+        if self.faders.contains_key(addr) {
+            match self.faders.get_mut(addr) { Some(fader) => fader.set_value(value), None => () }
+        } else {
+            println!("cannot value on 'out of bounds' grid element: {}", addr);
+        }
+    }
+    pub fn value(&self, addr:&str) -> f32 {
+        return self.faders[addr].value();
     }
 }
 

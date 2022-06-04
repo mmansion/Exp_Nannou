@@ -89,6 +89,11 @@ fn model(app: &App) -> Model {
 
     touchosc.add_encoder("/rect/rotation", 0.0, PI*2.0, 0.0);
 
+    touchosc.add_grid("/grid", 2, 0.0, 10.0, 5.0);
+
+    println!("value for /grid/1 = {}", touchosc.grid("/grid/1") );
+    
+
     // touchosc.add_fader("/rect/width", 10.0, 100.0, 50.0);
     // touchosc.add_fader("/rect/height", 10.0, 100.0, 50.0);
     // touchosc.add_fader("/rect/weight", 1.0, 10.0, 1.0);
