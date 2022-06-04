@@ -5,7 +5,6 @@ use std::collections::HashMap;
 #[derive(Debug)]
 pub enum TouchOscInputType { Button, Fader, Grid, Encoder, Radar, Radial, Radio, XY }
 
-
 pub struct TouchOscClient {
     osc_receiver : osc::Receiver,
 
@@ -51,43 +50,43 @@ impl TouchOscClient {
                                      Some(button) => { 
                                          button.set_state(match &args[..] { 
                                             [osc::Type::Float(x)] => *x, 
-                                            _etc => button.value }); }, None => ()
-                                }   
+                                            _etc => button.value() }); 
+                                            button.print(&msg.addr);
+                                        }, None => ()
+                                }
                             },
                             TouchOscInputType::Fader => { 
                                 match self.touchosc_faders.get_mut(&msg.addr) {
                                      Some(fader) => { 
                                          fader.set_value(match &args[..] { 
                                             [osc::Type::Float(x)] => *x, 
-                                            _etc => fader.value }); }, None => ()
-                                }   
+                                            _etc => fader.value() }); 
+                                            fader.print(&msg.addr);
+                                        }, None => ()
+                                }
                             },
                             TouchOscInputType::Grid => { 
                                 println!("Grid") 
+                            },
+                            TouchOscInputType::Encoder => { 
+                                match self.touchosc_encoders.get_mut(&msg.addr) {
+                                     Some(encoder) => { 
+                                        encoder.set_value(match &args[..] { 
+                                            [osc::Type::Float(x)] => *x, 
+                                            _etc => encoder.value() }); 
+                                            encoder.print(&msg.addr);
+                                        }, None => ()
+                                }
                             },
                             
                             _ => { println!("Other") }
                         };
                     }
                 }
-
-                
-                
-                // match self.touchosc_faders.get_mut(&msg.addr) {
-                //     Some(fader) => { fader.set (match &args[..] { 
-                //         [osc::Type::Float(x)] => *x, _etc => fader.value });
-                //     }, None => ( /*do nothing*/)
-                // }
-                // match self.touchosc_buttons.get_mut(&msg.addr) {
-                //     Some(button) => { button.set (match &args[..] { 
-                //         [osc::Type::Float(x)] => {  *x > 0.0 }, 
-                //         _etc => button.state });
-                //     }, None => ( /*do nothing*/)
-                // }
             }
         }
         // for (path, fader) in &self.touchosc_faders {
-        //     //println!("{} {}", path, fader.value);
+        //     println!("{} {}", path, fader.value());
         // }
         // for (path, button) in &self.touchosc_buttons {
         //     //println!("{} {}", path, button.state);
@@ -108,8 +107,10 @@ impl TouchOscClient {
         self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Grid);
         self.touchosc_grids.insert((&addr).to_string(), TouchOscGrid::new(size, min, max, default));
     }
-    pub fn add_encoder() {
-
+    pub fn add_encoder(&mut self, addr:&str, min:f32, max:f32, default:f32) {
+        self.verify_free_addr(addr);
+        self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Encoder);
+        self.touchosc_encoders.insert((&addr).to_string(), TouchOscEncoder::new(min, max, default));
     }
     pub fn add_radar() {
 
@@ -158,6 +159,18 @@ impl TouchOscClient {
         } return 0.0;
         
     }
+    pub fn encoder(&self, addr:&str) -> f32 {
+        self.verify_has_addr(addr);
+        for (key, input_type) in &self.lookup_table {
+            if key == addr {
+                return match &input_type { //verify correct type at addr
+                    TouchOscInputType::Encoder => { self.touchosc_encoders[addr].value() },
+                    _ => { 0.0 }
+                };
+            }
+        } return 0.0;
+        
+    }
     pub fn verify_has_addr(&self, addr:&str) {
         if !self.lookup_table.keys().any(|val| *val == *addr) {
             panic!("\"{}\" is not an address!", addr);
@@ -183,6 +196,9 @@ impl TouchOscButton {
             value
         }
     }
+    pub fn print(&self, addr:&str) {
+        println!("{} {}", addr, self.state);
+    }
     pub fn set_state (&mut self, arg:f32) {
         if arg > 0.0 {
             self.state = true;
@@ -193,6 +209,9 @@ impl TouchOscButton {
     pub fn state(&self) -> bool { // get
         return self.state;
     }
+    pub fn value(&self) -> f32 { // get
+        return self.value;
+    }
 }
 //--------------------------------------------------------
 pub struct TouchOscFader {
@@ -201,12 +220,15 @@ pub struct TouchOscFader {
     value : f32
 }
 impl TouchOscFader {
-    pub fn new(min:f32, max:f32, value:f32) -> Self {
+    pub fn new(min:f32, max:f32, default:f32) -> Self {
         TouchOscFader { 
             min   : min,
-            max   : min,
-            value : value //default
+            max   : max,
+            value : default
         }
+    }
+    pub fn print(&self, addr:&str) {
+        println!("{} {}", addr, self.value);
     }
     pub fn set_min (&mut self, min:f32) { 
         self.min = min; 
@@ -254,11 +276,35 @@ impl TouchOscGrid {
 
 //--------------------------------------------------------
 pub struct TouchOscEncoder { 
-    
+    min : f32,
+    max : f32,
+    value : f32
 }
 impl TouchOscEncoder {
-    pub fn new() -> Self {
-        TouchOscEncoder {}
+    pub fn new(min:f32, max:f32, default:f32) -> Self {
+        TouchOscEncoder { 
+            min   : min,
+            max   : max,
+            value : default //default
+        }
+    }
+    pub fn print(&self, addr:&str) {
+        println!("{} {}", addr, self.value);
+    }
+    pub fn set_min (&mut self, min:f32) { 
+        self.min = min; 
+    }
+    pub fn set_max (&mut self, max:f32) { 
+        self.max = max; 
+    }
+    pub fn set_value (&mut self, arg:f32) {
+        self.value = self.range(arg); 
+    }
+    pub fn range(&self, arg:f32) -> f32 {
+        return map_range(arg, 0.0, 1.0, self.min, self.max);
+    }
+    pub fn value(&self) -> f32 { // get
+        return self.value;
     }
 }
 //--------------------------------------------------------

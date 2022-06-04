@@ -46,10 +46,8 @@ struct Model {
     colors:Palette,
     redraw:bool,
     last_redraw: u128,
-    osc_client: TouchOscClient,
-
+    touchosc: TouchOscClient,
     points: Vec<Point2>,
-
     grid: Grid
 }
 
@@ -83,20 +81,20 @@ fn model(app: &App) -> Model {
 
     let colors = Palette::new();
 
-    let mut osc_client = TouchOscClient::new(OSC_PORT_RX);
+    let mut touchosc = TouchOscClient::new(OSC_PORT_RX);
 
-    osc_client.add_fader("/grid/rows", 0.0, 12.0, 6.0);
-    // osc_client.add_fader("/grid/cols", 0.0, 12.0, 6.0);
+    touchosc.add_fader("/grid/rows", 0.0, 12.0, 6.0);
+    touchosc.add_fader("/grid/cols", 0.0, 12.0, 6.0);
+    touchosc.add_button("/toggle/rect", true);
 
-    // osc_client.add_button("/toggle/rect", true);
+    touchosc.add_encoder("/rect/rotation", 0.0, PI*2.0, 0.0);
 
-    // osc_client.add_fader("/rect/width", 10.0, 100.0, 50.0);
-    // osc_client.add_fader("/rect/height", 10.0, 100.0, 50.0);
-    // osc_client.add_fader("/rect/weight", 1.0, 10.0, 1.0);
-    // osc_client.add_fader("/rect/rotation", 0.0, PI, PI/2.0);
+    // touchosc.add_fader("/rect/width", 10.0, 100.0, 50.0);
+    // touchosc.add_fader("/rect/height", 10.0, 100.0, 50.0);
+    // touchosc.add_fader("/rect/weight", 1.0, 10.0, 1.0);
+    // touchosc.add_fader("/rect/rotation", 0.0, PI, PI/2.0);
 
-    // osc_client.add_xy("/width_height", 0.0, 100.0, 50.0);
-
+    // touchosc.add_xy("/width_height", 0.0, 100.0, 50.0);
 
     //--------------------------------------------------------
     let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
@@ -117,7 +115,7 @@ fn model(app: &App) -> Model {
         colors,
         redraw,
         last_redraw,
-        osc_client,
+        touchosc,
         points,
         grid
     }
@@ -154,10 +152,10 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     //--------------------------------------------------------
 
     //OSC
-    m.osc_client.update();//update vals
+    m.touchosc.update();//update vals
 
-    // let num_rows = m.osc_client.fader("/grid/rows") as i32;
-    // let num_cols = m.osc_client.fader("/grid/cols") as i32;
+    // let num_rows = m.touchosc.fader("/grid/rows") as i32;
+    // let num_cols = m.touchosc.fader("/grid/cols") as i32;
     
     // println!("{}, {}", num_rows, num_cols);
 
@@ -191,7 +189,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
         /*
 
-        if m.osc_client.button("/toggle/rect") {
+        if m.touchosc.button("/toggle/rect") {
         
             for i in 0..m.grid.points.len() {
 
@@ -200,10 +198,10 @@ fn view(app: &App, m: &Model, frame: Frame) {
                 let x = pt.x;
                 let y = pt.y;
 
-                // let w  = m.osc_client.fader("/rect/width");
-                // let h  = m.osc_client.fader("/rect/height");
-                // let wt = m.osc_client.fader("/rect/weight");
-                // let r  = m.osc_client.fader("/rect/rotation");
+                // let w  = m.touchosc.fader("/rect/width");
+                // let h  = m.touchosc.fader("/rect/height");
+                // let wt = m.touchosc.fader("/rect/weight");
+                // let r  = m.touchosc.fader("/rect/rotation");
 
                 // Return a new rotated draw instance.
                 // This will rotate both the rect and text around the origin.
