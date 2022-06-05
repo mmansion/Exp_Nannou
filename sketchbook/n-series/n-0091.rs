@@ -92,7 +92,9 @@ fn model(app: &App) -> Model {
 
     touchosc.add_xy("/rect/width_height", 50.0, 300.0, 50.0);
 
-    touchosc.add_radar("/rect/offset", 50.0, 300.0, 50.0);
+    let radius_min_max_default = (10.0, 100.0, 50.0);
+    let rotation_min_max_default = (0.0, 360.0, 90.0);
+    touchosc.add_radar("/rect/radar", radius_min_max_default, rotation_min_max_default);
     
 
     // touchosc.add_fader("/rect/width", 10.0, 100.0, 50.0);
@@ -207,7 +209,10 @@ fn view(app: &App, m: &Model, frame: Frame) {
                 // let w  = m.touchosc.fader("/rect/width");
                 // let h  = m.touchosc.fader("/rect/height");
                 // let wt = m.touchosc.fader("/rect/weight");
-                // let r  = m.touchosc.fader("/rect/rotation");
+                // let gr  = m.touchosc.fader("/grid/rotation");
+
+                // let radius = m.touchosc.radar("/rect/radar").x;
+                // let rotation = m.touchosc.radar("/rect/radar").y;
 
                 // Return a new rotated draw instance.
                 // This will rotate both the rect and text around the origin.

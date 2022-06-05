@@ -80,6 +80,17 @@ impl TouchOscClient {
                                         }, None => ()
                                 }
                             },
+                            TouchOscInputType::Radar => { 
+                                match self.touchosc_radars.get_mut(&msg.addr) {
+                                     Some(radar) => { 
+                                        radar.set_values(match &args[..] { 
+                                            [osc::Type::Float(x), osc::Type::Float(y)] => pt2(*x, *y), 
+                                            _etc => radar.values() }); 
+                                            radar.print(&msg.addr);
+                                            found_key = true;
+                                        }, None => ()
+                                }
+                            },
                             TouchOscInputType::XY => { 
                                 match self.touchosc_xys.get_mut(&msg.addr) {
                                      Some(xy) => { 
@@ -135,10 +146,10 @@ impl TouchOscClient {
         self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Encoder);
         self.touchosc_encoders.insert((&addr).to_string(), TouchOscEncoder::new(min, max, default));
     }
-    pub fn add_radar(&mut self, addr:&str, min:f32, max:f32, default:f32) {
+    pub fn add_radar(&mut self, addr:&str, (rad_min, rad_max, rad_def):(f32, f32, f32), (rot_min, rot_max, rot_def):(f32, f32, f32)) {
         self.verify_free_addr(addr);
         self.lookup_table.insert((&addr).to_string(), TouchOscInputType::Radar);
-        self.touchosc_radars.insert((&addr).to_string(), TouchOscRadar::new(min, max, default));
+        self.touchosc_radars.insert((&addr).to_string(), TouchOscRadar::new((rad_min, rad_max, rad_def), (rot_min, rot_max, rot_def)));
     }
     pub fn add_radial() {
 
@@ -196,6 +207,17 @@ impl TouchOscClient {
                 };
             }
         } return 0.0;
+    }
+    pub fn radar(&self, addr:&str) -> Vec2 {
+        self.verify_has_addr(addr);
+        for (key, input_type) in &self.lookup_table {
+            if key == addr {
+                return match &input_type { //verify correct type at addr
+                    TouchOscInputType::Radar => { self.touchosc_xys[addr].values() },
+                    _ => { pt2(0.0, 0.0) }
+                };
+            }
+        } return pt2(0.0, 0.0);
     }
     pub fn xy(&self, addr:&str) -> Vec2 {
         self.verify_has_addr(addr);
@@ -355,33 +377,46 @@ impl TouchOscEncoder {
 }
 //--------------------------------------------------------
 pub struct TouchOscRadar {
-    min  : f32,
-    max  : f32,
-    values : Vec2
+    values  : Vec2,
+    rad_min : f32,
+    rad_max : f32,
+    rot_min : f32,
+    rot_max : f32,
 }
 impl TouchOscRadar {
-    pub fn new(min:f32, max:f32, default:f32) -> Self {
+    pub fn new((rad_min, rad_max, rad_def):(f32, f32, f32), (rot_min, rot_max, rot_def):(f32, f32, f32)) -> Self {
         TouchOscRadar {
-             min  : min,
-             max  : max,
-             values : pt2(default, default) //xy
+            values   : pt2(rad_def, rot_def), // (rad,rot)
+            rad_min  : rad_min,
+            rad_max  : rad_max,
+            rot_min  : rot_min,
+            rot_max  : rot_max
         }
     }
     pub fn print(&self, addr:&str) {
         println!( "{} {},{}", addr, self.values.x, self.values.y);
     }
-    pub fn set_min(&mut self, min:f32) {
-        self.min = min;
+    pub fn set_rad_min(&mut self, rad_min:f32) {
+        self.rad_min = rad_min;
     }
-    pub fn set_max(&mut self, max:f32) {
-        self.max = max;
+    pub fn set_rad_max(&mut self, rad_max:f32) {
+        self.rad_max = rad_max;
+    }
+    pub fn set_rot_min(&mut self, rot_min:f32) {
+        self.rot_min = rot_min;
+    }
+    pub fn set_rot_max(&mut self, rot_max:f32) {
+        self.rot_max = rot_max;
     }
     pub fn set_values(&mut self, args:Vec2) {
-        self.values.x = self.range(args.x);
-        self.values.y = self.range(args.y);
+        self.values.x = self.rad_range(args.x); //radius
+        self.values.y = self.rot_range(args.y); //rotation
     }
-    pub fn range(&self, arg:f32) -> f32 {
-        return map_range(arg, 0.0, 1.0, self.min, self.max);
+    pub fn rad_range(&self, arg:f32) -> f32 {
+        return map_range(arg, 0.0, 1.0, self.rad_min, self.rad_max);
+    }
+    pub fn rot_range(&self, arg:f32) -> f32 {
+        return map_range(arg, 0.0, 1.0, self.rot_min, self.rot_max);
     }
     pub fn values(&self) -> Vec2 {
         return self.values;
