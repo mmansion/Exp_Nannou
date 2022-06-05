@@ -91,6 +91,17 @@ impl TouchOscClient {
                                         }, None => ()
                                 }
                             },
+                            TouchOscInputType::Radial => { 
+                                match self.touchosc_radials.get_mut(&msg.addr) {
+                                     Some(radial) => { 
+                                         radial.set_value(match &args[..] { 
+                                            [osc::Type::Float(x)] => *x, 
+                                            _etc => radial.value() }); 
+                                            radial.print(&msg.addr);
+                                            found_key = true;
+                                        }, None => ()
+                                }
+                            },
                             TouchOscInputType::XY => { 
                                 match self.touchosc_xys.get_mut(&msg.addr) {
                                      Some(xy) => { 
@@ -118,13 +129,16 @@ impl TouchOscClient {
                                             found_key = true;
                                         }, None => ()
                                 }
-                            }, _ => { println!("Other") }
+                            }, _ => { println!("Input not found") }
                         }
                     }
                 }
             }
         }
     }
+
+    // add inputs to client
+
     pub fn add_button(&mut self, addr:&str, default:bool) {
         self.verify_free_addr(addr);
         self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Button);
@@ -151,17 +165,24 @@ impl TouchOscClient {
         self.lookup_table.insert((&addr).to_string(), TouchOscInputType::Radar);
         self.touchosc_radars.insert((&addr).to_string(), TouchOscRadar::new((rad_min, rad_max, rad_def), (rot_min, rot_max, rot_def)));
     }
-    pub fn add_radial() {
-
+    pub fn add_radial(&mut self, addr:&str, min:f32, max:f32, default:f32) {
+        self.verify_free_addr(addr);
+        self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Radial);
+        self.touchosc_radials.insert((&addr).to_string(), TouchOscRadial::new(min, max, default));
     }
-    pub fn add_radio() {
-
+    pub fn add_radio(&mut self, addr:&str, size: usize, default:u8) {
+        self.verify_free_addr(addr);
+        self.lookup_table.insert( (&addr).to_string(), TouchOscInputType::Radio);
+        self.touchosc_radios.insert((&addr).to_string(), TouchOscRadio::new(size, default));
     }
     pub fn add_xy(&mut self, addr:&str, min:f32, max:f32, default:f32) {
         self.verify_free_addr(addr);
         self.lookup_table.insert((&addr).to_string(), TouchOscInputType::XY);
         self.touchosc_xys.insert((&addr).to_string(), TouchOscXY::new(min, max, default));
     }
+
+    // get input values
+
     pub fn button(&self, addr:&str) -> bool {
         self.verify_has_addr(addr);
         for (key, input_type) in &self.lookup_table {
@@ -213,11 +234,22 @@ impl TouchOscClient {
         for (key, input_type) in &self.lookup_table {
             if key == addr {
                 return match &input_type { //verify correct type at addr
-                    TouchOscInputType::Radar => { self.touchosc_xys[addr].values() },
+                    TouchOscInputType::Radar => { self.touchosc_radars[addr].values() },
                     _ => { pt2(0.0, 0.0) }
                 };
             }
         } return pt2(0.0, 0.0);
+    }
+    pub fn radial(&self, addr:&str) -> f32 {
+        self.verify_has_addr(addr);
+        for (key, input_type) in &self.lookup_table {
+            if key == addr {
+                return match &input_type { //verify correct type at addr
+                    TouchOscInputType::Radial => { self.touchosc_radials[addr].value() },
+                    _ => { 0.0 }
+                };
+            }
+        } return 0.0;
     }
     pub fn xy(&self, addr:&str) -> Vec2 {
         self.verify_has_addr(addr);
@@ -230,6 +262,9 @@ impl TouchOscClient {
             }
         } return pt2(0.0, 0.0);
     }
+
+    // helpers
+
     pub fn verify_has_addr(&self, addr:&str) { //TODO: try contains?
         if !self.lookup_table.keys().any(|val| *val == *addr) {
             panic!("\"{}\" is not an address!", addr);
@@ -240,7 +275,6 @@ impl TouchOscClient {
             panic!("\"{}\" address in use!", addr);
         }
     }
-    
 }
 //--------------------------------------------------------
 pub struct TouchOscButton {
@@ -423,21 +457,61 @@ impl TouchOscRadar {
     }
 }
 //--------------------------------------------------------
-pub struct TouchOscRadial { 
-    
+pub struct TouchOscRadial {
+    min : f32,
+    max : f32,
+    value : f32
 }
 impl TouchOscRadial {
-    pub fn new() -> Self {
-        TouchOscRadial {}
+    pub fn new(min:f32, max:f32, default:f32) -> Self {
+        TouchOscRadial { 
+            min   : min,
+            max   : max,
+            value : default
+        }
+    }
+    pub fn print(&self, addr:&str) {
+        println!("{} {}", addr, self.value);
+    }
+    pub fn set_min (&mut self, min:f32) { 
+        self.min = min; 
+    }
+    pub fn set_max (&mut self, max:f32) { 
+        self.max = max; 
+    }
+    pub fn set_value (&mut self, value:f32) {
+        self.value = self.range(value); 
+    }
+    pub fn range(&self, arg:f32) -> f32 {
+        return map_range(arg, 0.0, 1.0, self.min, self.max);
+    }
+    pub fn value(&self) -> f32 { // get
+        return self.value;
     }
 }
 //--------------------------------------------------------
-pub struct TouchOscRadio { 
-    
+pub struct TouchOscRadio {
+    size  : usize,
+    value : u8
 }
 impl TouchOscRadio {
-    pub fn new() -> Self {
-        TouchOscRadio {}
+    pub fn new(size:usize, default: u8) -> Self {
+        TouchOscRadio { 
+            size: size,
+            value: default
+        }
+    }
+    pub fn print(&self, addr:&str) {
+        println!("{} {}", addr, self.value);
+    }
+    pub fn set_value (&mut self, value:f32) {
+        self.value = value as u8;
+    }
+    pub fn size(&self) -> usize {
+        return self.size;
+    }
+    pub fn value(&self) -> u8 {
+        return self.value;
     }
 }
 //--------------------------------------------------------

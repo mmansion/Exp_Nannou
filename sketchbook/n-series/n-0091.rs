@@ -52,7 +52,6 @@ struct Model {
 
 //--------------------------------------------------------
 fn model(app: &App) -> Model {
-
     let window_id = app
         .new_window()
         .size(WIDTH as u32, HEIGHT as u32)
@@ -62,7 +61,6 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap()
         ;
-
     // app.set_loop_mode(LoopMode::loop_once());
     // app.set_loop_mode(LoopMode::rate_fps(0.1));
     
@@ -79,30 +77,26 @@ fn model(app: &App) -> Model {
     //--------------------------------------------------------
 
     let colors = Palette::new();
-
     let mut touchosc = TouchOscClient::new(OSC_PORT_RX);
 
+    //grid controls
     touchosc.add_fader("/grid/rows", 0.0, 12.0, 6.0);
     touchosc.add_fader("/grid/cols", 0.0, 12.0, 6.0);
-    touchosc.add_button("/toggle/rect", true);
+    touchosc.add_radial("/grid/rotation", 0.0, PI*2.0, 0.0);
 
+    // rect controls
+    touchosc.add_button("/rect/toggle", true);
     touchosc.add_encoder("/rect/rotation", 0.0, PI*2.0, 0.0);
-
-    touchosc.add_grid("/grid", 2, 0.0, 10.0, 5.0);
-
     touchosc.add_xy("/rect/width_height", 50.0, 300.0, 50.0);
 
-    let radius_min_max_default = (10.0, 100.0, 50.0);
-    let rotation_min_max_default = (0.0, 360.0, 90.0);
-    touchosc.add_radar("/rect/radar", radius_min_max_default, rotation_min_max_default);
+    touchosc.add_radar("/rect/scale_rotation", (1.0, 2.0, 1.0), (0.0, PI*2.0, 0.0));
     
+    //touchosc.add_grid("/rect/rgba", 3, 0.0, 1.0, 1.0);
 
-    // touchosc.add_fader("/rect/width", 10.0, 100.0, 50.0);
-    // touchosc.add_fader("/rect/height", 10.0, 100.0, 50.0);
-    // touchosc.add_fader("/rect/weight", 1.0, 10.0, 1.0);
-    // touchosc.add_fader("/rect/rotation", 0.0, PI, PI/2.0);
+    touchosc.add_fader("/rect/weight", 1.0, 10.0, 1.0);
 
-    // touchosc.add_xy("/width_height", 0.0, 100.0, 50.0);
+    touchosc.add_radio("/radio", 3, 1);
+    
 
     //--------------------------------------------------------
     let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
@@ -170,7 +164,9 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     m.grid.rows(num_rows);
     m.grid.cols(num_cols);
 
-     
+    m.grid.rotation( m.touchosc.radial("/grid/rotation"));
+
+
 }
 
 fn view(app: &App, m: &Model, frame: Frame) {
@@ -195,9 +191,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
         //--------------------------------------------------------
         m.grid.draw(&draw);
 
-        /*
-
-        if m.touchosc.button("/toggle/rect") {
+        if m.touchosc.button("/rect/toggle") {
         
             for i in 0..m.grid.points.len() {
 
@@ -206,20 +200,20 @@ fn view(app: &App, m: &Model, frame: Frame) {
                 let x = pt.x;
                 let y = pt.y;
 
-                // let w  = m.touchosc.fader("/rect/width");
-                // let h  = m.touchosc.fader("/rect/height");
-                // let wt = m.touchosc.fader("/rect/weight");
-                // let gr  = m.touchosc.fader("/grid/rotation");
+                let w  = m.touchosc.xy("/rect/width_height").x;
+                let h  = m.touchosc.xy("/rect/width_height").y;
+                let wt = m.touchosc.fader("/rect/weight");
 
-                // let radius = m.touchosc.radar("/rect/radar").x;
-                // let rotation = m.touchosc.radar("/rect/radar").y;
+                let scale = m.touchosc.radar("/rect/scale_rotation").x;
+                let rotation = m.touchosc.radar("/rect/scale_rotation").y;
 
                 // Return a new rotated draw instance.
                 // This will rotate both the rect and text around the origin.
                 let f = i as f32 / m.grid.points.len() as f32;
-                let rotate = (r).sin() * (r + f * PI * 2.0).cos();
+                let rotate = (rotation).sin() * (rotation + f * PI * 2.0).cos();
                 let draw = draw.translate(pt3(x, y, 0.0));
                 let draw = draw.rotate(rotate);
+                let draw = draw.scale(scale);
 
   
                 let pts = [
@@ -241,8 +235,6 @@ fn view(app: &App, m: &Model, frame: Frame) {
             }
 
         }
-
-        */
                     
 
         //--------------------------------------------------------

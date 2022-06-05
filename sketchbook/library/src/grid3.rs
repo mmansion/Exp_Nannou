@@ -1,12 +1,13 @@
 use nannou::prelude::*;
 
 pub struct Grid3 {
-    rows: i32,
-    cols: i32,
+    rows : i32,
+    cols : i32,
+    rotation : f32,
 
-    pub width     : i32,
-    pub height    : i32,
-    pub points    : Vec <Vec2>,
+    pub width  : i32,
+    pub height : i32,
+    pub points : Vec <Vec2>,
 
     x_off:f32,
     y_off:f32,
@@ -29,6 +30,8 @@ impl Grid3 {
 
         let rows = rows;
         let cols = cols;
+
+        let rotation = 0.0;
 
          //offset for coord sys
         let y_off = -height as f32 /2.0;
@@ -71,6 +74,7 @@ impl Grid3 {
             width,
             height,
             points,
+            rotation,
 
             y_off,
             x_off,
@@ -99,6 +103,10 @@ impl Grid3 {
         }
     }
 
+    pub fn rotation(&mut self, radials:f32) {
+        self.rotation = radials;
+    }
+
     fn update_points(&mut self) {
 
         self.points.clear(); //clears vec and removes items from memory
@@ -121,6 +129,8 @@ impl Grid3 {
     }
 
     pub fn draw(&self, draw: &Draw) {
+
+        let draw = draw.rotate(self.rotation);
 
 
         //draw col lines
