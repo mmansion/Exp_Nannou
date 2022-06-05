@@ -91,7 +91,7 @@ fn model(app: &App) -> Model {
 
     touchosc.add_grid("/grid", 2, 0.0, 10.0, 5.0);
 
-    println!("value for /grid/1 = {}", touchosc.grid("/grid/1") );
+    touchosc.add_xy("/rect/width_height", 50.0, 300.0, 50.0);
     
 
     // touchosc.add_fader("/rect/width", 10.0, 100.0, 50.0);
@@ -159,13 +159,13 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     //OSC
     m.touchosc.update();//update vals
 
-    // let num_rows = m.touchosc.fader("/grid/rows") as i32;
-    // let num_cols = m.touchosc.fader("/grid/cols") as i32;
+    let num_rows = m.touchosc.fader("/grid/rows") as i32;
+    let num_cols = m.touchosc.fader("/grid/cols") as i32;
     
     // println!("{}, {}", num_rows, num_cols);
 
-    // m.grid.rows(num_rows);
-    // m.grid.cols(num_cols);
+    m.grid.rows(num_rows);
+    m.grid.cols(num_cols);
 
      
 }

@@ -43,10 +43,9 @@ impl TouchOscClient {
         for (packet, ip_addr) in self.osc_receiver.try_iter() {
             for msg in packet.into_msgs() {
                 let args = msg.args.unwrap();
-                let mut found_key = false;
+                let mut found_key = false;//TODO: remove this
                 for (key, input_type) in &self.lookup_table {
                     if key == &msg.addr { //exact addr match
-                        println!("exact match");
                         match &input_type {
                             TouchOscInputType::Button => { 
                                 match self.touchosc_buttons.get_mut(&msg.addr) {
@@ -81,9 +80,19 @@ impl TouchOscClient {
                                         }, None => ()
                                 }
                             },
-                            _ => { println!("Other") }
+                            TouchOscInputType::XY => { 
+                                match self.touchosc_xys.get_mut(&msg.addr) {
+                                     Some(xy) => { 
+                                        xy.set_values(match &args[..] { 
+                                            [osc::Type::Float(x), osc::Type::Float(y)] => pt2(*x, *y), 
+                                            _etc => xy.values() }); 
+                                            xy.print(&msg.addr);
+                                            found_key = true;
+                                        }, None => ()
+                                }
+                            },
+                            _ => { println!("Input not found") }
                         };
-
                     } else if Regex::new(format!(r#"{}/\d+"#, 
                         escape(key)).as_str()).unwrap().is_match(&msg.addr) && !found_key
                         { //partial addr match
@@ -104,12 +113,6 @@ impl TouchOscClient {
                 }
             }
         }
-        // for (path, fader) in &self.touchosc_faders {
-        //     println!("{} {}", path, fader.value());
-        // }
-        // for (path, button) in &self.touchosc_buttons {
-        //     //println!("{} {}", path, button.state);
-        // }
     }
     pub fn add_button(&mut self, addr:&str, default:bool) {
         self.verify_free_addr(addr);
@@ -141,8 +144,10 @@ impl TouchOscClient {
     pub fn add_radio() {
 
     }
-    pub fn add_xy(&mut self, path:&str, min:f32, max:f32, default:f32) {
-       // self.touchosc_xys.insert(path.to_string(), TouchOscXY::new(path, min, max, default));
+    pub fn add_xy(&mut self, addr:&str, min:f32, max:f32, default:f32) {
+        self.verify_free_addr(addr);
+        self.lookup_table.insert((&addr).to_string(), TouchOscInputType::XY);
+        self.touchosc_xys.insert((&addr).to_string(), TouchOscXY::new(min, max, default));
     }
     pub fn button(&self, addr:&str) -> bool {
         self.verify_has_addr(addr);
@@ -190,7 +195,18 @@ impl TouchOscClient {
             }
         } return 0.0;
     }
-    pub fn verify_has_addr(&self, addr:&str) {
+    pub fn xy(&self, addr:&str) -> Vec2 {
+        self.verify_has_addr(addr);
+        for (key, input_type) in &self.lookup_table {
+            if key == addr {
+                return match &input_type { //verify correct type at addr
+                    TouchOscInputType::XY => { self.touchosc_xys[addr].values() },
+                    _ => { pt2(0.0, 0.0) }
+                };
+            }
+        } return pt2(0.0, 0.0);
+    }
+    pub fn verify_has_addr(&self, addr:&str) { //TODO: try contains?
         if !self.lookup_table.keys().any(|val| *val == *addr) {
             panic!("\"{}\" is not an address!", addr);
         }
@@ -278,7 +294,7 @@ impl TouchOscGrid {
             faders.insert((&addr).to_string(), TouchOscFader::new(min, max, default));
         }
         TouchOscGrid {
-            base_addr  : base_addr.to_string(),
+            base_addr : base_addr.to_string(),
             faders
         }
     }
@@ -363,11 +379,36 @@ impl TouchOscRadio {
     }
 }
 //--------------------------------------------------------
-pub struct TouchOscXY { 
-    
+pub struct TouchOscXY {
+    min  : f32,
+    max  : f32,
+    values : Vec2
 }
 impl TouchOscXY {
-    pub fn new() -> Self {
-        TouchOscXY {}
+    pub fn new(min:f32, max:f32, default:f32) -> Self {
+        TouchOscXY {
+             min  : min,
+             max  : max,
+             values : pt2(default, default) //xy
+        }
+    }
+    pub fn print(&self, addr:&str) {
+        println!( "{} {},{}", addr, self.values.x, self.values.y);
+    }
+    pub fn set_min(&mut self, min:f32) {
+        self.min = min;
+    }
+    pub fn set_max(&mut self, max:f32) {
+        self.max = max;
+    }
+    pub fn set_values(&mut self, args:Vec2) {
+        self.values.x = self.range(args.x);
+        self.values.y = self.range(args.y);
+    }
+    pub fn range(&self, arg:f32) -> f32 {
+        return map_range(arg, 0.0, 1.0, self.min, self.max);
+    }
+    pub fn values(&self) -> Vec2 {
+        return self.values;
     }
 }
