@@ -25,7 +25,6 @@ static CAPTURE  : bool = false; // capture to image sequence (or use obs)
 static FRAME    : bool = true; //hide window chrome when set to false
 static WIDTH    : i32 = 800;
 static HEIGHT   : i32 = 800; 
-static BORDER   : f32 = 10.0;
 static WAIT     : u128 = 100;
 
 static NUM_FADERS  : usize  = 4; //num of sliders used 
@@ -92,6 +91,8 @@ fn model(app: &App) -> Model {
     touchosc.add_grid("/grid", 2, 0.0, 10.0, 5.0);
 
     touchosc.add_xy("/rect/width_height", 50.0, 300.0, 50.0);
+
+    touchosc.add_radar("/rect/offset", 50.0, 300.0, 50.0);
     
 
     // touchosc.add_fader("/rect/width", 10.0, 100.0, 50.0);

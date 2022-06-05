@@ -135,8 +135,10 @@ impl TouchOscClient {
         self.lookup_table.insert((&addr).to_string(),TouchOscInputType::Encoder);
         self.touchosc_encoders.insert((&addr).to_string(), TouchOscEncoder::new(min, max, default));
     }
-    pub fn add_radar() {
-
+    pub fn add_radar(&mut self, addr:&str, min:f32, max:f32, default:f32) {
+        self.verify_free_addr(addr);
+        self.lookup_table.insert((&addr).to_string(), TouchOscInputType::Radar);
+        self.touchosc_radars.insert((&addr).to_string(), TouchOscRadar::new(min, max, default));
     }
     pub fn add_radial() {
 
@@ -352,12 +354,37 @@ impl TouchOscEncoder {
     }
 }
 //--------------------------------------------------------
-pub struct TouchOscRadar { 
-    
+pub struct TouchOscRadar {
+    min  : f32,
+    max  : f32,
+    values : Vec2
 }
 impl TouchOscRadar {
-    pub fn new() -> Self {
-        TouchOscRadar {}
+    pub fn new(min:f32, max:f32, default:f32) -> Self {
+        TouchOscRadar {
+             min  : min,
+             max  : max,
+             values : pt2(default, default) //xy
+        }
+    }
+    pub fn print(&self, addr:&str) {
+        println!( "{} {},{}", addr, self.values.x, self.values.y);
+    }
+    pub fn set_min(&mut self, min:f32) {
+        self.min = min;
+    }
+    pub fn set_max(&mut self, max:f32) {
+        self.max = max;
+    }
+    pub fn set_values(&mut self, args:Vec2) {
+        self.values.x = self.range(args.x);
+        self.values.y = self.range(args.y);
+    }
+    pub fn range(&self, arg:f32) -> f32 {
+        return map_range(arg, 0.0, 1.0, self.min, self.max);
+    }
+    pub fn values(&self) -> Vec2 {
+        return self.values;
     }
 }
 //--------------------------------------------------------
