@@ -5,8 +5,10 @@ members = [
     # "templates",
     "n-series",
     "scratch",
+    "nannou_touchosc",
     # "sketches",
     #"tutorials/schotter1",
+
 ]
 
 resolver = "2"
