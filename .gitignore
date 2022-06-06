@@ -13,6 +13,10 @@ Cargo.lock
 # nannou
 nannou/
 
+# workspace projects
+
+sketchbook/nannou_touchosc
+
 
 
 # capture folder
