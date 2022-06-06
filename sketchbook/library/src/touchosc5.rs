@@ -39,8 +39,8 @@ impl TouchOscClient {
             osc_receiver: osc::receiver(port).unwrap(), //Bind `osc::Receiver` to port.
             lookup_table: HashMap::new(),
             touchosc_buttons: HashMap::new(),
-            touchosc_faders: HashMap::new(),
             touchosc_grids: HashMap::new(),
+            touchosc_faders: HashMap::new(),
             touchosc_encoders: HashMap::new(),
             touchosc_radars: HashMap::new(),
             touchosc_radials: HashMap::new(),
