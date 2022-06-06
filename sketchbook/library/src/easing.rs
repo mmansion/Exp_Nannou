@@ -4,8 +4,8 @@ use nannou::prelude::*;
 //https://easings.net/
 
 //https://easings.net/#easeInSine
-pub fn ease_in_sin(x: f32) -> f32  {
-    return 1.0 - (x * PI ).cos();
+pub fn ease_in_sin(x: f32) -> f32 {
+    return 1.0 - (x * PI).cos();
 }
 
 /*

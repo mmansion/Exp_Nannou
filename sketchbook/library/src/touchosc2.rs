@@ -1,6 +1,6 @@
-use nannou::{prelude::*, lyon::geom::arrayvec::Array};
-use nannou_osc as osc;
 use derivative::Derivative;
+use nannou::{lyon::geom::arrayvec::Array, prelude::*};
+use nannou_osc as osc;
 
 pub struct TouchOscClient {
     osc_base_addr: String,
@@ -11,8 +11,7 @@ pub struct TouchOscClient {
 }
 
 impl TouchOscClient {
-
-    pub fn new(addr:String, port:u16) -> Self {
+    pub fn new(addr: String, port: u16) -> Self {
         let osc_base_addr = addr;
         let osc_port = port;
         let touchosc_faders = Vec::new();
@@ -20,7 +19,7 @@ impl TouchOscClient {
         // Bind an `osc::Receiver` to a port.
         let osc_receiver = osc::receiver(osc_port).unwrap();
 
-         // A vec for collecting packets and their source address.
+        // A vec for collecting packets and their source address.
         // let received_packets = vec![];
 
         TouchOscClient {
@@ -32,23 +31,18 @@ impl TouchOscClient {
     }
 
     pub fn update(&mut self) {
-        
         for (packet, addr) in self.osc_receiver.try_iter() {
-
             for msg in packet.into_msgs() {
-
                 let args = msg.args.unwrap();
 
                 for fader in self.touchosc_faders.iter_mut() {
                     let _addr = &fader.path;
 
                     if msg.addr == fader.path {
-                        fader.set_arg (
-                            match &args[..] {
-                                [osc::Type::Float(x)] => *x,
-                                _etc => *fader.arg()
-                            }
-                        );
+                        fader.set_arg(match &args[..] {
+                            [osc::Type::Float(x)] => *x,
+                            _etc => *fader.arg(),
+                        });
                     }
                 }
             }
@@ -59,54 +53,51 @@ impl TouchOscClient {
         }
     }
 
-    pub fn fader(&self, index:usize) -> &TouchOscFader {//borrowed ref
+    pub fn fader(&self, index: usize) -> &TouchOscFader {
+        //borrowed ref
         return &self.touchosc_faders[index];
     }
 
-    pub fn add_fader(&mut self, path:String) {
+    pub fn add_fader(&mut self, path: String) {
         self.touchosc_faders.push(TouchOscFader::new(path));
     }
 
-//     pub fn fader(&self, index:u8) -> &f32 {
-//         // match str {
-//         //     "foo" => foo(),
-//         //     "bar" => bar(),
-//         //     "baz" => baz(),
-//         //     "barfl" => barfl(),
-//         //     _ => {}
-// }
-//     }
+    //     pub fn fader(&self, index:u8) -> &f32 {
+    //         // match str {
+    //         //     "foo" => foo(),
+    //         //     "bar" => bar(),
+    //         //     "baz" => baz(),
+    //         //     "barfl" => barfl(),
+    //         //     _ => {}
+    // }
+    //     }
 }
 
 //--------------------------------------------------------
 pub struct TouchOscFader {
-    path : String, //appened to base osc addr
-    arg  : f32,
+    path: String, //appened to base osc addr
+    arg: f32,
     // args : Array<f32;0.0>,
     pub value: f32, //always results in first argument
 }
 
 impl TouchOscFader {
-    
-    pub fn new(path:String) -> Self {
+    pub fn new(path: String) -> Self {
         let path = path;
         let arg = 0.0;
         let value = 0.0;
-    
-        TouchOscFader {
-            path,
-            arg,
-            value
-        }
+
+        TouchOscFader { path, arg, value }
     }
 
-    pub fn set_arg(&mut self, v:f32) {
+    pub fn set_arg(&mut self, v: f32) {
         self.value = v;
         self.arg = v;
     }
 
     //not get_arg
-    pub fn arg(&self) -> &f32 { //get_ prefix is not used for getters in Rust code.
+    pub fn arg(&self) -> &f32 {
+        //get_ prefix is not used for getters in Rust code.
         return &self.arg;
     }
 }

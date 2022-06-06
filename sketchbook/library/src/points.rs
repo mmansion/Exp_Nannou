@@ -3,8 +3,8 @@ use nannou::prelude::*;
 pub struct Point {
     pub position: Point2,
     pub velocity: Vector2,
-    pub mass : f32,
-    pub size : f32,
+    pub mass: f32,
+    pub size: f32,
 }
 
 impl Point {
@@ -23,8 +23,8 @@ impl Point {
     }
     pub fn display(&self, draw: &Draw) {
         draw.ellipse()
-        .xy(self.position)
-        .radius( self.size )
-        .color( GRAY);
+            .xy(self.position)
+            .radius(self.size)
+            .color(GRAY);
     }
 }

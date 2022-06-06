@@ -3,9 +3,7 @@ FEATURES
 > osc receive, vec of faders, matched and loaded osc float values,
 */
 // use nannou::lyon::path::AttributeStore;
-
-use nannou::lyon::geom::euclid::num::Ceil;
-    use nannou::prelude::*;
+use nannou::prelude::*;
 
 // use nannou::geom::*;
 // use nannou::geom::Point2;
@@ -95,8 +93,10 @@ fn model(app: &App) -> Model {
 
     touchosc.add_fader("/rect/weight", 1.0, 10.0, 1.0);
 
-    touchosc.add_radio("/radio", 3, 1);
-    
+    touchosc.add_radio("/radio", 3, 0);
+
+    println!("Radio => {}", touchosc.radio("/radio"));
+
 
     //--------------------------------------------------------
     let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);

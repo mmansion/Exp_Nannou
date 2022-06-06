@@ -1,30 +1,30 @@
-use nannou::prelude::*;
-use std::collections::VecDeque;
 use super::line::Line;
 use super::math::intersects_line;
+use nannou::prelude::*;
+use std::collections::VecDeque;
 
 pub struct Particle {
-    pub history  : VecDeque<Vec2>,
-    pub origin   : Vec2,
-    pub last_position : Vec2,
-    pub position : Vec2,
-    pub velocity : Vec2,
-    pub acceleration : Vec2,
-    pub mass : f32,
-    pub display_size : f32,
-    pub max_speed : f32,
+    pub history: VecDeque<Vec2>,
+    pub origin: Vec2,
+    pub last_position: Vec2,
+    pub position: Vec2,
+    pub velocity: Vec2,
+    pub acceleration: Vec2,
+    pub mass: f32,
+    pub display_size: f32,
+    pub max_speed: f32,
     pub curr_speed: f32,
 }
 
 impl Particle {
-    pub fn new(x: f32, y: f32, size:f32) -> Self {
-        let history  = VecDeque::<Vec2>::with_capacity(1000);
-        
+    pub fn new(x: f32, y: f32, size: f32) -> Self {
+        let history = VecDeque::<Vec2>::with_capacity(1000);
+
         let mut display_size = size;
         let mut mass = 512.0;
         let position = vec2(x, y);
         let last_position = vec2(x, y);
-        let origin   = vec2(x, y);
+        let origin = vec2(x, y);
         let velocity = vec2(0.0, 0.0);
         let acceleration = vec2(0.0, 0.0);
         let max_speed = 10.0;
@@ -58,10 +58,9 @@ impl Particle {
     }
 
     pub fn update(&mut self) {
-    
         // Update velocity
         self.velocity += self.acceleration;
-        
+
         // Limit speed
         self.velocity = self.velocity.clamp_length_max(self.max_speed);
 
@@ -80,14 +79,14 @@ impl Particle {
     }
 
     //particle collision with a line
-    pub fn collide_line(&mut self, line:&Line) {
-        self.position.y = line.get_y_at_x(self.position.x) + (self.display_size/2.0);//offset
-  
+    pub fn collide_line(&mut self, line: &Line) {
+        self.position.y = line.get_y_at_x(self.position.x) + (self.display_size / 2.0); //offset
+
         // self.velocity *= -self.velocity * 0.1;
         self.velocity += line.normal_p1;
         let dist = self.position.distance(self.last_position);
 
-        self.velocity = self.velocity.clamp_length_max(dist*2.0);
+        self.velocity = self.velocity.clamp_length_max(dist * 2.0);
     }
 
     pub fn display(&self, draw: &Draw) {
@@ -101,21 +100,17 @@ impl Particle {
     }
 
     pub fn display_line(&self, draw: &Draw) {
-        let points = [
-            self.origin,
-            self.position
-            ];
+        let points = [self.origin, self.position];
         draw.scale(1.0)
             .polyline()
             .weight(2.0)
             .color(rgba(1.0, 1.0, 1.0, 1.0))
-            .points(points)
-            ;
+            .points(points);
     }
 
     // //deprecate this in lieu of line: point on line function
     // pub fn check_line_bounds(&mut self, p1:Point2, p2:Point2) {
-        
+
     //     // let has_intersect = intersects_line(self.origin, self.position, p1, p2);
     //     // if has_intersect {
     //     //     self.velocity.y *= -1.0;
@@ -123,17 +118,14 @@ impl Particle {
     //     // }
     // }
 
-    pub fn check_line_bounds(&mut self, line:&Line) {
-        
+    pub fn check_line_bounds(&mut self, line: &Line) {
         // if we fell below line
-        if !line.point_above_line(self.position, 0.0, 0.0) { 
-
+        if !line.point_above_line(self.position, 0.0, 0.0) {
             // if we're in range of the line's segment
             if self.position.x > line.A.x && self.position.x < line.B.x {
-
                 self.position.y = line.get_y_at_x(self.position.x) + 0.0;
-                self.velocity.y *= -2.0;//diminish for friction of bounce
-                
+                self.velocity.y *= -2.0; //diminish for friction of bounce
+
                 //self.velocity = line.A;
 
                 self.apply_force(line.A);
@@ -149,34 +141,32 @@ impl Particle {
                 //1. Get the surface normal
                 // let p1 = line.A;
                 // let p2 = line.B;
-               // let surface_normal = see Processing Sketch / surface_normal
-
+                // let surface_normal = see Processing Sketch / surface_normal
 
                 //https://docs.rs/nannou/0.14.1/nannou/geom/vector/struct.Vec2.html#method.dot
 
                 // if(self.position.x < pt_used_for_angle.x) {
                 //     // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).x;
                 //     // let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x)).y;
-    
+
                 //     // self.velocity.x = rotate_x;
                 //     // self.velocity.y = rotate_y;
-    
+
                 //     // print!("{} ,", rotate_x);
                 //     // println!("{}", rotate_y);
                 // } else {
                 //     // let rotate_x = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).x;
                 //     // let rotate_y = self.velocity.rotate(pt_used_for_angle.y.atan2(pt_used_for_angle.x) * PI).y;
-    
+
                 //     // self.velocity.x = rotate_x;
                 //     // self.velocity.y = rotate_y;
-    
+
                 //     // print!("{} ,", rotate_x);
                 //     // println!("{}", rotate_y);
                 // }
-
             }
-        } 
-        
+        }
+
         // println!("Checking line bounds");
     }
 
@@ -195,35 +185,30 @@ impl Particle {
     // }
 
     pub fn check_bounds(&mut self, rect: Rect) {
-        
         let MARGIN = 0.0;
 
-        let off_x = self.display_size/2.0;
-        let off_y = self.display_size/2.0;
+        let off_x = self.display_size / 2.0;
+        let off_y = self.display_size / 2.0;
 
-        if self.position.y > rect.w()/2.0 - off_x  { //past top edge
-            self.position.y = rect.w()/2.0 - (self.display_size/2.0) - MARGIN;
+        if self.position.y > rect.w() / 2.0 - off_x {
+            //past top edge
+            self.position.y = rect.w() / 2.0 - (self.display_size / 2.0) - MARGIN;
             self.velocity.y *= -1.0;
-        } else 
-
-        if self.position.y < -rect.w()/2.0 + off_x { // past bottom edge
-            self.position.y = -rect.w()/2.0 + (self.display_size/2.0) + MARGIN;
+        } else if self.position.y < -rect.w() / 2.0 + off_x {
+            // past bottom edge
+            self.position.y = -rect.w() / 2.0 + (self.display_size / 2.0) + MARGIN;
             self.velocity.y *= -1.0;
-        } else 
-    
-        if self.position.x < -rect.w()/2.0 + off_y { //past left edge
-            self.position.x = -rect.w()/2.0 + (self.display_size/2.0) + MARGIN;
+        } else if self.position.x < -rect.w() / 2.0 + off_y {
+            //past left edge
+            self.position.x = -rect.w() / 2.0 + (self.display_size / 2.0) + MARGIN;
             self.velocity.x *= -1.0;
-            
-        } else 
-
-        if self.position.x > rect.w()/2.0 - off_y{ //past right edge
-            self.position.x = rect.w()/2.0 - (self.display_size/2.0) - MARGIN;
+        } else if self.position.x > rect.w() / 2.0 - off_y {
+            //past right edge
+            self.position.x = rect.w() / 2.0 - (self.display_size / 2.0) - MARGIN;
             self.velocity.x *= -1.0;
         }
-        self.velocity = self.velocity.clamp_length_max(self.max_speed*0.5);
+        self.velocity = self.velocity.clamp_length_max(self.max_speed * 0.5);
     }
-   
 
     // pub fn hasCollision(&mut self, point:Vec2, size:f32) -> bool {
     //     let v = self.position - point; // Calculate direction of force
@@ -234,5 +219,4 @@ impl Particle {
     //         return false;
     //     }
     // }
-
 }

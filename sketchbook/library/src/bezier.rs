@@ -1,28 +1,26 @@
 use nannou::prelude::*;
 
 pub struct Bezier {
-    
-    pub start_point     : Point2,
-    pub end_point       : Point2,
-    pub control_point_1 : Point2,
-    pub control_point_2 : Point2,
-    pub position        : Vec2,
-    pub show_handles    : bool,
+    pub start_point: Point2,
+    pub end_point: Point2,
+    pub control_point_1: Point2,
+    pub control_point_2: Point2,
+    pub position: Vec2,
+    pub show_handles: bool,
 
-    stroke_weight : f32,
+    stroke_weight: f32,
 }
 
 impl Bezier {
-
     pub fn new(
-        start_point: Point2, 
-        control_point1: Point2, 
+        start_point: Point2,
+        control_point1: Point2,
         control_point_2: Point2,
 
-        end_point: Point2) -> Self {
-        
-        let start_point     = start_point;
-        let end_point       = end_point;
+        end_point: Point2,
+    ) -> Self {
+        let start_point = start_point;
+        let end_point = end_point;
         let control_point_1 = control_point1;
         let control_point_2 = control_point_2;
 
@@ -40,7 +38,7 @@ impl Bezier {
             control_point_2,
             position,
             show_handles,
-            stroke_weight
+            stroke_weight,
         }
     }
 
@@ -48,16 +46,12 @@ impl Bezier {
         self.stroke_weight = stroke_weight;
     }
 
-    pub fn draw(&self, draw: &Draw, col:Rgba) {
-
+    pub fn draw(&self, draw: &Draw, col: Rgba) {
         let builder = nannou::geom::path::Builder::new();
 
         let path = builder
-            .begin( self.position )
-            .cubic_bezier_to(
-                self.control_point_1, 
-                self.control_point_2, 
-                self.end_point)
+            .begin(self.position)
+            .cubic_bezier_to(self.control_point_1, self.control_point_2, self.end_point)
             .build();
 
         // draw the bezier curve path
@@ -71,10 +65,10 @@ impl Bezier {
             // draw line from start to control point 1
 
             draw.line()
-            .weight(1.0)
-            .caps_round()
-            .color(GRAY)
-            .points(self.start_point, self.control_point_1);
+                .weight(1.0)
+                .caps_round()
+                .color(GRAY)
+                .points(self.start_point, self.control_point_1);
 
             // draw line from start to control point 2
 
@@ -85,10 +79,7 @@ impl Bezier {
                 .points(self.control_point_2, self.end_point);
 
             // draw starting point
-            draw.ellipse()
-                .xy(self.start_point)
-                .radius(5.0)
-                .color(RED);
+            draw.ellipse().xy(self.start_point).radius(5.0).color(RED);
 
             // draw control point 1
             draw.ellipse()
@@ -103,11 +94,7 @@ impl Bezier {
                 .color(BLUE);
 
             // draw end point
-            draw.ellipse()
-                .xy(self.end_point)
-                .radius(5.0)
-                .color(RED);
+            draw.ellipse().xy(self.end_point).radius(5.0).color(RED);
         }
-        
     }
 }
