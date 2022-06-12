@@ -1,13 +1,13 @@
 use nannou::prelude::*;
 
-// Carry Over Notes: 
+// Carry Over Notes:
 
 // [] upgrade and learn ab frame cap -> https://nannou.cc/posts/nannou_v0.13
 
-static _WIDTH_      : f32 = 800.0;
-static _HEIGHT_     : f32 = 800.0;
-static _VEC_SIZE_   : i32 = 12;
-static _VEC_SCALE_  : f32 = 1.0; 
+static _WIDTH_: f32 = 800.0;
+static _HEIGHT_: f32 = 800.0;
+static _VEC_SIZE_: i32 = 12;
+static _VEC_SCALE_: f32 = 1.0;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -16,15 +16,14 @@ fn main() {
 // -------------------------------------------------------------------
 
 struct Model {
-    pbin_1 : Vec<Vector2>, // points bin no.1
-    pbin_2 : Vec<Vector2>,
-    ibin_1 : Vec<f32>,
-    ibin_2 : Vec<f32>
+    pbin_1: Vec<Vector2>, // points bin no.1
+    pbin_2: Vec<Vector2>,
+    ibin_1: Vec<f32>,
+    ibin_2: Vec<f32>,
 }
 
 fn model(app: &App) -> Model {
-
-    let rect = Rect::from_w_h( _WIDTH_, _HEIGHT_ );
+    let rect = Rect::from_w_h(_WIDTH_, _HEIGHT_);
 
     app.new_window()
         .size(rect.w() as u32, rect.h() as u32)
@@ -32,39 +31,42 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    let mut pbin_1  = Vec::new();
-    let mut pbin_2  = Vec::new();
-    let mut ibin_1  = Vec::new();
-    let mut ibin_2  = Vec::new();
+    let mut pbin_1 = Vec::new();
+    let mut pbin_2 = Vec::new();
+    let mut ibin_1 = Vec::new();
+    let mut ibin_2 = Vec::new();
 
     for i in 0.._VEC_SIZE_ {
-
-        let rand_x = random_range(-rect.w()/2.0 * _VEC_SCALE_, rect.w()/2.0 * _VEC_SCALE_);
-        let rand_y = random_range(-rect.h()/2.0 * _VEC_SCALE_, rect.h()/2.0 * _VEC_SCALE_);
+        let rand_x = random_range(-rect.w() / 2.0 * _VEC_SCALE_, rect.w() / 2.0 * _VEC_SCALE_);
+        let rand_y = random_range(-rect.h() / 2.0 * _VEC_SCALE_, rect.h() / 2.0 * _VEC_SCALE_);
 
         let x = (i as f32).cos() * rand_x;
         let y = (i as f32).sin() * rand_y;
 
         //space the increments out numerically on init
-        ibin_1.push(i as f32 * random_f32()); 
+        ibin_1.push(i as f32 * random_f32());
         ibin_2.push(i as f32 * random_f32());
 
         pbin_1.push(pt2(x, y));
         pbin_2.push(pt2(y, x)); //flip
     }
 
-    Model { pbin_1, pbin_2, ibin_1, ibin_2 }
-}    
+    Model {
+        pbin_1,
+        pbin_2,
+        ibin_1,
+        ibin_2,
+    }
+}
 
-// do calculations here 
+// do calculations here
 /*
-have a &mut Model in update: that's where you can mutate your data. 
-You can't do that in view, because it's only a reference, not a mutable one. 
-This is a design choice from nannou where you can't mutate things when you are drawing them. 
+have a &mut Model in update: that's where you can mutate your data.
+You can't do that in view, because it's only a reference, not a mutable one.
+This is a design choice from nannou where you can't mutate things when you are drawing them.
 Coming from processing it might be hard to adapt to this choice, but it makes things clearer.
 */
 fn update(app: &App, m: &mut Model, _update: Update) {
-
     for inc in m.ibin_1.iter_mut() {
         *inc += 0.008;
     }
@@ -75,7 +77,6 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
 // draw outputs here
 fn view(app: &App, m: &Model, frame: Frame) {
-
     let win = app.window_rect();
 
     // get app time
@@ -93,7 +94,6 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     if time < 0.1 {
         draw.background().color(BLACK);
-
     } else {
         //background
         draw.rect()
@@ -121,12 +121,11 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     // --------------------------------------
     // POINTS BIN NO.1
-    
+
     let r = 50.0;
     for p in pbin_1_iter {
-
-        let inc:f32  = m.ibin_1[ix2]; // get inc for this iteration
-        let inc2:f32 = m.ibin_2[ix2];
+        let inc: f32 = m.ibin_1[ix2]; // get inc for this iteration
+        let inc2: f32 = m.ibin_2[ix2];
 
         let xOff = (inc + ix2 as f32).cos() * r * -0.1;
         let yOff = (inc2 + inc + ix2 as f32).sin() * r + xOff * ix2 as f32;
@@ -144,7 +143,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
             pt2(xPos + xOff, yPos),
             pt2(xPos + xOff, yPos + yOff * ix2 as f32),
             pt2(xPos, yPos + xOff),
-            pt2(yPos + xOff + xPos, yPos)
+            pt2(yPos + xOff + xPos, yPos),
         ];
 
         let points_arr2 = [
@@ -152,39 +151,33 @@ fn view(app: &App, m: &Model, frame: Frame) {
             pt2(-xPos + yOff, yPos),
             pt2(-xPos + (inc + ix2 as f32).cos() * r * -0.1, yPos + yOff),
             pt2(-xPos * ix2 as f32, yPos + yOff),
-            pt2(-yPos + yOff + yOff, yPos + (inc + ix2 as f32).cos() * r * -0.1)
+            pt2(
+                -yPos + yOff + yOff,
+                yPos + (inc + ix2 as f32).cos() * r * -0.1,
+            ),
         ];
 
-        let tuples1 = (0..=4).map(|i|{
-            (points_arr1[i], c2)
-        });
+        let tuples1 = (0..=4).map(|i| (points_arr1[i], c2));
 
-        let tuples2 = (0..=4).map(|i|{
-            (points_arr2[i], c2)
-        });
+        let tuples2 = (0..=4).map(|i| (points_arr2[i], c2));
 
         let fract = ix2 as f32 / _VEC_SIZE_ as f32 * (xOff * 0.5);
 
-        draw.scale(fract).polyline()
+        draw.scale(fract)
+            .polyline()
             .weight(fract + 1.0)
             .rotate(0.0)
             //.points(points)
-            .points_colored(tuples1)
-            ;
+            .points_colored(tuples1);
 
         draw.polyline()
             .weight(2.5)
             .rotate(180.0)
             //.points(points)
-            .points_colored(tuples2)
-            ;
+            .points_colored(tuples2);
 
-
-        ix1+=1; //bump to next inc in vec
+        ix1 += 1; //bump to next inc in vec
     }
-
-   
-
 
     //----------------------------------------------
 

@@ -1,20 +1,19 @@
 use nannou::prelude::*;
 
-// Carry Over Notes: 
+// Carry Over Notes:
 
 // [] upgrade and learn ab frame cap -> https://nannou.cc/posts/nannou_v0.13
 
-
 // -----------------------------------------------------
 // CONSTANTS
-static _WIDTH_      : f32 = 800.0;
-static _HEIGHT_     : f32 = 800.0;
-static _VEC_SIZE_   : i32 = 12;
-static _VEC_SCALE_  : f32 = 1.0; 
+static _WIDTH_: f32 = 800.0;
+static _HEIGHT_: f32 = 800.0;
+static _VEC_SIZE_: i32 = 12;
+static _VEC_SCALE_: f32 = 1.0;
 
-static NUM_POINTS  : i32 = 12;
+static NUM_POINTS: i32 = 12;
 
-static SHAPE_SIZE   :f32  = 200.0;
+static SHAPE_SIZE: f32 = 200.0;
 
 // -----------------------------------------------------
 fn main() {
@@ -25,18 +24,17 @@ fn main() {
 // MODEL
 
 struct Model {
-    shape_points : Vec<Vector2>, // points bin no.1
-    offsets : Vec<Vector2>,
-    pbin_2 : Vec<Vector2>,
-    ibin_1 : Vec<f32>,
-    ibin_2 : Vec<f32>,
+    shape_points: Vec<Vector2>, // points bin no.1
+    offsets: Vec<Vector2>,
+    pbin_2: Vec<Vector2>,
+    ibin_1: Vec<f32>,
+    ibin_2: Vec<f32>,
 
-    points : [Vector2; 5],
+    points: [Vector2; 5],
 }
 
-fn model(app : &App) -> Model {
-
-    let rect = Rect::from_w_h( _WIDTH_, _HEIGHT_ );
+fn model(app: &App) -> Model {
+    let rect = Rect::from_w_h(_WIDTH_, _HEIGHT_);
 
     app.new_window()
         .size(rect.w() as u32, rect.h() as u32)
@@ -47,35 +45,42 @@ fn model(app : &App) -> Model {
     let mut shape_points = Vec::new();
     let mut offsets = Vec::new();
 
-    let mut pbin_2  = Vec::new();
-    let mut ibin_1  = Vec::new();
-    let mut ibin_2  = Vec::new();
+    let mut pbin_2 = Vec::new();
+    let mut ibin_1 = Vec::new();
+    let mut ibin_2 = Vec::new();
 
     let mut points = [
         pt2(0.0, 0.0),
         pt2(-SHAPE_SIZE, 0.0),
         pt2(-SHAPE_SIZE, SHAPE_SIZE),
         pt2(0.0, SHAPE_SIZE),
-        pt2(0.0, 0.0)
+        pt2(0.0, 0.0),
     ];
 
     for i in 0..NUM_POINTS {
         let x = (i as f32).cos() * SHAPE_SIZE;
         let y = (i as f32).cos() * SHAPE_SIZE;
 
-        shape_points.push( pt2(x, y) );
+        shape_points.push(pt2(x, y));
     }
 
-    Model { shape_points, offsets, pbin_2, ibin_1, ibin_2, points }
-}    
+    Model {
+        shape_points,
+        offsets,
+        pbin_2,
+        ibin_1,
+        ibin_2,
+        points,
+    }
+}
 
 // -----------------------------------------------------
 
-// do calculations here 
+// do calculations here
 /*
-have a &mut Model in update: that's where you can mutate your data. 
-You can't do that in view, because it's only a reference, not a mutable one. 
-This is a design choice from nannou where you can't mutate things when you are drawing them. 
+have a &mut Model in update: that's where you can mutate your data.
+You can't do that in view, because it's only a reference, not a mutable one.
+This is a design choice from nannou where you can't mutate things when you are drawing them.
 Coming from processing it might be hard to adapt to this choice, but it makes things clearer.
 */
 fn update(app: &App, m: &mut Model, _update: Update) {
@@ -90,7 +95,6 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
 // draw outputs here
 fn view(app: &App, m: &Model, frame: Frame) {
-
     let win = app.window_rect();
 
     // get app time
@@ -109,7 +113,6 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     if time < 0.1 {
         draw.background().color(BLACK);
-
     } else {
         //background
         draw.rect()
@@ -120,23 +123,19 @@ fn view(app: &App, m: &Model, frame: Frame) {
             ;
     }
     // -----------------------------------------------------
-    
+
     // this works too
     // for i in 0..m.shape_points.len() {
     //     println!("{}", m.shape_points[i].x);
     // }
-  
-    let point_color_tuples = (0..m.shape_points.len()).map( |i| {
 
-        ( pt2( m.shape_points[i].x, m.shape_points[i].y), WHITE )
-
-    });
+    let point_color_tuples =
+        (0..m.shape_points.len()).map(|i| (pt2(m.shape_points[i].x, m.shape_points[i].y), WHITE));
 
     draw.polyline()
         .weight(2.5)
         //.points(points)
-        .points_colored(point_color_tuples)
-        ;
+        .points_colored(point_color_tuples);
 
     // -----------------------------------------------------
     // let size = 250.0;
@@ -188,7 +187,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     // // --------------------------------------
     // // POINTS BIN NO.1
-    
+
     // let r = 50.0;
     // for p in shape_points_iter {
 

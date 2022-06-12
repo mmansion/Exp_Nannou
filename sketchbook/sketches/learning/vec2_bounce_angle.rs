@@ -6,41 +6,41 @@
 * mikhail mansion 2021
 */
 
+use nannou::geom::Point2;
+use nannou::geom::*;
+use nannou::prelude::*;
 use nannou::prelude::*;
 use nannou::ui::prelude::*;
-use nannou::prelude::*;
-use nannou::geom::*;
-use nannou::geom::Point2;
-use std::ops::Range;
 use nannou::Draw;
+use std::ops::Range;
 use std::time::Duration;
 
 //--------------------------------------------------------
-static WIDTH      : u32 = 800;
-static HEIGHT     : u32 = 800; 
+static WIDTH: u32 = 800;
+static HEIGHT: u32 = 800;
 
 fn main() {
     nannou::app(model).update(update).simple_window(view).run();
 }
 
 struct Mover {
-    orig : Vec2,
-    pos  : Vec2,
-    vel  : Vec2,
-    max_speed : f32,
+    orig: Vec2,
+    pos: Vec2,
+    vel: Vec2,
+    max_speed: f32,
 }
 
 impl Mover {
-    pub fn new(_pos:Vec2) -> Self {
+    pub fn new(_pos: Vec2) -> Self {
         let max_speed = 10.0;
         let orig = _pos;
-        let pos  = _pos;
-        let vel  = pt2(0.0, -max_speed);
+        let pos = _pos;
+        let vel = pt2(0.0, -max_speed);
         Mover {
             orig,
             pos,
             vel,
-            max_speed
+            max_speed,
         }
     }
 
@@ -48,47 +48,42 @@ impl Mover {
         self.pos += self.vel;
     }
 
-    pub fn check_bounds(&mut self, A:Vec2, B:Vec2, normal:Vec2, width:f32, height:f32) {
-        
+    pub fn check_bounds(&mut self, A: Vec2, B: Vec2, normal: Vec2, width: f32, height: f32) {
         let clampled_normal = normal.clamp_length_max(self.max_speed);
         println!("{}, {}", clampled_normal.x, clampled_normal.y);
 
         // check if below line
 
         let m = (B.y - A.y) / (B.x - A.x); //slope
-        let  b = m * A.x - A.y; //y-intercept
-        // point-slope form:
-        // y = mx + b
-        // does x and y satisfy the equation
+        let b = m * A.x - A.y; //y-intercept
+                               // point-slope form:
+                               // y = mx + b
+                               // does x and y satisfy the equation
         let diff = self.pos.y - m * self.pos.x + b;
 
         // check
         if diff < 0.0 {
             println!("true");
             self.vel = clampled_normal;
-        } else 
-
-        if self.pos.y < -height/2.0 || 
-           self.pos.y > height/2.0  ||
-           self.pos.x < -width/2.0  ||
-           self.pos.x > width/2.0
-         {
-            self.pos.y = height/2.0;
+        } else if self.pos.y < -height / 2.0
+            || self.pos.y > height / 2.0
+            || self.pos.x < -width / 2.0
+            || self.pos.x > width / 2.0
+        {
+            self.pos.y = height / 2.0;
             self.pos.x = 0.0;
-            self.vel   = pt2(0.0, -self.max_speed);
+            self.vel = pt2(0.0, -self.max_speed);
         }
     }
 
     pub fn display(&self, draw: &Draw) {
         // draw.arrow().weight(5.0).color(BLUE).points(self.orig, self.pos);
-        draw
-        .ellipse()
-        .xy(self.pos)
-        .stroke(BLUE)
-        // .color(BLUE)
-        .stroke_weight(5.0)
-        .w_h(20.0, 20.0)
-        ;
+        draw.ellipse()
+            .xy(self.pos)
+            .stroke(BLUE)
+            // .color(BLUE)
+            .stroke_weight(5.0)
+            .w_h(20.0, 20.0);
     }
 }
 
@@ -97,11 +92,11 @@ impl Mover {
 struct Model {
     ui: Ui,
     ids: Ids,
-    y_slider : f32,
-    line_p1  : Vec2,
-    line_p2  : Vec2,
-    normal   : Vec2,
-    mover    : Mover,
+    y_slider: f32,
+    line_p1: Vec2,
+    line_p2: Vec2,
+    normal: Vec2,
+    mover: Mover,
 }
 
 widget_ids! {
@@ -112,7 +107,6 @@ widget_ids! {
 }
 
 fn model(app: &App) -> Model {
-
     // Set the loop mode to wait for events, an energy-efficient option for pure-GUI apps.
     app.set_loop_mode(LoopMode::Wait);
 
@@ -129,8 +123,8 @@ fn model(app: &App) -> Model {
     // let x_slider = 0.0;
     let y_slider = 0.0;
 
-    let line_p1 = vec2(-w/2.0, -h/2.0);
-    let line_p2 = vec2(w/2.0, h/2.0);
+    let line_p1 = vec2(-w / 2.0, -h / 2.0);
+    let line_p2 = vec2(w / 2.0, h / 2.0);
 
     // calculate 2d normal of line (perpendicular vector)
     let diff_x = line_p2.x - line_p1.x;
@@ -138,7 +132,7 @@ fn model(app: &App) -> Model {
 
     let normal = vec2(-diff_y, diff_x);
 
-    let mover = Mover::new(vec2(0.0, h/2.0));
+    let mover = Mover::new(vec2(0.0, h / 2.0));
 
     Model {
         ui,
@@ -166,11 +160,11 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 
     let h = _app.window_rect().h();
 
-    for value in slider(model.y_slider, h/2.0, -h/2.0)
+    for value in slider(model.y_slider, h / 2.0, -h / 2.0)
         .top_left_with_margin(20.0)
         .label("Y-Pos")
-        .set(model.ids.y_slider, ui) {
-
+        .set(model.ids.y_slider, ui)
+    {
         model.y_slider = value.round();
     }
 
@@ -184,7 +178,9 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     let w = _app.window_rect().w();
     let h = _app.window_rect().h();
 
-    model.mover.check_bounds(model.line_p1, model.line_p2, model.normal, w, h );
+    model
+        .mover
+        .check_bounds(model.line_p1, model.line_p2, model.normal, w, h);
     //update the mover
     model.mover.update();
 }
@@ -197,10 +193,19 @@ fn view(app: &App, model: &Model, frame: Frame) {
     draw.background().color(WHITE);
 
     // draw vector arrow from -> to
-    draw.arrow().weight(5.0).color(BLUE).points(model.line_p1, model.line_p2);
+    draw.arrow()
+        .weight(5.0)
+        .color(BLUE)
+        .points(model.line_p1, model.line_p2);
 
-    let midpoint = vec2( (model.line_p1.x + model.line_p2.x) / 2.0, (model.line_p1.y + model.line_p2.y) / 2.0 );
-    draw.arrow().weight(2.0).color(RED).points(midpoint, model.normal);
+    let midpoint = vec2(
+        (model.line_p1.x + model.line_p2.x) / 2.0,
+        (model.line_p1.y + model.line_p2.y) / 2.0,
+    );
+    draw.arrow()
+        .weight(2.0)
+        .color(RED)
+        .points(midpoint, model.normal);
 
     model.mover.display(&draw);
 

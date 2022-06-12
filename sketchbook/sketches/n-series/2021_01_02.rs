@@ -1,14 +1,13 @@
 use nannou::prelude::*;
 
-// Carry Over Notes: 
+// Carry Over Notes:
 
 // [] upgrade and learn ab frame cap -> https://nannou.cc/posts/nannou_v0.13
 
-static _WIDTH_  : f32  = 800.0;
-static _HEIGHT_ : f32  = 800.0;
+static _WIDTH_: f32 = 800.0;
+static _HEIGHT_: f32 = 800.0;
 
 fn main() {
-
     nannou::app(model).update(update).run();
 }
 
@@ -22,13 +21,12 @@ struct Mover {
     acceleration: Vector2,
     mass: f32,
     name: String,
-    x:f32,
-    y:f32,
+    x: f32,
+    y: f32,
 }
 
 impl Mover {
     fn new(rect: Rect, n: String) -> Self {
-
         let position = pt2(rect.left() + 30.0, rect.top() - 30.0);
         let velocity = vec2(0.0, 0.0);
         let acceleration = vec2(0.0, 0.0);
@@ -37,7 +35,6 @@ impl Mover {
 
         let mut x = 0.0;
         let mut y = 0.0;
-        
 
         Mover {
             position,
@@ -101,7 +98,6 @@ impl Mover {
 }
 
 fn model(app: &App) -> Model {
-
     let rect = Rect::from_w_h(_WIDTH_, _HEIGHT_);
 
     app.new_window()
@@ -126,9 +122,8 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
 // draw outputs here
 fn view(app: &App, m: &Model, frame: Frame) {
-
     let win = app.window_rect();
-    
+
     //println!("The window is {} x {}", win.w(), win.h());
 
     let t = app.time;
@@ -143,58 +138,56 @@ fn view(app: &App, m: &Model, frame: Frame) {
     draw.rect()
         .x_y(0.0, 0.0)
         .w_h(win.w(), win.w())
-        .color(bg_col)
-        ;
-    
-   // println!("{}", m.mover.x);
-    
+        .color(bg_col);
+
+    // println!("{}", m.mover.x);
+
     // --------------------------------------
 
     let mut color = rgba(1.0, 1.0, 1.0, 1.0);
 
     // define points
-    let p1_start = pt2( -win.w() / 2.0, win.h() / 2.0 );
-    let p1_end   = pt2(m.mover.x, m.mover.y);
+    let p1_start = pt2(-win.w() / 2.0, win.h() / 2.0);
+    let p1_end = pt2(m.mover.x, m.mover.y);
 
     draw.line()
-    .start(p1_start)
-    .end(p1_end)
-    .weight(1.0)
-    .color(color);
+        .start(p1_start)
+        .end(p1_end)
+        .weight(1.0)
+        .color(color);
 
     // --------------------------------------
 
-    let p2_start = pt2( win.w() / 2.0, win.h() / 2.0 );
-    let p2_end   = pt2(m.mover.x, m.mover.y);
+    let p2_start = pt2(win.w() / 2.0, win.h() / 2.0);
+    let p2_end = pt2(m.mover.x, m.mover.y);
 
     draw.line()
-    .start(p2_start)
-    .end(p2_end)
-    .weight(1.0)
-    .color(color);
-
-    // --------------------------------------
-    
-    let p3_start = pt2( win.w() / 2.0, -win.h() / 2.0 );
-    let p3_end   = pt2(m.mover.x, m.mover.y);
-
-    draw.line()
-    .start(p3_start)
-    .end(p3_end)
-    .weight(1.0)
-    .color(color);
+        .start(p2_start)
+        .end(p2_end)
+        .weight(1.0)
+        .color(color);
 
     // --------------------------------------
 
-    let p4_start = pt2( -win.w() / 2.0, -win.h() / 2.0 );
-    let p4_end   = pt2(m.mover.x, m.mover.y);
+    let p3_start = pt2(win.w() / 2.0, -win.h() / 2.0);
+    let p3_end = pt2(m.mover.x, m.mover.y);
 
     draw.line()
-    .start(p4_start)
-    .end(p4_end)
-    .weight(1.0)
-    .color(color);
+        .start(p3_start)
+        .end(p3_end)
+        .weight(1.0)
+        .color(color);
 
+    // --------------------------------------
+
+    let p4_start = pt2(-win.w() / 2.0, -win.h() / 2.0);
+    let p4_end = pt2(m.mover.x, m.mover.y);
+
+    draw.line()
+        .start(p4_start)
+        .end(p4_end)
+        .weight(1.0)
+        .color(color);
 
     //m.mover.display(&draw);
 
@@ -205,19 +198,19 @@ fn view(app: &App, m: &Model, frame: Frame) {
     let radius = 150.0;
     let n_points = 360;
     // Map over an array of integers from 0 to 360 to represent the degrees in a circle.
-    let points = (0..=n_points).map(|i| {
-        // Convert each degree to radians.
-        let radian = deg_to_rad(i as f32);
-        // Get the sine of the radian to find the x co-ordinate of this point of the circle
-        // and multiply it by the radius.
-        let x = radian.sin() * radius;
-        // Do the same with cosine to find the y co-ordinate.
-        let y = radian.cos() * radius;
-        // Construct and return a point object with a color.
-        pt2(x,y)
-
-    })
-    .enumerate()
+    let points = (0..=n_points)
+        .map(|i| {
+            // Convert each degree to radians.
+            let radian = deg_to_rad(i as f32);
+            // Get the sine of the radian to find the x co-ordinate of this point of the circle
+            // and multiply it by the radius.
+            let x = radian.sin() * radius;
+            // Do the same with cosine to find the y co-ordinate.
+            let y = radian.cos() * radius;
+            // Construct and return a point object with a color.
+            pt2(x, y)
+        })
+        .enumerate()
         // Colour each vertex uniquely based on its index.
         .map(|(i, p)| {
             let fract = i as f32 / n_points as f32;
@@ -228,17 +221,11 @@ fn view(app: &App, m: &Model, frame: Frame) {
             (p, rgba)
         });
 
-
     // Create a polyline builder. Hot-tip: polyline is short-hand for a path that is
     // drawn via "stroke" tessellation rather than "fill" tessellation.
-    draw.polyline()
-        .weight(3.0)
-        .points_colored(points); // Submit our points.
-    
+    draw.polyline().weight(3.0).points_colored(points); // Submit our points.
 
     // ------------------------------------------
-
-
 
     //println!("{}", m.mover.x);
 

@@ -14,13 +14,12 @@ struct Mover {
     acceleration: Vector2,
     mass: f32,
     name: String,
-    x:f32,
-    y:f32,
+    x: f32,
+    y: f32,
 }
 
 impl Mover {
     fn new(rect: Rect, n: String) -> Self {
-
         let position = pt2(rect.left() + 30.0, rect.top() - 30.0);
         let velocity = vec2(0.0, 0.0);
         let acceleration = vec2(0.0, 0.0);
@@ -92,7 +91,6 @@ impl Mover {
 }
 
 fn model(app: &App) -> Model {
-
     let rect = Rect::from_w_h(640.0, 360.0);
 
     app.new_window()
@@ -117,7 +115,6 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
 // draw outputs here
 fn view(app: &App, m: &Model, frame: Frame) {
-
     let win = app.window_rect();
     //println!("The window is {} x {}", win.w(), win.h());
 
@@ -131,64 +128,62 @@ fn view(app: &App, m: &Model, frame: Frame) {
     draw.rect()
         .x_y(0.0, 0.0)
         .w_h(win.w(), win.w())
-        .color(bg_col)
-        ;
+        .color(bg_col);
 
     // // Draw a rect that follows a different inverse of the ellipse.
     // draw.rect()
     //     .x_y(app.mouse.y, app.mouse.x)
     //     .w(app.mouse.x * 0.25)
     //     .hsv(t, 1.0, 1.0);
-    
-   // println!("{}", m.mover.x);
+
+    // println!("{}", m.mover.x);
 
     // --------------------------------------
 
     let mut color = rgba(1.0, 1.0, 1.0, 1.0);
 
     // define points
-    let p1_start = pt2( -win.w() / 2.0, win.h() / 2.0 );
-    let p1_end   = pt2(m.mover.x, m.mover.y);
+    let p1_start = pt2(-win.w() / 2.0, win.h() / 2.0);
+    let p1_end = pt2(m.mover.x, m.mover.y);
 
     draw.line()
-    .start(p1_start)
-    .end(p1_end)
-    .weight(1.0)
-    .color(color);
+        .start(p1_start)
+        .end(p1_end)
+        .weight(1.0)
+        .color(color);
 
     // --------------------------------------
 
-    let p2_start = pt2( win.w() / 2.0, win.h() / 2.0 );
-    let p2_end   = pt2(m.mover.x, m.mover.y);
+    let p2_start = pt2(win.w() / 2.0, win.h() / 2.0);
+    let p2_end = pt2(m.mover.x, m.mover.y);
 
     draw.line()
-    .start(p2_start)
-    .end(p2_end)
-    .weight(1.0)
-    .color(color);
-
-    // --------------------------------------
-    
-    let p3_start = pt2( win.w() / 2.0, -win.h() / 2.0 );
-    let p3_end   = pt2(m.mover.x, m.mover.y);
-
-    draw.line()
-    .start(p3_start)
-    .end(p3_end)
-    .weight(1.0)
-    .color(color);
+        .start(p2_start)
+        .end(p2_end)
+        .weight(1.0)
+        .color(color);
 
     // --------------------------------------
 
-    let p4_start = pt2( -win.w() / 2.0, -win.h() / 2.0 );
-    let p4_end   = pt2(m.mover.x, m.mover.y);
+    let p3_start = pt2(win.w() / 2.0, -win.h() / 2.0);
+    let p3_end = pt2(m.mover.x, m.mover.y);
 
     draw.line()
-    .start(p4_start)
-    .end(p4_end)
-    .weight(1.0)
-    .color(color);
+        .start(p3_start)
+        .end(p3_end)
+        .weight(1.0)
+        .color(color);
 
+    // --------------------------------------
+
+    let p4_start = pt2(-win.w() / 2.0, -win.h() / 2.0);
+    let p4_end = pt2(m.mover.x, m.mover.y);
+
+    draw.line()
+        .start(p4_start)
+        .end(p4_end)
+        .weight(1.0)
+        .color(color);
 
     //m.mover.display(&draw);
 

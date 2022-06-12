@@ -2,32 +2,32 @@ use nannou::prelude::*;
 use nannou::Draw;
 use std::collections::VecDeque;
 
-static CAPTURE : bool = true; // capture to image sequence
-static WIDTH   : i32 = 800;
-static HEIGHT  : i32 = 800; 
-static DIVS    : i32 = 16;
+static CAPTURE: bool = true; // capture to image sequence
+static WIDTH: i32 = 800;
+static HEIGHT: i32 = 800;
+static DIVS: i32 = 16;
 
 fn main() {
     nannou::app(model).update(update).run();
 }
 
 struct Model {
-    debug : bool,
+    debug: bool,
     // points : Vec<Vector2>, // points bin no.1
     points: Vec<Point>,
-    this_capture_frame : i32,
-    last_capture_frame : i32,
+    this_capture_frame: i32,
+    last_capture_frame: i32,
 
-    vehicle : Vehicle,
-    d :f32,
+    vehicle: Vehicle,
+    d: f32,
 }
 // ---------------------------------------------------------------------------
 struct Point {
     position: Point2,
     velocity: Vector2,
     acceleration: Vector2,
-    mass : f32,
-    size : f32,
+    mass: f32,
+    size: f32,
 }
 impl Point {
     fn new(x: f32, y: f32, m: f32, s: f32) -> Self {
@@ -46,9 +46,9 @@ impl Point {
     }
     fn display(&self, draw: &Draw) {
         draw.ellipse()
-        .xy(self.position)
-        .radius( self.size )
-        .color( GRAY);
+            .xy(self.position)
+            .radius(self.size)
+            .color(GRAY);
     }
 }
 
@@ -64,7 +64,7 @@ struct Vehicle {
     max_force: f32,
     // Maximum speed
     max_speed: f32,
-    mass : f32,
+    mass: f32,
 }
 
 impl Vehicle {
@@ -111,15 +111,14 @@ impl Vehicle {
     }
 
     fn repel(&self, p: &Point) -> Vector2 {
-
         let mut force = self.position - p.position; // Calculate direction of force
         let mut distance = force.magnitude(); // Distance between objects
         distance = distance.max(1.0).min(10000.0); // Limiting the distance to eliminate "extreme" results for very cose or very far object
         force = force.normalize(); // Normalize vector (distance doesn't matter, we just want this vector for direction)
         let g = 1.0;
         let strength = (g * self.mass * p.mass) / (distance * distance); // Calculate gravitational force magnitude
-   
-        force * (-1.0 * strength) // Get force vector --> magnitude * direction  
+
+        force * (-1.0 * strength) // Get force vector --> magnitude * direction
     }
 
     fn boundaries(&mut self, d: f32, win: &Rect) {
@@ -145,8 +144,7 @@ impl Vehicle {
 }
 // ----------------------------------------------------------------------
 fn model(app: &App) -> Model {
-
-    let rect = Rect::from_w_h( WIDTH, HEIGHT );
+    let rect = Rect::from_w_h(WIDTH, HEIGHT);
 
     app.new_window()
         .size(800, 800)
@@ -161,7 +159,7 @@ fn model(app: &App) -> Model {
     let d = 50.0;
     let d2 = 1.0;
 
-    let mut points  = Vec::new();
+    let mut points = Vec::new();
     let mut this_capture_frame = 0;
     let mut last_capture_frame = 0;
     //----------------------------------
@@ -180,28 +178,30 @@ fn model(app: &App) -> Model {
 
     //----------------------------------
 
-    for row in 0..(DIVS+1) {
+    for row in 0..(DIVS + 1) {
+        let y = ((HEIGHT / DIVS * row) + (-HEIGHT / 2)) as f32;
 
-        let y =  ((HEIGHT/DIVS * row) + (-HEIGHT/2)) as f32;
+        for col in 0..(DIVS + 1) {
+            let x = ((WIDTH / DIVS * col) + (-WIDTH / 2)) as f32;
 
-        for col in 0..(DIVS+1) {
-
-            let x =  ( (WIDTH/DIVS  * col) + (-WIDTH/2) ) as f32;
-            
             points.push(Point::new(x, y, 4.0, 10.0))
             // points.push(pt2(x + (-WIDTH/2) as f32 , y + (-HEIGHT/2) as f32));
-            
-        } 
+        }
     }
 
-
-    Model { points, this_capture_frame, last_capture_frame, vehicle, debug, d }
-} 
+    Model {
+        points,
+        this_capture_frame,
+        last_capture_frame,
+        vehicle,
+        debug,
+        d,
+    }
+}
 
 fn update(app: &App, model: &mut Model, _update: Update) {
-
     if model.this_capture_frame != model.last_capture_frame {
-        model.last_capture_frame = model. this_capture_frame;
+        model.last_capture_frame = model.this_capture_frame;
     }
 
     if CAPTURE {
@@ -211,23 +211,21 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     //----------------------------------
 
     for i in 0..model.points.len() {
-        let force = model.vehicle.repel( &model.points[i] );
+        let force = model.vehicle.repel(&model.points[i]);
         let steer = force.limit_magnitude(model.vehicle.max_force);
         model.vehicle.apply_force(steer);
     }
-    
 
     model.vehicle.boundaries(model.d, &app.window_rect());
     model.vehicle.update();
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
-
     // get canvas to draw on
     let draw = app.draw();
     let win = app.window_rect();
 
-    draw.background().color( BLACK);
+    draw.background().color(BLACK);
 
     if model.debug {
         draw.rect()
@@ -238,37 +236,34 @@ fn view(app: &App, model: &Model, frame: Frame) {
             .stroke(WHITE);
     }
 
-    
-
     //let draw = draw.x_y((-WIDTH/2) as f32, (-HEIGHT/2) as f32);
 
     let t = app.time;
 
     for i in 0..model.points.len() {
-
         // println!( "{},{}", model.points[i].x, model.points[i].y );
         // let color = hsv( (t * 0.001 * i as f32).sin(), 1.0, 1.0);
-        let mut color = hsva ( map_range( i, 0 , model.points.len() , 0.4 , 0.9), 1.0, 1.0, 1.0);
+        let mut color = hsva(map_range(i, 0, model.points.len(), 0.4, 0.9), 1.0, 1.0, 1.0);
 
         // if i > model.points.len() / 2  {
-        //     color = hsva ( map_range( i, 0 , model.points.len() , 0.4 , 0.7), 1.0, 1.0, 1.0);   
-        // } 
+        //     color = hsva ( map_range( i, 0 , model.points.len() , 0.4 , 0.7), 1.0, 1.0, 1.0);
+        // }
         // draw.ellipse()
         // .x_y(model.points[i].x, model.points[i].y)
         // .radius( ( (t*0.9) + i as f32).sin() * model.points.len() as f32 )
-        // .color(color); 
+        // .color(color);
 
         draw.ellipse()
-        .xy(model.points[i].position)
-        .radius( (t + i as f32).sin() * (random_f32() * 100.0) as f32 )
-        .color( GRAY); 
+            .xy(model.points[i].position)
+            .radius((t + i as f32).sin() * (random_f32() * 100.0) as f32)
+            .color(GRAY);
 
-        
-        draw.scale(1.3).rect()
-        .xy(model.points[i].position)
-        .w((t + i as f32).sin() * 10.0 as f32)
-        .h((t + i as f32).sin() * 10.0 as f32)
-        .color(GRAY);
+        draw.scale(1.3)
+            .rect()
+            .xy(model.points[i].position)
+            .w((t + i as f32).sin() * 10.0 as f32)
+            .h((t + i as f32).sin() * 10.0 as f32)
+            .color(GRAY);
 
         // if(i > 0) {
         //     let p1   = pt2( model.points[i-1].x, model.points[i-1].y);
@@ -280,34 +275,31 @@ fn view(app: &App, model: &Model, frame: Frame) {
         //     .weight(1.0)
         //     .color(color);
         // }
-        
     }
 
     // ------------------------------------------------
 
     display(&model.vehicle, &draw, &app);
-    
+
     // ------------------------------------------------
 
     // put everything on the frame
     draw.to_frame(app, &frame).unwrap();
 
     if model.this_capture_frame != model.last_capture_frame {
-        
         // let mut owned_string: String = "hello ".to_owned();
         // let borrowed_string: String = "output/" + app.exe_name().unwrap() + ".png";
-    
-        let directory  = "captures/".to_string();
-        let app_name   = app.exe_name().unwrap().to_string();
+
+        let directory = "captures/".to_string();
+        let app_name = app.exe_name().unwrap().to_string();
         // let frame_num  = model.this_capture_frame.to_string();
-        let extension  = ".png".to_string();
+        let extension = ".png".to_string();
 
         let frame_num = format!("{:05}", model.this_capture_frame);
 
         let path = format!("{}{}{}", directory, frame_num, extension);
 
         app.main_window().capture_frame(path);
-        
     }
 }
 
@@ -321,17 +313,24 @@ fn display(vehicle: &Vehicle, draw: &Draw, app: &App) {
     } = vehicle;
 
     if history.len() > 1 {
-        
         let vertices = history
             .iter()
             .map(|v| pt2(v.x, v.y))
             .enumerate()
             .map(|(_, p)| {
                 //let rgba = srgba(0.0, 0.0, 0.0, 1.0);
-                let color = hsva ( map_range( abs(app.time.sin() * 0.1), 0.4, 0.9, 0.3, 0.75), 1.0, 1.0, 0.1);
+                let color = hsva(
+                    map_range(abs(app.time.sin() * 0.1), 0.4, 0.9, 0.3, 0.75),
+                    1.0,
+                    1.0,
+                    0.1,
+                );
                 (p, BLACK)
             });
-        draw.polyline().caps_round().weight(24.0).points_colored(vertices);
+        draw.polyline()
+            .caps_round()
+            .weight(24.0)
+            .points_colored(vertices);
     }
 
     // Draw a triangle rotated in the direction of velocity

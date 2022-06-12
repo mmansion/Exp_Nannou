@@ -1,21 +1,20 @@
 use nannou::prelude::*;
 
-// Carry Over Notes: 
+// Carry Over Notes:
 
 // [] upgrade and learn ab frame cap -> https://nannou.cc/posts/nannou_v0.13
 
-
 // -----------------------------------------------------
 // CONSTANTS
-static _WIDTH_      : f32 = 800.0;
-static _HEIGHT_     : f32 = 800.0;
-static _VEC_SIZE_   : i32 = 12;
-static _VEC_SCALE_  : f32 = 1.0; 
-static _MARGIN_     : f32 = 100.0;
+static _WIDTH_: f32 = 800.0;
+static _HEIGHT_: f32 = 800.0;
+static _VEC_SIZE_: i32 = 12;
+static _VEC_SCALE_: f32 = 1.0;
+static _MARGIN_: f32 = 100.0;
 
-static NUM_POINTS  : i32 = 60;
+static NUM_POINTS: i32 = 60;
 
-static SHAPE_SIZE   :f32  = 100.0;
+static SHAPE_SIZE: f32 = 100.0;
 
 // -----------------------------------------------------
 fn main() {
@@ -26,26 +25,24 @@ fn main() {
 // MODEL
 
 struct Model {
+    shape_points: Vec<Vector2>, // points bin no.1
+    offsets: Vec<Vector2>,
+    pbin_2: Vec<Vector2>,
+    ibin_1: Vec<f32>,
+    ibin_2: Vec<f32>,
 
-    shape_points : Vec<Vector2>, // points bin no.1
-    offsets : Vec <Vector2>,
-    pbin_2  : Vec <Vector2>,
-    ibin_1  : Vec <f32>,
-    ibin_2  : Vec <f32>,
-
-    rect_points : [Vector2; 5],
+    rect_points: [Vector2; 5],
 
     clicked: bool,
     clear_background: bool,
-    paused : bool,
+    paused: bool,
 
-    mover : Mover
+    mover: Mover,
 }
 
 // returns instantiated Model
-fn model(app : &App) -> Model {
-
-    let rect = Rect::from_w_h( _WIDTH_, _HEIGHT_ );
+fn model(app: &App) -> Model {
+    let rect = Rect::from_w_h(_WIDTH_, _HEIGHT_);
 
     app.new_window()
         .size(rect.w() as u32, rect.h() as u32)
@@ -60,46 +57,45 @@ fn model(app : &App) -> Model {
     let mut shape_points = Vec::new();
     let mut offsets = Vec::new();
 
-    let mut pbin_2  = Vec::new();
-    let mut ibin_1  = Vec::new();
-    let mut ibin_2  = Vec::new();
+    let mut pbin_2 = Vec::new();
+    let mut ibin_1 = Vec::new();
+    let mut ibin_2 = Vec::new();
 
     let mut rect_points = [
         pt2(0.0, 0.0),
         pt2(-SHAPE_SIZE, 0.0),
         pt2(-SHAPE_SIZE, SHAPE_SIZE),
         pt2(0.0, SHAPE_SIZE),
-        pt2(0.0, 0.0)
+        pt2(0.0, 0.0),
     ];
 
     for i in 0..NUM_POINTS {
-
         let a = (360 / NUM_POINTS) * i;
 
         let x = (a as f32).cos() * SHAPE_SIZE;
         let y = (a as f32).cos() * SHAPE_SIZE;
 
-        offsets.push( pt2(0.0, 0.0));
+        offsets.push(pt2(0.0, 0.0));
         ibin_1.push(a as f32);
 
-        shape_points.push( pt2(x, y) );
+        shape_points.push(pt2(x, y));
     }
 
     let mover = Mover::new(rect, String::from("Hello!"));
 
-    Model { 
-        shape_points, 
-        offsets, 
-        pbin_2, 
-        ibin_1, 
-        ibin_2, 
+    Model {
+        shape_points,
+        offsets,
+        pbin_2,
+        ibin_1,
+        ibin_2,
         rect_points,
         clicked: false,
         clear_background: false,
-        paused : false,
-        mover
+        paused: false,
+        mover,
     }
-}    
+}
 
 // -----------------------------------------------------
 // Mover
@@ -110,13 +106,12 @@ struct Mover {
     acceleration: Vector2,
     mass: f32,
     name: String,
-    x:f32,
-    y:f32,
+    x: f32,
+    y: f32,
 }
 
 impl Mover {
     fn new(rect: Rect, n: String) -> Self {
-
         let position = pt2(rect.left() + 30.0, rect.top() - 30.0);
         let velocity = vec2(0.0, 0.0);
         let acceleration = vec2(0.0, 0.0);
@@ -163,21 +158,20 @@ impl Mover {
     }
 
     fn check_edges(&mut self, rect: Rect) {
-
         // println!("{}", rect.bottom());
         let margin = 100.0;
-        if self.position.x > (rect.right() - margin)  {
+        if self.position.x > (rect.right() - margin) {
             self.position.x = rect.right() - margin;
             self.velocity.x *= -1.0;
-        } else if self.position.x < (rect.left()+margin)  {
+        } else if self.position.x < (rect.left() + margin) {
             self.velocity.x *= -1.0;
             self.position.x = rect.left() + margin;
         }
-        if self.position.y < (rect.bottom()+margin)  {
+        if self.position.y < (rect.bottom() + margin) {
             self.velocity.y *= -1.0;
             self.position.y = rect.bottom() + margin;
         }
-        if self.position.y < (rect.top()-margin)  {
+        if self.position.y < (rect.top() - margin) {
             self.velocity.y *= -1.0;
             self.position.y = rect.top() - margin;
         }
@@ -196,15 +190,14 @@ impl Mover {
 
 // -----------------------------------------------------
 
-// do calculations here 
+// do calculations here
 /*
-have a &mut Model in update: that's where you can mutate your data. 
-You can't do that in view, because it's only a reference, not a mutable one. 
-This is a design choice from nannou where you can't mutate things when you are drawing them. 
+have a &mut Model in update: that's where you can mutate your data.
+You can't do that in view, because it's only a reference, not a mutable one.
+This is a design choice from nannou where you can't mutate things when you are drawing them.
 Coming from processing it might be hard to adapt to this choice, but it makes things clearer.
 */
 fn update(app: &App, model: &mut Model, _update: Update) {
-
     let wind = vec2(0.0, 0.0);
     let gravity = vec2(0.0, -0.1);
 
@@ -220,20 +213,18 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         *inc += 0.002;
     }
 
-    for i in 0 .. model.offsets.len() {
-
+    for i in 0..model.offsets.len() {
         let xOff = (model.ibin_1[i] as f32).cos() * 300.0;
         let yOff = (model.ibin_1[i] as f32).sin() * 100.0;
 
         model.offsets[i].x = xOff;
         model.offsets[i].y = yOff;
         // println!("{}", i);
-    } 
+    }
 }
 
 // draw outputs here
 fn view(app: &App, model: &Model, frame: Frame) {
-
     let win = app.window_rect();
 
     // get app time
@@ -262,7 +253,6 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
     if time < 0.1 {
         draw.background().color(BLACK);
-
     } else {
         //background
         draw.rect()
@@ -274,7 +264,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
             ;
     }
     // -----------------------------------------------------
-    
+
     //let circle_resolution = map_range( abs(app.time.sin()), 0. , 1. ,3.0 , 6.0) as i32;
     //let circle_resolution = map_range( time, )
     //let radius = app.mouse.x - win.left();
@@ -294,88 +284,86 @@ fn view(app: &App, model: &Model, frame: Frame) {
         let y = (angle * i as f32).sin() * radius;
         points_1.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*2.0);
-        let y = (angle * i as f32).sin() * (radius*2.0);
+        let x = (angle * i as f32).cos() * (radius * 2.0);
+        let y = (angle * i as f32).sin() * (radius * 2.0);
         points_2.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*3.0);
-        let y = (angle * i as f32).sin() * (radius*3.0);
+        let x = (angle * i as f32).cos() * (radius * 3.0);
+        let y = (angle * i as f32).sin() * (radius * 3.0);
         points_3.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*4.0);
-        let y = (angle * i as f32).sin() * (radius*4.0);
+        let x = (angle * i as f32).cos() * (radius * 4.0);
+        let y = (angle * i as f32).sin() * (radius * 4.0);
         points_4.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*5.0);
-        let y = (angle * i as f32).sin() * (radius*5.0);
+        let x = (angle * i as f32).cos() * (radius * 5.0);
+        let y = (angle * i as f32).sin() * (radius * 5.0);
         points_5.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*6.0);
-        let y = (angle * i as f32).sin() * (radius*6.0);
+        let x = (angle * i as f32).cos() * (radius * 6.0);
+        let y = (angle * i as f32).sin() * (radius * 6.0);
         points_6.push(pt2(x, y));
     }
 
+    let strokeSize = 3.0;
 
-        let strokeSize = 3.0;
-
-        draw.scale(1.0).polygon()
+    draw.scale(1.0)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col1 )
-        .stroke_weight( strokeSize * 1.0 )
+        .stroke(col1)
+        .stroke_weight(strokeSize * 1.0)
         .no_fill()
         .points(points_1);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-        draw.scale(1.1).polygon()
+    draw.scale(1.1)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col2 )
-        .stroke_weight( strokeSize * 1.2 )
+        .stroke(col2)
+        .stroke_weight(strokeSize * 1.2)
         .no_fill()
         .points(points_2);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-
-        draw.scale(1.2).polygon()
+    draw.scale(1.2)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col3 )
-        .stroke_weight( strokeSize * 1.3 )
+        .stroke(col3)
+        .stroke_weight(strokeSize * 1.3)
         .no_fill()
         .points(points_3);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-
-        draw.scale(1.3).polygon()
+    draw.scale(1.3)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col4 )
-        .stroke_weight( strokeSize * 1.4 )
+        .stroke(col4)
+        .stroke_weight(strokeSize * 1.4)
         .no_fill()
         .points(points_4);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-
-        draw.scale(1.4).polygon()
+    draw.scale(1.4)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col5 )
-        .stroke_weight( strokeSize * 1.5 )
+        .stroke(col5)
+        .stroke_weight(strokeSize * 1.5)
         .no_fill()
         .points(points_5);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-
-        draw.scale(1.5).polygon()
+    draw.scale(1.5)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col6 )
-        .stroke_weight( strokeSize * 1.6 )
+        .stroke(col6)
+        .stroke_weight(strokeSize * 1.6)
         .no_fill()
         .points(points_6);
-
-  
-
 
     //----------------------------------------------
 
@@ -397,86 +385,86 @@ fn view(app: &App, model: &Model, frame: Frame) {
         let y = (angle * i as f32).sin() * radius;
         points_1.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*2.0);
-        let y = (angle * i as f32).sin() * (radius*2.0);
+        let x = (angle * i as f32).cos() * (radius * 2.0);
+        let y = (angle * i as f32).sin() * (radius * 2.0);
         points_2.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*3.0);
-        let y = (angle * i as f32).sin() * (radius*3.0);
+        let x = (angle * i as f32).cos() * (radius * 3.0);
+        let y = (angle * i as f32).sin() * (radius * 3.0);
         points_3.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*4.0);
-        let y = (angle * i as f32).sin() * (radius*4.0);
+        let x = (angle * i as f32).cos() * (radius * 4.0);
+        let y = (angle * i as f32).sin() * (radius * 4.0);
         points_4.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*5.0);
-        let y = (angle * i as f32).sin() * (radius*5.0);
+        let x = (angle * i as f32).cos() * (radius * 5.0);
+        let y = (angle * i as f32).sin() * (radius * 5.0);
         points_5.push(pt2(x, y));
 
-        let x = (angle * i as f32).cos() * (radius*6.0);
-        let y = (angle * i as f32).sin() * (radius*6.0);
+        let x = (angle * i as f32).cos() * (radius * 6.0);
+        let y = (angle * i as f32).sin() * (radius * 6.0);
         points_6.push(pt2(x, y));
     }
 
+    let strokeSize = 3.0;
 
-        let strokeSize = 3.0;
-
-        draw.scale(1.0).polygon()
+    draw.scale(1.0)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col1 )
-        .stroke_weight( strokeSize * 1.0 )
+        .stroke(col1)
+        .stroke_weight(strokeSize * 1.0)
         .no_fill()
         .points(points_1);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-        draw.scale(1.1).polygon()
+    draw.scale(1.1)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col2 )
-        .stroke_weight( strokeSize * 1.2 )
+        .stroke(col2)
+        .stroke_weight(strokeSize * 1.2)
         .no_fill()
         .points(points_2);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-
-        draw.scale(1.2).polygon()
+    draw.scale(1.2)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col3 )
-        .stroke_weight( strokeSize * 1.3 )
+        .stroke(col3)
+        .stroke_weight(strokeSize * 1.3)
         .no_fill()
         .points(points_3);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-
-        draw.scale(1.3).polygon()
+    draw.scale(1.3)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col4 )
-        .stroke_weight( strokeSize * 1.4 )
+        .stroke(col4)
+        .stroke_weight(strokeSize * 1.4)
         .no_fill()
         .points(points_4);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-
-        draw.scale(1.4).polygon()
+    draw.scale(1.4)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col5 )
-        .stroke_weight( strokeSize * 1.5 )
+        .stroke(col5)
+        .stroke_weight(strokeSize * 1.5)
         .no_fill()
         .points(points_5);
 
-        // let draw = draw.x_y(model.mover.x, model.mover.y);
+    // let draw = draw.x_y(model.mover.x, model.mover.y);
 
-
-        draw.scale(1.5).polygon()
+    draw.scale(1.5)
+        .polygon()
         //.stroke(rgba(0.0, 0.0, 0.0, 0.1))
-        .stroke( col6 )
-        .stroke_weight( strokeSize * 1.6 )
+        .stroke(col6)
+        .stroke_weight(strokeSize * 1.6)
         .no_fill()
         .points(points_6);
-
 
     // Write the result of our drawing to the window's frame.
     draw.to_frame(app, &frame).unwrap();

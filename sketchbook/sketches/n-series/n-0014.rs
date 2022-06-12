@@ -1,20 +1,19 @@
 use nannou::prelude::*;
 
-// Carry Over Notes: 
+// Carry Over Notes:
 
 // [] upgrade and learn ab frame cap -> https://nannou.cc/posts/nannou_v0.13
 
-
 // -----------------------------------------------------
 // CONSTANTS
-static _WIDTH_      : f32 = 800.0;
-static _HEIGHT_     : f32 = 800.0;
-static _VEC_SIZE_   : i32 = 12;
-static _VEC_SCALE_  : f32 = 1.0; 
+static _WIDTH_: f32 = 800.0;
+static _HEIGHT_: f32 = 800.0;
+static _VEC_SIZE_: i32 = 12;
+static _VEC_SCALE_: f32 = 1.0;
 
-static NUM_POINTS  : i32 = 60;
+static NUM_POINTS: i32 = 60;
 
-static SHAPE_SIZE   :f32  = 200.0;
+static SHAPE_SIZE: f32 = 200.0;
 
 // -----------------------------------------------------
 fn main() {
@@ -25,18 +24,17 @@ fn main() {
 // MODEL
 
 struct Model {
-    shape_points : Vec<Vector2>, // points bin no.1
-    offsets : Vec<Vector2>,
-    pbin_2 : Vec<Vector2>,
-    ibin_1 : Vec<f32>,
-    ibin_2 : Vec<f32>,
+    shape_points: Vec<Vector2>, // points bin no.1
+    offsets: Vec<Vector2>,
+    pbin_2: Vec<Vector2>,
+    ibin_1: Vec<f32>,
+    ibin_2: Vec<f32>,
 
-    points : [Vector2; 5],
+    points: [Vector2; 5],
 }
 
-fn model(app : &App) -> Model {
-
-    let rect = Rect::from_w_h( _WIDTH_, _HEIGHT_ );
+fn model(app: &App) -> Model {
+    let rect = Rect::from_w_h(_WIDTH_, _HEIGHT_);
 
     app.new_window()
         .size(rect.w() as u32, rect.h() as u32)
@@ -47,44 +45,49 @@ fn model(app : &App) -> Model {
     let mut shape_points = Vec::new();
     let mut offsets = Vec::new();
 
-    let mut pbin_2  = Vec::new();
-    let mut ibin_1  = Vec::new();
-    let mut ibin_2  = Vec::new();
+    let mut pbin_2 = Vec::new();
+    let mut ibin_1 = Vec::new();
+    let mut ibin_2 = Vec::new();
 
     let mut points = [
         pt2(0.0, 0.0),
         pt2(-SHAPE_SIZE, 0.0),
         pt2(-SHAPE_SIZE, SHAPE_SIZE),
         pt2(0.0, SHAPE_SIZE),
-        pt2(0.0, 0.0)
+        pt2(0.0, 0.0),
     ];
 
     for i in 0..NUM_POINTS {
-
         let a = 360 / NUM_POINTS * i;
 
         let x = (a as f32).cos() * SHAPE_SIZE;
         let y = (a as f32).cos() * SHAPE_SIZE;
 
-        offsets.push( pt2(0.0, 0.0));
+        offsets.push(pt2(0.0, 0.0));
 
-        shape_points.push( pt2(x, y) );
+        shape_points.push(pt2(x, y));
     }
 
-    Model { shape_points, offsets, pbin_2, ibin_1, ibin_2, points }
-}    
+    Model {
+        shape_points,
+        offsets,
+        pbin_2,
+        ibin_1,
+        ibin_2,
+        points,
+    }
+}
 
 // -----------------------------------------------------
 
-// do calculations here 
+// do calculations here
 /*
-have a &mut Model in update: that's where you can mutate your data. 
-You can't do that in view, because it's only a reference, not a mutable one. 
-This is a design choice from nannou where you can't mutate things when you are drawing them. 
+have a &mut Model in update: that's where you can mutate your data.
+You can't do that in view, because it's only a reference, not a mutable one.
+This is a design choice from nannou where you can't mutate things when you are drawing them.
 Coming from processing it might be hard to adapt to this choice, but it makes things clearer.
 */
 fn update(app: &App, m: &mut Model, _update: Update) {
-
     // for inc in m.ibin_1.iter_mut() {
     //     *inc += 0.008;
     // }
@@ -92,25 +95,19 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     //     *inc += 0.002;
     // }
 
-
-
     for i in 0..m.offsets.len() {
-
         let xOff = (i as f32).cos() * m.shape_points[i].x;
-        let yOff = (i as f32).sin() *  m.shape_points[i].y;
+        let yOff = (i as f32).sin() * m.shape_points[i].y;
         //let yOff = p.y = (i as f32).cos() * 10.0;
 
         m.offsets[i].x = xOff;
         m.offsets[i].y = yOff;
         // println!("{}", i);
     }
-
-    
 }
 
 // draw outputs here
 fn view(app: &App, m: &Model, frame: Frame) {
-
     let win = app.window_rect();
 
     // get app time
@@ -129,7 +126,6 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     if time < 0.1 {
         draw.background().color(BLACK);
-
     } else {
         //background
         draw.rect()
@@ -140,33 +136,32 @@ fn view(app: &App, m: &Model, frame: Frame) {
             ;
     }
     // -----------------------------------------------------
-    
 
-    let point_color_tuples = (0..m.shape_points.len()).map( |i| {
+    let point_color_tuples = (0..m.shape_points.len()).map(|i| {
         let c = hsv(time * 0.1, 1.0, 1.0);
-    
+
         // let x = m.shape_points[i].x + m.offsets[i].x;
         // let y = m.shape_points[i].x + m.offsets[i].y;
-        
+
         let scale = 0.5;
-        let x = scale * (map_range(i, 0, NUM_POINTS as usize - 1, win.left(), win.right()) + m.offsets[i].x);
+        let x = scale
+            * (map_range(i, 0, NUM_POINTS as usize - 1, win.left(), win.right()) + m.offsets[i].x);
         let fract = i as f32 / NUM_POINTS as f32;
         let amp = (time + fract * TAU).sin();
-        let y = scale * (map_range(amp, -1.0, 1.0, win.bottom() * 0.75, win.top() * 0.75) + m.offsets[i].y);
-        
-        ( pt2( -x, -y ), c )
-        //( pt2(m.shape_points[i].x, m.shape_points[i].y), c)
+        let y = scale
+            * (map_range(amp, -1.0, 1.0, win.bottom() * 0.75, win.top() * 0.75) + m.offsets[i].y);
 
+        (pt2(-x, -y), c)
+        //( pt2(m.shape_points[i].x, m.shape_points[i].y), c)
     });
 
     draw.scale(1.0)
         .polyline()
         .weight(2.0)
         //.points(points)
-        .points_colored(point_color_tuples)
-        ;
+        .points_colored(point_color_tuples);
 
-  let draw = draw.rotate(time * -0.9);
+    let draw = draw.rotate(time * -0.9);
 
     // for i in 0..m.offsets.len() {
 
@@ -175,51 +170,40 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     //     let x = m.offsets[i].x;
     //     let y = m.offsets[i].y;
-        
 
     //     draw.ellipse()
     //         .x_y(x, y)
     //         .radius(win.w() * 0.125 * t.sin())
     //         .color(c);
     // }
-  
-    let point_color_tuples = (0..m.shape_points.len()).map( |i| {
 
+    let point_color_tuples = (0..m.shape_points.len()).map(|i| {
         let c = hsv(time * 0.1, 1.0, 1.0);
-    
+
         // let x = m.shape_points[i].x + m.offsets[i].x;
         // let y = m.shape_points[i].x + m.offsets[i].y;
-        
+
         let scale = 0.5;
-        let x = scale * (map_range(i, 0, NUM_POINTS as usize + 1, win.right(), win.left()) + m.offsets[i].x);
+        let x = scale
+            * (map_range(i, 0, NUM_POINTS as usize + 1, win.right(), win.left()) + m.offsets[i].x);
         let fract = i as f32 / NUM_POINTS as f32;
         let amp = (time + fract * TAU).sin();
-        let y = scale * (map_range(amp, -1.0, 1.0, win.top() * 0.75, win.bottom() * 0.75) + m.offsets[i].y);
-        
-        ( pt2( -x, -y ), c )
+        let y = scale
+            * (map_range(amp, -1.0, 1.0, win.top() * 0.75, win.bottom() * 0.75) + m.offsets[i].y);
+
+        (pt2(-x, -y), c)
         //( pt2(m.shape_points[i].x, m.shape_points[i].y), c)
-
     });
-
-    
-
-   
 
     draw.scale(0.5)
         .polyline()
         .weight(1.0)
         //.points(points)
-        .points_colored(point_color_tuples)
-        ;
-
-   
-
-    
-
+        .points_colored(point_color_tuples);
 
     //     let win = app.window_rect();
     //     let t = app.time;
-    
+
     //     // Decide on a number of points and a weight.
     //     let n_points = 10;
     //     let weight = 8.0;
@@ -300,7 +284,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     // // --------------------------------------
     // // POINTS BIN NO.1
-    
+
     // let r = 50.0;
     // for p in shape_points_iter {
 

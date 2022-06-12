@@ -1,19 +1,19 @@
-use nannou::prelude::*;
-use nannou::geom::*;
 use nannou::geom::Point2;
+use nannou::geom::*;
+use nannou::prelude::*;
+use nannou::Draw;
 use nannou_osc as osc;
 use std::ops::Range;
-use nannou::Draw;
 use std::time::Duration;
 
 //use library::grid;
 use library::colors::Palette;
 
 //--------------------------------------------------------
-static CAPTURE  : bool = false; // capture to image sequence (or use obs)
-static FRAME    : bool = false; //hide window chrome when set to false
-static WIDTH    : f32 = 800.0;
-static HEIGHT   : f32 = 800.0; 
+static CAPTURE: bool = false; // capture to image sequence (or use obs)
+static FRAME: bool = false; //hide window chrome when set to false
+static WIDTH: f32 = 800.0;
+static HEIGHT: f32 = 800.0;
 
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 6555;
@@ -26,9 +26,9 @@ fn main() {
 //--------------------------------------------------------
 struct Model {
     window_id: WindowId,
-    this_capture_frame : i32,
-    last_capture_frame : i32,
-    last_calc : Duration,
+    this_capture_frame: i32,
+    last_capture_frame: i32,
+    last_calc: Duration,
     receiver: osc::Receiver,
     received_packets: Vec<(std::net::SocketAddr, osc::Packet)>,
     colors: Palette,
@@ -36,15 +36,13 @@ struct Model {
 
 //--------------------------------------------------------
 fn model(app: &App) -> Model {
-
     let window_id = app
         .new_window()
         .size(WIDTH as u32, HEIGHT as u32)
         .decorations(FRAME) //creates a borderless window
         .view(view)
         .build()
-        .unwrap()
-        ;
+        .unwrap();
 
     let colors = Palette::new();
 
@@ -53,10 +51,10 @@ fn model(app: &App) -> Model {
 
     // A vec for collecting packets and their source address.
     let received_packets = vec![];
-    
+
     // app.set_loop_mode(LoopMode::loop_once());
     // app.set_loop_mode(LoopMode::rate_fps(0.1));
-    
+
     let mut last_calc = Duration::from_millis(0);
 
     //--------------------------------------------------------
@@ -68,26 +66,26 @@ fn model(app: &App) -> Model {
     Model {
         window_id,
         colors,
-        this_capture_frame, 
-        last_capture_frame, 
+        this_capture_frame,
+        last_capture_frame,
         last_calc,
         receiver,
-        received_packets
+        received_packets,
     }
-} 
+}
 
 fn update(app: &App, m: &mut Model, _update: Update) {
-
     // ref:
     //https://doc.rust-lang.org/nightly/core/time/struct.Duration.html
     //let millis = Duration::from_millis(100).as_millis();
     let since_last_calc = _update.since_start.as_millis() - m.last_calc.as_millis();
-    if since_last_calc > 10  { //time interval
+    if since_last_calc > 10 {
+        //time interval
         m.last_calc = _update.since_start;
     }
 
     if m.this_capture_frame != m.last_capture_frame {
-        m.last_capture_frame = m. this_capture_frame;
+        m.last_capture_frame = m.this_capture_frame;
     }
 
     if CAPTURE {
@@ -108,19 +106,16 @@ fn update(app: &App, m: &mut Model, _update: Update) {
         println!("{}: {:?}\n", addr, packet);
     }
 
-
     while m.received_packets.len() > 0 {
         m.received_packets.remove(0);
     }
- 
 }
 
 fn view(app: &App, m: &Model, frame: Frame) {
-
     // get canvas to draw on
-    let draw  = app.draw();
-    let win   = app.window_rect();
-    let time  = app.time;
+    let draw = app.draw();
+    let win = app.window_rect();
+    let time = app.time;
 
     //--------------------------------------------------------
     // background
@@ -130,62 +125,60 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     // draw.background().color(bg);
 
-    if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
+    if app.elapsed_frames() == 10 {
+        //must clear render context once for fullscreen
         draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
     } else {
-        draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
+        draw.rect()
+            .x_y(0.0, 0.0)
+            .w_h(win.w() * 2.0, win.w() * 2.0)
+            .color(bg);
     }
 
     let draw = draw.rotate(app.time * -10.0);
-    let draw = draw.translate( vec3(app.time.cos() * -200.0, 0.0, 0.0));
+    let draw = draw.translate(vec3(app.time.cos() * -200.0, 0.0, 0.0));
 
     //--------------------------------------------------------
     for i in 0..2 {
-
         let draw = draw.rotate(app.time * i as f32 * 0.01);
-        let draw = draw.scale(abs(time.sin())+0.1);
+        let draw = draw.scale(abs(time.sin()) + 0.1);
 
         for j in 0..4 {
-    
             let xOff = abs(j as f32 * time.cos() * 20.0);
             let yOff = abs(j as f32 * time.sin() * 20.0);
-    
-            let trns = vec3(time.cos() * xOff, time.sin() * yOff , 0.0);
-            let draw = draw.translate( trns );
-    
+
+            let trns = vec3(time.cos() * xOff, time.sin() * yOff, 0.0);
+            let draw = draw.translate(trns);
+
             let points = [
-                pt2( xOff, 0.0 ),
-                pt2( 100.0 + win.w()/6.0, 0.0 ),
-                pt2( 100.0, -win.h()/6.0),
-                pt2( 100.0, 0.0)
+                pt2(xOff, 0.0),
+                pt2(100.0 + win.w() / 6.0, 0.0),
+                pt2(100.0, -win.h() / 6.0),
+                pt2(100.0, 0.0),
             ];
-    
-            draw
-                .polygon()
-                .stroke_weight(abs(time.sin()*10.0)+1.0)
+
+            draw.polygon()
+                .stroke_weight(abs(time.sin() * 10.0) + 1.0)
                 .caps_round()
                 .color(m.colors.col_arr[j])
-                .points(points)
-                ;
-    
+                .points(points);
         }
-        
     }
 
     //--------------------------------------------------------
     // draw frame
-    
+
     // put everything on the frame
     draw.to_frame(app, &frame).unwrap();
 
     //--------------------------------------------------------
     // capture frame
 
-    if m.this_capture_frame != m.last_capture_frame {      
-        let directory  = "captures/".to_string();
-        let app_name   = app.exe_name().unwrap().to_string();
-        let extension  = ".png".to_string();
-        let frame_num  = format!("{:05}", m.this_capture_frame);
+    if m.this_capture_frame != m.last_capture_frame {
+        let directory = "captures/".to_string();
+        let app_name = app.exe_name().unwrap().to_string();
+        let extension = ".png".to_string();
+        let frame_num = format!("{:05}", m.this_capture_frame);
 
         let path = format!("{}{}{}", directory, frame_num, extension);
         app.main_window().capture_frame(path);

@@ -8,12 +8,12 @@ fn main() {
 struct Model {
     ui: Ui,
     ids: Ids,
-    x_slider   : f32,
-    y_slider   : f32,
-    base_vec2  : Vec2,
-    pos_a_vec2 : Vec2,
-    pos_b_vec2 : Vec2,
-    pos_c_vec2 : Vec2,
+    x_slider: f32,
+    y_slider: f32,
+    base_vec2: Vec2,
+    pos_a_vec2: Vec2,
+    pos_b_vec2: Vec2,
+    pos_c_vec2: Vec2,
     // vel2 :
 }
 
@@ -52,7 +52,7 @@ fn model(app: &App) -> Model {
         base_vec2,
         pos_a_vec2,
         pos_b_vec2,
-        pos_c_vec2, 
+        pos_c_vec2,
     }
 }
 
@@ -72,19 +72,18 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     for value in slider(model.x_slider, 0.0, 300.0)
         .top_left_with_margin(20.0)
         .label("X-Pos")
-        .set(model.ids.x_slider, ui) {
-
+        .set(model.ids.x_slider, ui)
+    {
         model.x_slider = value.round();
     }
 
     for value in slider(model.y_slider, 0.0, 300.0)
         .down(10.0)
         .label("Y-Pos")
-        .set(model.ids.y_slider, ui) {
-
+        .set(model.ids.y_slider, ui)
+    {
         model.y_slider = value;
     }
-
 
     model.pos_a_vec2.x = model.x_slider;
     model.pos_a_vec2.y = model.y_slider;
@@ -93,8 +92,6 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     model.pos_b_vec2.y = model.pos_a_vec2.x;
 
     model.pos_c_vec2 = model.pos_a_vec2 + model.pos_b_vec2;
-
-
 }
 
 // Draw the state of your `Model` into the given `Frame` here.
@@ -111,11 +108,20 @@ fn view(app: &App, model: &Model, frame: Frame) {
     //     .color(BLACK);
 
     // draw vector arrow from -> to
-    draw.arrow().weight(5.0).color(BLUE).points(model.base_vec2, model.pos_a_vec2);
+    draw.arrow()
+        .weight(5.0)
+        .color(BLUE)
+        .points(model.base_vec2, model.pos_a_vec2);
 
-    draw.arrow().weight(5.0).color(GREEN).points(model.base_vec2, model.pos_b_vec2);
+    draw.arrow()
+        .weight(5.0)
+        .color(GREEN)
+        .points(model.base_vec2, model.pos_b_vec2);
 
-    draw.arrow().weight(5.0).color(BLACK).points(model.base_vec2, model.pos_c_vec2);
+    draw.arrow()
+        .weight(5.0)
+        .color(BLACK)
+        .points(model.base_vec2, model.pos_c_vec2);
 
     // Write the result of our drawing to the window's frame.
     draw.to_frame(app, &frame).unwrap();

@@ -1,38 +1,33 @@
 use nannou::prelude::*;
 
-// Carry Over Notes: 
+// Carry Over Notes:
 
 // [] upgrade and learn ab frame cap -> https://nannou.cc/posts/nannou_v0.13
 
-static _WIDTH_  : f32  = 800.0;
-static _HEIGHT_ : f32  = 800.0;
+static _WIDTH_: f32 = 800.0;
+static _HEIGHT_: f32 = 800.0;
 
 fn main() {
-
     nannou::app(model).update(update).run();
 }
 
 struct Model {
     mover: Mover,
-    inc : f32,
-    rad : f32,
+    inc: f32,
+    rad: f32,
 }
-
-
 
 struct Mover {
     position: Point2,
     velocity: Vector2,
     acceleration: Vector2,
     mass: f32,
-    x:f32,
-    y:f32,
+    x: f32,
+    y: f32,
 }
-
 
 impl Mover {
     fn new(rect: Rect) -> Self {
-
         let position = pt2(rect.left() + 30.0, rect.top() - 30.0);
         let velocity = vec2(0.0, 0.0);
         let acceleration = vec2(0.0, 0.0);
@@ -100,8 +95,7 @@ impl Mover {
 }
 
 fn model(app: &App) -> Model {
-
-    let rect = Rect::from_w_h( _WIDTH_, _HEIGHT_ );
+    let rect = Rect::from_w_h(_WIDTH_, _HEIGHT_);
 
     app.new_window()
         .size(rect.w() as u32, rect.h() as u32)
@@ -112,16 +106,15 @@ fn model(app: &App) -> Model {
     let mover = Mover::new(rect);
     let mut inc = 0.0;
     let rad = 300.0;
-    
+
     Model { mover, inc, rad }
 }
 
-
-// do calculations here 
+// do calculations here
 /*
-Then notice that you have a &mut Model in update: that's where you can mutate your data. 
-You can't do that in view, because it's only a reference, not a mutable one. 
-This is a design choice from nannou where you can't mutate things when you are drawing them. 
+Then notice that you have a &mut Model in update: that's where you can mutate your data.
+You can't do that in view, because it's only a reference, not a mutable one.
+This is a design choice from nannou where you can't mutate things when you are drawing them.
 Coming from processing it might be hard to adapt to this choice, but it makes things clearer.
 */
 fn update(app: &App, m: &mut Model, _update: Update) {
@@ -139,9 +132,8 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
 // draw outputs here
 fn view(app: &App, m: &Model, frame: Frame) {
-
     let win = app.window_rect();
-    
+
     //println!("The window is {} x {}", win.w(), win.h());
 
     let t = app.time;
@@ -149,35 +141,31 @@ fn view(app: &App, m: &Model, frame: Frame) {
     // Begin drawing
     let draw = app.draw();
 
-    let rotate = (app.time * 0.5).sin() * (app.time * 0.25  * PI * 2.0).cos();
+    let rotate = (app.time * 0.5).sin() * (app.time * 0.25 * PI * 2.0).cos();
     let draw = draw.rotate(rotate);
 
     // clear the bg
     let mut bg_col = rgba(0.0, 0.0, 0.0, 0.02);
     let mut fg_col = rgba(1.0, 1.0, 1.0, 0.1);
-   // draw.background().color(bg_col);
+    // draw.background().color(bg_col);
 
     //background
 
     draw.rect()
         .x_y(0.0, 0.0)
-        .w_h(win.w()*2.0, win.w()*2.0)
-        .color(bg_col)
-        ;
+        .w_h(win.w() * 2.0, win.w() * 2.0)
+        .color(bg_col);
 
-     // --------------------------------------
-    
-     let x = m.inc.cos() * m.rad;
-     let y = m.inc.sin() * m.rad;
- 
-     let p = pt2(x, y);
+    // --------------------------------------
 
-    
+    let x = m.inc.cos() * m.rad;
+    let y = m.inc.sin() * m.rad;
+
+    let p = pt2(x, y);
+
     // --------------------------------------
 
     let mut color = rgba(1.0, 1.0, 1.0, 1.0);
-
-
 
     // --------------------------------------
 
@@ -203,7 +191,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     // .color(color);
 
     // --------------------------------------
-    
+
     // let p3_start = pt2( win.w() / 2.0, -win.h() / 2.0 );
     // let p3_end   = p;
 
@@ -224,24 +212,19 @@ fn view(app: &App, m: &Model, frame: Frame) {
     // .weight(1.0)
     // .color(color);
 
-    
     //m.mover.display(&draw);
     //println!("hello?");
 
     for i in 0..8 {
         let f = i as f32;
         draw.ellipse()
-            .x_y(0.0,0.0)
+            .x_y(0.0, 0.0)
             .w(m.rad * f * 0.5)
-            .h(m.rad*  f * 0.5)
+            .h(m.rad * f * 0.5)
             .stroke_weight(f * 1.5)
             .color(bg_col)
-            .no_fill()
-            ;
-
+            .no_fill();
     }
-
-
 
     // ------------------------------------------
     let circle_resolution = 12;
@@ -250,8 +233,8 @@ fn view(app: &App, m: &Model, frame: Frame) {
     //draw.background().color(BLACK);
 
     for i in 0..circle_resolution {
-        let x = (angle * i as f32).cos() * m.rad*2.0;
-        let y = (angle * i as f32).sin() * m.rad*2.0;
+        let x = (angle * i as f32).cos() * m.rad * 2.0;
+        let y = (angle * i as f32).sin() * m.rad * 2.0;
         draw.line()
             .start(pt2(0.0, 0.0))
             .end(pt2(x, y))
@@ -263,10 +246,8 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     //println!("{}", m.mover.x);
 
-     // --------------------------------------
-    
-    
-    
+    // --------------------------------------
+
     // Write the result of our drawing to the window's frame.
     draw.to_frame(app, &frame).unwrap();
 

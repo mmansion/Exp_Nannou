@@ -1,11 +1,11 @@
 use nannou::prelude::*;
 
-// Carry Over Notes: 
+// Carry Over Notes:
 
 // [] upgrade and learn ab frame cap -> https://nannou.cc/posts/nannou_v0.13
 
-static _WIDTH_  : f32  = 800.0;
-static _HEIGHT_ : f32  = 800.0;
+static _WIDTH_: f32 = 800.0;
+static _HEIGHT_: f32 = 800.0;
 
 fn main() {
     nannou::app(model).update(update).run();
@@ -14,13 +14,12 @@ fn main() {
 // -------------------------------------------------------------------
 
 struct Model {
-    points  : Vec<Vector2>,
-    incs    : Vec<f32>
+    points: Vec<Vector2>,
+    incs: Vec<f32>,
 }
 
 fn model(app: &App) -> Model {
-
-    let rect = Rect::from_w_h( _WIDTH_, _HEIGHT_ );
+    let rect = Rect::from_w_h(_WIDTH_, _HEIGHT_);
 
     app.new_window()
         .size(rect.w() as u32, rect.h() as u32)
@@ -29,7 +28,7 @@ fn model(app: &App) -> Model {
         .unwrap();
 
     let mut points = Vec::new();
-    let mut incs   = Vec::new();
+    let mut incs = Vec::new();
 
     for i in 0..100 {
         //let x = random_f32() * rect.w();
@@ -37,8 +36,8 @@ fn model(app: &App) -> Model {
 
         let scale = 0.1;
 
-        let x = random_range(-rect.w()/2.0 * scale, rect.w()/2.0 * scale);
-        let y = random_range(-rect.h()/2.0 * scale, rect.h()/2.0 * scale);
+        let x = random_range(-rect.w() / 2.0 * scale, rect.w() / 2.0 * scale);
+        let y = random_range(-rect.h() / 2.0 * scale, rect.h() / 2.0 * scale);
 
         incs.push(i as f32 * random_f32()); //space the increments out numerically on init
 
@@ -46,17 +45,16 @@ fn model(app: &App) -> Model {
     }
 
     Model { points, incs }
-}    
+}
 
-// do calculations here 
+// do calculations here
 /*
-have a &mut Model in update: that's where you can mutate your data. 
-You can't do that in view, because it's only a reference, not a mutable one. 
-This is a design choice from nannou where you can't mutate things when you are drawing them. 
+have a &mut Model in update: that's where you can mutate your data.
+You can't do that in view, because it's only a reference, not a mutable one.
+This is a design choice from nannou where you can't mutate things when you are drawing them.
 Coming from processing it might be hard to adapt to this choice, but it makes things clearer.
 */
 fn update(app: &App, m: &mut Model, _update: Update) {
-
     for inc in m.incs.iter_mut() {
         *inc += 0.001;
     }
@@ -64,7 +62,6 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
 // draw outputs here
 fn view(app: &App, m: &Model, frame: Frame) {
-
     let win = app.window_rect();
 
     // get app time
@@ -81,17 +78,14 @@ fn view(app: &App, m: &Model, frame: Frame) {
     let mut fg_col = rgba(1.0, 1.0, 1.0, 0.1);
 
     if time < 0.1 {
-
         draw.background().color(BLACK);
-
     } else {
         //background
         draw.rect()
             .x_y(0.0, 0.0)
-            .w_h(win.w()*2.0, win.w()*2.0)
+            .w_h(win.w() * 2.0, win.w() * 2.0)
             // .color(bg_col)
-            .color(BLACK)
-            ;
+            .color(BLACK);
     }
     // --------------------------------------
     // drawing vars
@@ -109,10 +103,8 @@ fn view(app: &App, m: &Model, frame: Frame) {
     let p_iter = m.points.iter();
     let mut ix = 0;
 
-
     for p in p_iter {
-
-        let inc:f32 = m.incs[ix];
+        let inc: f32 = m.incs[ix];
 
         let transform = inc.sin() * 10.0;
 
@@ -127,13 +119,11 @@ fn view(app: &App, m: &Model, frame: Frame) {
         // //.color(bg_col)
         // ;
 
-        ix+=1; //bump to next inc in vec
+        ix += 1; //bump to next inc in vec
 
         let color = hsv(time * 0.1, 1.0, 1.0);
 
         let points = (0..=144).map(|i| {
-
-    
             // Convert each degree to radians.
             let radian = deg_to_rad(i as f32);
 
@@ -145,16 +135,14 @@ fn view(app: &App, m: &Model, frame: Frame) {
             let y = radian.cos() * radius;
 
             // Construct and return a point object with a color.
-            (pt2(x,y), color) // speed of color transition
-
+            (pt2(x, y), color) // speed of color transition
         });
-    
+
         //println!("{}, {}", p.x, p.y);
         draw.polyline()
             .weight(1.0)
             .rotate(transform)
-            .points_colored(points)
-            ;
+            .points_colored(points);
 
         draw.rect()
             .x_y(xOff, yOff)
@@ -164,7 +152,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     }
 
     // --------------------------------------
-    
+
     // Write the result of our drawing to the window's frame.
     draw.to_frame(app, &frame).unwrap();
 

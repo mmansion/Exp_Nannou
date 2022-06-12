@@ -8,7 +8,7 @@ fn main() {
 struct Model {
     ui: Ui,
     ids: Ids,
-    my_slider: f32
+    my_slider: f32,
 }
 
 widget_ids! {
@@ -30,11 +30,7 @@ fn model(app: &App) -> Model {
     // Init our variables
     let my_slider = 0.0;
 
-    Model {
-        ui,
-        ids,
-        my_slider,
-    }
+    Model { ui, ids, my_slider }
 }
 
 fn update(_app: &App, model: &mut Model, _update: Update) {
@@ -57,7 +53,6 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     {
         model.my_slider = value;
     }
-
 }
 
 // Draw the state of your `Model` into the given `Frame` here.
