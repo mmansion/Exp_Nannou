@@ -6,7 +6,7 @@ members = [
     "n-series",
     "scratch",
     "nannou_touchosc",
-    # "sketches",
+    "sketches",
     #"tutorials/schotter1",
 
 ]

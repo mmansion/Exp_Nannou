@@ -10,6 +10,7 @@ edition = "2018"
 nannou = "0.18.1"
 nannou_osc = "0.18.0"
 
+
 # nannou = { path = "../../nannou/nannou" }
 # nannou = { version ="0.16.0", path = "../../test/nannou/nannou" }
 
@@ -18,6 +19,7 @@ nannou_osc = "0.18.0"
 
 # mikhail's stuffs
 library = { path = "../library" }
+nannou_touchosc = { path = "../nannou_touchosc"}
 
 #--------------------------------------------------------
 # learning
@@ -41,6 +43,13 @@ path = "learning/slider.rs"
 [[example]]
 name = "bezier_curve_cubic"
 path = "learning/bezier_curve_cubic.rs"
+
+#--------------------------------------------------------
+# lineworks
+
+[[example]]
+name = "lw-001"
+path = "lineworks/lw-001.rs"
 
 #--------------------------------------------------------
 # rain-bow artwork development
