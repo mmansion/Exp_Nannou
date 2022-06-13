@@ -1,14 +1,13 @@
 /*
-* n-0092
+* n-0093
 *
-* dynamic grid, controlled via touchosc
+* recursive random, circle packing
 *
 * mikhail mansion 2022
 */
 
 use nannou::prelude::*;
 use std::time::Duration;
-use library::colors::Palette;
 
 use nannou::prelude::*;
 use nannou_touchosc::TouchOscClient;
@@ -19,7 +18,7 @@ static FRAME    : bool = true; //hide window chrome when set to false
 static WIDTH    : f32 = 800.0;
 static HEIGHT   : f32 = 800.0; 
 static BORDER   : f32 = 10.0;
-static WAIT     : u128 = 10;
+static WAIT     : u128 = 100;
 
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 6555;
@@ -35,14 +34,15 @@ struct Model {
     this_capture_frame : i32,
     last_capture_frame : i32,
     last_calc : Duration,
-    colors:Palette,
     redraw:bool,
     last_redraw: u128,
     touchosc: TouchOscClient,
-    outer_circles: Vec<Vec3>,
-    inner_circles: Vec<Vec3>,
-    circle_colors: Vec<Hsva>,
-    once: bool,
+    rings: Vec<Vec3>,
+    points: Vec<Vec3>,
+    colors: Vec<Hsva>,
+    points_counter: i32,
+    max_rings: i32,
+    max_points: usize
 }
 
 //--------------------------------------------------------
@@ -65,7 +65,7 @@ fn model(app: &App) -> Model {
 
     // Adding touchosc client inputs.
 
-    touchosc.add_radio("/invert", 2, 0);
+    // touchosc.add_radio("/invert", 2, 0);
    
     
     // app.set_loop_mode(LoopMode::loop_once());
@@ -82,12 +82,13 @@ fn model(app: &App) -> Model {
     let mut last_redraw = 0;
 
     //--------------------------------------------------------
+    let mut rings  = Vec::new();
+    let mut points = Vec::new();
+    let mut colors = Vec::new(); 
 
-    let colors = Palette::new();
-    let mut outer_circles = Vec::new();
-    let mut inner_circles = Vec::new();
-    let mut circle_colors = Vec::new();
-    
+    let mut points_counter = 0;
+    let mut max_rings = 10;
+    let mut max_points = 40000;
 
     //--------------------------------------------------------
 
@@ -100,10 +101,11 @@ fn model(app: &App) -> Model {
         redraw,
         last_redraw,
         touchosc,
-        outer_circles,
-        inner_circles,
-        circle_colors,
-        once: false
+        rings,
+        points,
+        points_counter,
+        max_rings,
+        max_points
     }
 } 
 
@@ -137,104 +139,122 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     }
     //--------------------------------------------------------
 
-    m.touchosc.update();
+    m.touchosc.update(); 
 
     //--------------------------------------------------------
-    if !m.once {
+    if m.points_counter < m.max_rings {
 
-        let win   = app.window_rect();
+        let max = m.max_points;
+
+        let win = app.window_rect();
         let win_w = win.w();
         let win_h = win.h();
-        // let x = random::<f32>() * win_w/2.0;
-        let x = 0.0;
-        // let y = random::<f32>() * win_h/2.0;
-        let y = 0.0;
-        let r = 300.0;
-        let max = 2000;
-        if !m.outer_circles.contains( &pt3(x, y, r) ) {
-            m.outer_circles.push(pt3(x, y, r));
+        let mut r = random::<f32>() * win_w/4.0;
+        if r < 100.0 {
+            r = 100.0;
+        }
+
+        let mut found_position = false;
+
+        let mut y =  map_range(random::<f32>() * win_w, 0.0, win_w, -win_w/2.0, win_w/2.0);
+        let mut x =  map_range(random::<f32>() * win_w, 0.0, win_w, -win_w/2.0, win_w/2.0);
+
+        // if(m.rings.len() > 1) {
+
+        //     let prev_ring = m.rings[m.rings.len()-1];
+    
+        //     while !found_position {
+    
+        //         if abs(prev_ring.x - x) > (prev_ring.z + r) && abs(prev_ring.y - y) > (prev_ring.z + r) {
+        //             found_position = true;
+    
+        //         } else {
+        //             x = random::<f32>() * win_w/2.0;
+        //             y = random::<f32>() * win_h/2.0;
+        //         }
+        //     }
+        // }
+
+        
+        if !m.rings.contains( &pt3(x, y, r) ) { 
             
+            m.rings.push(pt3(x, y, r));
+    
             for i in 0..max {
                 let R = (1.0 - random::<f32>() * random::<f32>() * random::<f32>()) * r;
                 let angle = random::<f32>() * TAU;
                 let X = x + angle.cos() * R;
                 let Y = y + angle.sin() * R;
     
-                let h = map_range(Y, 0.0, r, 0.7, 0.8);
+                let h = map_range(Y, 0.0, r, 0.8, 0.85);
                 let c = hsva(h, 1.0, 1.0, 1.0);
-                m.circle_colors.push(c);
-                m.inner_circles.push(pt3(X, Y, 1.0));
+                let s = random::<f32>() * (3.0 + r / win_w * 0.7);
+                //let s = 1.0;
+    
+                m.colors.push(c);
+                m.points.push(pt3(X, Y, s));
             }
-
+    
+            m.points_counter = m.points_counter + 1;
         }
-        m.once = true;
     }
- 
+
+
 }
 
 fn view(app: &App, m: &Model, frame: Frame) {
 
-    // if(m.redraw) {
+    if(m.redraw) {
 
         // get canvas to draw on
         let draw  = app.draw();
         let win   = app.window_rect();
         let time  = app.time;
     
+        draw.background().color(BLACK);
         //--------------------------------------------------------
         // background
+        // let bg = rgba(0.01, 0.0, app.time.sin()*0.1, 0.1);
+        // if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
+        // } else {
+        //     draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
+        // }
 
-        let invert = m.touchosc.radio("/invert");
+        // for i in 0..m.rings.len()-1 {
+        //     let ring = m.rings[i];
+        //     draw.ellipse()
+        //     .color(WHITE)
+        //     .w_h(ring.z, ring.z)
+        //     .x_y(ring.x, ring.y)
+        //     ;
+        // }
 
-        let bg = rgba(0.01, 0.0, app.time.sin()*0.1, 0.1);
-    
-        if app.elapsed_frames() == 10 { //must clear render context once for fullscreen
-            draw.background().color(rgba(0.0, 0.0, 0.0, 0.9));
-        } else {
-            draw.rect().x_y(0.0, 0.0).w_h(win.w()*2.0, win.w()*2.0).color(bg);
-        }
-    
-
-        draw.ellipse()
-        .color(rgba(0.1,0.1,1.0, 0.001))
-        .w_h(600.0, 600.0)
-        .x_y(0.0, 0.0)
-        ;
-    
-      
         //--------------------------------------------------------
+        let mut n = 0;
+        let ring_color = rgba(1.0, 1.0, 1.0, 1.0);
 
-        for i in 0..m.inner_circles.len() {
+        for i in 0..m.points.len()-1 {
 
-            let circle = m.inner_circles[i];
-            let color = m.circle_colors[i];
+            if i % m.max_points == 0 {
+                let ring = m.rings[n];
+                let ring_diam = ring.z*2.0;
+                n = n+1;
 
-            let draw = draw.rotate(app.time*-0.01);
-
-            if i > 0 && i%10==0 {
-                let prev_circle = m.inner_circles[i-1];
-                draw.line()
-                .points(pt2(prev_circle.x, prev_circle.y), pt2(circle.x, circle.y))
-                .stroke_weight(0.1)
-                .color(rgba(0.0,0.0,1.0,0.1))
+                draw.ellipse()
+                .color(ring_color)
+                .w_h(ring_diam, ring_diam)
+                .x_y(ring.x, ring.y)
                 ;
             }
 
-            let draw = draw.translate(pt3(circle.x, circle.y, 0.0));
-            let scale = 2.0;
-            let angles = 360;
-            let pts = (0..angles + 1).map(|i| {
-                let inc =  ( (360 / angles * i) as f32).to_radians();
-                let x = inc.cos() * scale; 
-                let y = inc.sin() * scale;
-                pt2(x, y)
-            });
+            let point = m.points[i];
+            let color = m.colors[i];
 
-            draw.polyline()
+            draw.ellipse()
+            .x_y(point.x, point.y)
+            .w_h(point.z, point.z)
             .color(color)
-            .stroke_weight(0.4)
-            .points_closed(pts)
-            ;          
+            ;       
         }
 
         //--------------------------------------------------------
@@ -255,6 +275,6 @@ fn view(app: &App, m: &Model, frame: Frame) {
             let path = format!("{}{}{}", directory, frame_num, extension);
             app.main_window().capture_frame(path);
         }
-    // }
+    }
 
 }

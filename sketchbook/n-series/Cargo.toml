@@ -18,9 +18,21 @@ nannou_osc = "0.18.0"
 
 # mikhail's stuffs
 library = { path = "../library" }
-
+nannou_touchosc = { path = "../nannou_touchosc"}
 #--------------------------------------------------------
 # n-series / daily sketches
+
+
+[[example]]
+#ref: https://note.com/outburst/n/n631a3845186c
+name = "n-0093" #recursive-random circle packing
+path = "n-0093.rs"
+
+[[example]]
+#ref: https://note.com/outburst/n/n631a3845186c
+name = "n-0092" #recursive-random circle packing
+path = "n-0092.rs"
+
 
 [[example]]
 name = "n-0091" #uses touchosc4, grid3

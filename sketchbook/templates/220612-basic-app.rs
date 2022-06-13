@@ -140,7 +140,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     }
     //--------------------------------------------------------
 
-
+    m.touchosc.update();
  
 }
 
