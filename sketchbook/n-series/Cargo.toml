@@ -22,6 +22,10 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 #--------------------------------------------------------
 # n-series / daily sketches
 
+[[example]]
+#ref: https://note.com/outburst/n/n631a3845186c
+name = "n-0094" #recursive-random circle packing
+path = "n-0094.rs"
 
 [[example]]
 #ref: https://note.com/outburst/n/n631a3845186c
