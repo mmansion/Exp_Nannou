@@ -80,7 +80,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
         if l == n - 1 {
             let rect_w = 200.0 - s * 2.0;
             let rect_h = 250.0 - s * 2.0;
-            
+
             let rect_x = 0.0;
             let rect_y = y + rect_h / 2.0;
 
@@ -104,21 +104,18 @@ fn view(app: &App, m: &Model, frame: Frame) {
             //     .stroke_weight(1.0 + w)
             //     .color(WHITE);
 
+            draw.line()
+                .color(c)
+                .stroke_weight(0.5 + w)
+                .points(pt2(-win_w / 2.0, 0.0), pt2(rect_x - rect_w / 2.0, y));
 
             draw.line()
                 .color(c)
                 .stroke_weight(0.5 + w)
-                .points(pt2(-win_w / 2.0, 0.0), pt2(rect_x-rect_w/2.0, y));
-
-            draw.line()
-                .color(c)
-                .stroke_weight(0.5 + w)
-                .points(pt2(win_w / 2.0, 0.0), pt2(rect_x+rect_w/2.0, y));
-
+                .points(pt2(win_w / 2.0, 0.0), pt2(rect_x + rect_w / 2.0, y));
         }
     }
 
-    
     //--------------------------------------------------------
 
     // let draw = draw.rotate(PI/3.0);

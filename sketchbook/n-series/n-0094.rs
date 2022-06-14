@@ -70,7 +70,7 @@ struct Model {
     redraw:bool,
     last_redraw: u128,
     touchosc: TouchOscClient,
-    circles: Vec<Circle>,
+    // circles: Vec<Circle>,
     count:i32
 }
 
