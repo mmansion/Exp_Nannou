@@ -9,7 +9,6 @@
 use nannou::prelude::*;
 use std::time::Duration;
 
-use nannou::prelude::*;
 use nannou_touchosc::TouchOscClient;
 
 //--------------------------------------------------------
@@ -43,6 +42,19 @@ impl Circle {
             radius
         }
     }
+    pub fn draw(&self, draw: &Draw) {
+        //container.lerp_w(0.001)
+        draw.ellipse()
+        .color(WHITE)
+        .x_y(self.x, self.y)
+        .w_h(self.radius*2.0, self.radius*2.0)
+        ;
+    }
+
+    pub fn intersects(&self, c:Circle) -> bool {
+        let dist = Vec2::distance(pt2(self.x, self.y),pt2(c.x, c.y));
+        return dist < c.radius + self.radius;
+    }
 }
 //--------------------------------------------------------
 fn main() {
@@ -57,7 +69,9 @@ struct Model {
     last_calc : Duration,
     redraw:bool,
     last_redraw: u128,
-    touchosc: TouchOscClient
+    touchosc: TouchOscClient,
+    circles: Vec<Circle>,
+    count:i32
 }
 
 //--------------------------------------------------------
@@ -98,7 +112,8 @@ fn model(app: &App) -> Model {
 
     //--------------------------------------------------------
 
-
+    let circles = Vec::new();
+    let count = 0;
     //--------------------------------------------------------
 
     Model {
@@ -106,10 +121,11 @@ fn model(app: &App) -> Model {
         this_capture_frame, 
         last_capture_frame, 
         last_calc,
-        colors,
         redraw,
         last_redraw,
         touchosc,
+        circles,
+        count
     }
 } 
 
@@ -147,8 +163,15 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     //--------------------------------------------------------
 
-
-
+    if (m.count < m.circles.len()) {
+    circles[count] = new Circle(5, maxDiameter);
+        for (int i=0; i<count; i++) {
+        if (circles[count].intersects(circles[i])) {
+            circles[count] = null;
+            break;
+        }
+        }
+    }
 
 
 }
@@ -164,7 +187,47 @@ fn view(app: &App, m: &Model, frame: Frame) {
     
         draw.background().color(BLACK);
         //--------------------------------------------------------
-       
+        
+        if (count < circles.length) {
+
+            circles[count] = new Circle(5, maxDiameter);
+            for (int i=0; i<count; i++) {
+            if (circles[count].intersects(circles[i])) {
+                circles[count] = null;
+                break;
+            }
+            }
+            
+            if (circles[count] != null) {
+            circles[count].draw();
+            
+            if (count > 1) {
+                float nearest = 100000;
+                float current = 0;
+                int nearestIndex = -1;
+                for (int i=0; i<count; i++) {
+                current = dist(circles[i].x, circles[i].y, circles[count].x, circles[count].y);
+                if (current < nearest) {
+                    nearest = current;
+                    nearestIndex = i;
+                }
+                }
+            
+                stroke(255, 255, 0);
+                line(circles[nearestIndex].x, circles[nearestIndex].y, circles[count].x, circles[count].y);
+                stroke(0);
+            }
+            
+            count++;
+            lastAdded = 0;
+            } else {
+            if (lastAdded > lastAddedTimeout && maxDiameter > minDiameter) {
+                maxDiameter--;
+                lastAdded = 0;
+            }
+            lastAdded++;
+            }
+        } 
        
 
         //--------------------------------------------------------
