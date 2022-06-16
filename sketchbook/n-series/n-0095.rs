@@ -18,7 +18,7 @@ static BORDER: f32 = 10.0;
 
 const LINE_WIDTH: f32 = 1.0;
 const MIN_RADIUS: f32 = 1.0;
-const MAX_RADIUS: f32 = 200.0;
+const MAX_RADIUS: f32 = 500.0;
 const MIN_BREATH_RADIUS: f32 = 50.0;
 const N_CIRCLES: usize = 1000;
 const CREATE_CIRCLE_ATTEMPTS: usize = 500;
@@ -125,11 +125,11 @@ fn model(app: &App) -> Model {
 fn update(app: &App, m: &mut Model, _update: Update) {
 
     m.touchosc.update();
-    if m.breathing_circles.len() > 0 {
-        for i in 0..m.breathing_circles.len() {
-            m.breathing_circles[i].update(0.1);
-        }
-    }
+    // if m.breathing_circles.len() > 0 {
+    //     for i in 0..m.breathing_circles.len() {
+    //         m.breathing_circles[i].update(0.1);
+    //     }
+    // }
     if m.touchosc.button("/redraw") {
         m.circles.clear(); //dump prev circles
         m.breathing_circles.clear();
@@ -190,9 +190,9 @@ fn view(app: &App, m: &Model, frame: Frame) {
             .color(bg);
     }
 
-    for i in 0..m.breathing_circles.len() {
-        m.breathing_circles[i].draw(&draw, i as f32);
-    }
+    // for i in 0..m.breathing_circles.len() {
+    //     m.breathing_circles[i].draw(&draw, i as f32);
+    // }
     for c in m.circles.iter() {
         let points = (0..=360).map(|i| {
             let radian = deg_to_rad(i as f32);

@@ -1,253 +1,221 @@
-/*
-* n-0093
-*
-* recursive random, circle packing
-*
-* mikhail mansion 2022
-*/
-
+/// See these two great guides!
+///
+/// https://generativeartistry.com/tutorials/circle-packing/
+/// https://guide.nannou.cc/tutorials/draw/drawing-2d-shapes.html  
 use nannou::prelude::*;
+use nannou_touchosc::TouchOscClient;
 use std::time::Duration;
 
-use nannou_touchosc::TouchOscClient;
-
-//--------------------------------------------------------
-static CAPTURE  : bool = false; // capture to image sequence (or use obs)
-static FRAME    : bool = true; //hide window chrome when set to false
-static WIDTH    : f32 = 800.0;
-static HEIGHT   : f32 = 800.0; 
-static BORDER   : f32 = 10.0;
-static WAIT     : u128 = 100;
-
-// Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 6555;
 
+// CONSTANTS
+//--------------------------------------------------------
+static CAPTURE: bool = false; // capture to image sequence (or use obs)
+static FRAME: bool = true; //hide window chrome when set to false
+static WIDTH: f32 = 800.0;
+static HEIGHT: f32 = 800.0;
+static BORDER: f32 = 10.0;
 
-pub struct Circle {
+const LINE_WIDTH: f32 = 1.0;
+const MIN_RADIUS: f32 = 1.0;
+const MAX_RADIUS: f32 = 50.0;
+const N_CIRCLES: usize = 50;
+const N_LINES:usize = 10;
+const CREATE_CIRCLE_ATTEMPTS: usize = 500;
+
+
+//--------------------------------------------------------
+struct Circle {
     x: f32,
     y: f32,
-    radius: f32
+    weight: f32,
+    radius: f32,
+    color: Hsva,
 }
 
 impl Circle {
-    pub fn new(min_diam:f32, max_diam:f32) -> Self {
+    fn collides(&self, other: &Circle) -> bool {
+        let a = self.radius + other.radius;
+        let x = self.x - other.x;
+        let y = self.y - other.y;
 
-        let radius = random_range(min_diam, max_diam);
-        let x = random_range(radius, WIDTH - radius);
-        let y = random_range(radius, HEIGHT - radius);
-
-        Circle {
-            x,
-            y,
-            radius
+        if a >= ((x * x) + (y * y)).sqrt() {
+            true
+        } else {
+            false
         }
     }
-    pub fn draw(&self, draw: &Draw) {
-        //container.lerp_w(0.001)
-        draw.ellipse()
-        .color(WHITE)
-        .x_y(self.x, self.y)
-        .w_h(self.radius*2.0, self.radius*2.0)
-        ;
-    }
 
-    pub fn intersects(&self, c:Circle) -> bool {
-        let dist = Vec2::distance(pt2(self.x, self.y),pt2(c.x, c.y));
-        return dist < c.radius + self.radius;
+    fn any_collision(&self, others: &Vec<Circle>) -> bool {
+        for other in others {
+            if self.collides(other) {
+                return true;
+            }
+        }
+        false
     }
 }
+
 //--------------------------------------------------------
+
+struct Model {
+    window_id: WindowId,
+    touchosc: TouchOscClient,
+    circles: Vec<Circle>,
+    line_len: f32
+}
+
 fn main() {
     nannou::app(model).update(update).run();
 }
 
-//--------------------------------------------------------
-struct Model {
-    window_id: WindowId,
-    this_capture_frame : i32,
-    last_capture_frame : i32,
-    last_calc : Duration,
-    redraw:bool,
-    last_redraw: u128,
-    touchosc: TouchOscClient,
-    // circles: Vec<Circle>,
-    count:i32
-}
-
-//--------------------------------------------------------
 fn model(app: &App) -> Model {
+    // app.set_loop_mode(LoopMode::loop_once());
 
-    let window_id = app
-        .new_window()
+    let window_id = app.new_window()
         .size(WIDTH as u32, HEIGHT as u32)
         .decorations(FRAME) //creates a borderless window
         .view(view)
         .build()
-        .unwrap()
-        ;
+        .unwrap();
+
+    app.main_window().set_outer_position_pixels(0,0);
+
+    let line_len = 100.0;
 
     // To initialize a TouchOscClient you instantiate it as "mutable"
     // and pass the OSC port where messages will be received.
     let mut touchosc = TouchOscClient::new(6555);
 
-    touchosc.verbose();//enable debugging
+    touchosc.verbose(); //enable debugging
 
     // Adding touchosc client inputs.
+    touchosc.add_button("/redraw", false);  
+    touchosc.add_button("/show-line", false);  
+    touchosc.add_fader("/line-length", 50.0, 380.0, line_len);  
 
-    // touchosc.add_radio("/invert", 2, 0);
-   
-    
-    // app.set_loop_mode(LoopMode::loop_once());
-    // app.set_loop_mode(LoopMode::rate_fps(0.1));
-    
-    let mut last_calc = Duration::from_millis(0);
+    let mut circles = Vec::<Circle>::with_capacity(N_CIRCLES);
 
-    //--------------------------------------------------------
-    let mut this_capture_frame = 0;
-    let mut last_capture_frame = 0;
-
-    //--------------------------------------------------------
-    let mut redraw = false;
-    let mut last_redraw = 0;
-
-    //--------------------------------------------------------
-
-    let circles = Vec::new();
-    let count = 0;
     //--------------------------------------------------------
 
     Model {
         window_id,
-        this_capture_frame, 
-        last_capture_frame, 
-        last_calc,
-        redraw,
-        last_redraw,
         touchosc,
         circles,
-        count
+        line_len
     }
-} 
+}
 
 fn update(app: &App, m: &mut Model, _update: Update) {
 
-    // ref:
-    //https://doc.rust-lang.org/nightly/core/time/struct.Duration.html
-    //let millis = Duration::from_millis(100).as_millis();
-    let since_last_calc = _update.since_start.as_millis() - m.last_calc.as_millis();
-    if since_last_calc > 10  { //time interval
-        m.last_calc = _update.since_start;
-    }
-
-    if m.this_capture_frame != m.last_capture_frame {
-        m.last_capture_frame = m. this_capture_frame;
-    }
-
-    if CAPTURE {
-        m.this_capture_frame += 1;
-    }
-
-    //--------------------------------------------------------
-    // redraw framerate workaround
-    // change WAIT to increase interval
-
-    if( _update.since_start.as_millis() - m.last_redraw > WAIT) {
-        m.last_redraw = _update.since_start.as_millis();
-        m.redraw = true;
-    } else {
-        m.redraw = false;
-    }
-    //--------------------------------------------------------
-
-    m.touchosc.update(); 
-
-    //--------------------------------------------------------
-
-    if (m.count < m.circles.len()) {
-    circles[count] = new Circle(5, maxDiameter);
-        for (int i=0; i<count; i++) {
-        if (circles[count].intersects(circles[i])) {
-            circles[count] = null;
-            break;
-        }
-        }
-    }
-
-
-}
-
-fn view(app: &App, m: &Model, frame: Frame) {
-
-    if(m.redraw) {
-
-        // get canvas to draw on
-        let draw  = app.draw();
-        let win   = app.window_rect();
-        let time  = app.time;
+    m.touchosc.update();
     
-        draw.background().color(BLACK);
-        //--------------------------------------------------------
-        
-        if (count < circles.length) {
+    // if m.touchosc.button("/redraw") {
+    if m.touchosc.fader("/line-length") != m.line_len {
 
-            circles[count] = new Circle(5, maxDiameter);
-            for (int i=0; i<count; i++) {
-            if (circles[count].intersects(circles[i])) {
-                circles[count] = null;
+        m.line_len = m.touchosc.fader("/line-length");
+        
+        m.circles.clear(); //dump prev circles
+
+        let window = app.window_rect();
+        let spacing = window.h() / N_LINES as f32;
+
+        for l in 0..N_LINES {
+
+            let y = window.bottom() + (spacing * l as f32) + spacing/2.0;
+        
+            for _ in 0..=N_CIRCLES {
+            for _attempt in 0..=CREATE_CIRCLE_ATTEMPTS {
+    
+                let line_extent = m.touchosc.fader("/line-length");
+                let x = random_range(-line_extent, line_extent);
+    
+    
+                let radius = random_range(MIN_RADIUS, MAX_RADIUS);
+                let h = map_range(radius, MIN_RADIUS, MAX_RADIUS, 0.5, 1.0);
+                let a = map_range(radius, MIN_RADIUS, MAX_RADIUS, 0.5, 1.0);
+                let w = map_range(radius, MIN_RADIUS, MAX_RADIUS, 0.1, 3.0);
+    
+                let c = Circle {
+                    x: x,
+                    y: y,
+                    radius: radius,
+                    weight: w,
+                    color: hsva(h, 1.0, 1.0, a),
+                };
+               
+                if c.any_collision(&m.circles) {
+                    continue;
+                }
+    
+                m.circles.push(c);
                 break;
             }
-            }
+        }
+        }
             
-            if (circles[count] != null) {
-            circles[count].draw();
-            
-            if (count > 1) {
-                float nearest = 100000;
-                float current = 0;
-                int nearestIndex = -1;
-                for (int i=0; i<count; i++) {
-                current = dist(circles[i].x, circles[i].y, circles[count].x, circles[count].y);
-                if (current < nearest) {
-                    nearest = current;
-                    nearestIndex = i;
-                }
-                }
-            
-                stroke(255, 255, 0);
-                line(circles[nearestIndex].x, circles[nearestIndex].y, circles[count].x, circles[count].y);
-                stroke(0);
-            }
-            
-            count++;
-            lastAdded = 0;
-            } else {
-            if (lastAdded > lastAddedTimeout && maxDiameter > minDiameter) {
-                maxDiameter--;
-                lastAdded = 0;
-            }
-            lastAdded++;
-            }
-        } 
-       
 
-        //--------------------------------------------------------
-        // draw frame
-        
-        // put everything on the frame
-        draw.to_frame(app, &frame).unwrap();
-    
-        //--------------------------------------------------------
-        // capture frame
-    
-        if m.this_capture_frame != m.last_capture_frame {      
-            let directory  = "captures/".to_string();
-            let app_name   = app.exe_name().unwrap().to_string();
-            let extension  = ".png".to_string();
-            let frame_num  = format!("{:05}", m.this_capture_frame);
-    
-            let path = format!("{}{}{}", directory, frame_num, extension);
-            app.main_window().capture_frame(path);
+    }
+}
+//--------------------------------------------------------
+fn view(app: &App, m: &Model, frame: Frame) {
+    let window = app.window_rect();
+    let draw = app.draw();
+    // let bg = rgba(1.0, 1.0, 1.0, 1.0);
+    let bg = BLACK;
+
+    if app.elapsed_frames() < 10 {
+        //must clear render context once for fullscreen
+        draw.background().color(BLACK);
+    } else {
+        draw.rect()
+            .x_y(0.0, 0.0)
+            .w_h(window.w() * 2.0, window.w() * 2.0)
+            .color(bg);
+    }
+
+    if m.touchosc.button("/show-line") {
+
+        let line_len =m.touchosc.fader("/line-length");
+        let spacing = window.h() / N_LINES as f32;
+
+        for l in 0..N_LINES {
+            let y = window.bottom() + (spacing * l as f32) + spacing/2.0;
+
+            draw
+            .line()
+            .color(WHITE)
+            .stroke_weight(2.0)
+            .points(pt2(-line_len, y), pt2(line_len, y))
+            ;
         }
     }
 
+
+
+    for c in m.circles.iter() {
+        let points = (0..=360).map(|i| {
+            let radian = deg_to_rad(i as f32);
+            let x_ = c.x + radian.sin() * c.radius;
+            let y_ = c.y + radian.cos() * c.radius;
+            (pt2(x_, y_), c.color)
+        });
+
+        let mut fill = c.color;
+        let d = c.radius*2.0;
+        let pos = pt2(c.x, c.y);
+
+        fill.alpha = 0.1;
+        
+        draw.ellipse()
+        .xy(pos)
+        .color(fill)
+        .w_h(d, d)
+        ;
+
+        draw.polyline()
+            .weight(c.weight)
+            .points_colored(points);
+    }
+    draw.to_frame(app, &frame).unwrap();
 }
