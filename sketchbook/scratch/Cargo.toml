@@ -18,8 +18,17 @@ nannou_osc = "0.18.0"
 
 # mikhail's stuffs
 library = { path = "../library" }
+nannou_touchosc = { path = "../nannou_touchosc"}
 
 #--------------------------------------------------------
+
+[[example]]
+name = "circles-rand-sqrt" #https://note.com/outburst/n/n631a3845186c
+path = "circles-rand-sqrt.rs"
+
+[[example]]
+name = "circles-rand" #https://note.com/outburst/n/n631a3845186c
+path = "circles-rand.rs"
 
 [[example]]
 name = "pattern-matching" #uses touchosc4, grid3
