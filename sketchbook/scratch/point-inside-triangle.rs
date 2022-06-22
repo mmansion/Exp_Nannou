@@ -41,7 +41,7 @@ fn model(app: &App) -> Model {
 }
 
 
-//translated from js:
+//translated from js:http://jsfiddle.net/mmansion/2hqf1kgv/6/
 fn point_in_triangle(pt: Point2, A: Point2, B: Point2, C: Point2) -> bool {
     let a = 0.5 * (-B.y * C.x + A.y * (-B.x + C.x) + A.x * (B.y - C.y) + B.x * C.y);
     let sign = match () {
