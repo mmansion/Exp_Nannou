@@ -1,7 +1,7 @@
 use nannou::prelude::*;
 
 //--------------------------------------------------------
-static FILENAME: &str = "n-0099";
+static FILENAME: &str = "point-inside-triangle";
 static CAPTURE: bool = false;
 static FRAME: bool = true; //hide window chrome when set to false
 
