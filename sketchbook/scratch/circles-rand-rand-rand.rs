@@ -21,7 +21,7 @@ fn view(app: &App, frame: Frame) {
     for i in 0..count {
         let angle = random::<f32>() * PI * 2.0;
 
-        let r = random::<f32>().sqrt(); //adding sqrt to distribute
+        let r = 1.0 - random::<f32>() * random::<f32>() * random::<f32>();
 
         let x = radius * angle.cos() * r + pos.x;
         let y = radius * angle.sin() * r + pos.y;

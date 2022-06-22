@@ -30,22 +30,20 @@ struct BreathingCircle {
     weight: f32,
     radius: f32,
     color: Hsva,
-    inc: f32
+    inc: f32,
 }
 impl BreathingCircle {
-
-    fn update(&mut self, speed:f32) {
+    fn update(&mut self, speed: f32) {
         self.inc = self.inc + speed;
     }
 
-    fn draw(&self, draw:&Draw, offset:f32) {
+    fn draw(&self, draw: &Draw, offset: f32) {
         let diam = (offset + self.inc).sin() * (self.radius * 2.0);
         draw.ellipse()
             .x_y(self.x, self.y)
             .w_h(diam, diam)
             .stroke_weight(self.weight)
-            .color(self.color)
-            ;
+            .color(self.color);
     }
 }
 //--------------------------------------------------------
@@ -85,7 +83,7 @@ impl Circle {
 struct Model {
     touchosc: TouchOscClient,
     circles: Vec<Circle>,
-    breathing_circles: Vec<BreathingCircle>
+    breathing_circles: Vec<BreathingCircle>,
 }
 
 fn main() {
@@ -118,12 +116,11 @@ fn model(app: &App) -> Model {
     Model {
         touchosc,
         circles,
-        breathing_circles
+        breathing_circles,
     }
 }
 
 fn update(app: &App, m: &mut Model, _update: Update) {
-
     m.touchosc.update();
     // if m.breathing_circles.len() > 0 {
     //     for i in 0..m.breathing_circles.len() {
@@ -151,7 +148,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
                     weight: w,
                     color: hsva(h, 1.0, 1.0, a),
                 };
-               
+
                 if c.any_collision(&m.circles) {
                     continue;
                 }
@@ -165,7 +162,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
                         radius: radius,
                         weight: w,
                         color: hsva(h, 1.0, 1.0, a2),
-                        inc: 0.0
+                        inc: 0.0,
                     };
                     m.breathing_circles.push(bc);
                 }
@@ -201,9 +198,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
             (pt2(x_, y_), c.color)
         });
 
-        draw.polyline()
-            .weight(c.weight)
-            .points_colored(points);
+        draw.polyline().weight(c.weight).points_colored(points);
     }
     draw.to_frame(app, &frame).unwrap();
 }

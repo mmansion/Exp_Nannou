@@ -20,9 +20,8 @@ const LINE_WIDTH: f32 = 1.0;
 const MIN_RADIUS: f32 = 1.0;
 const MAX_RADIUS: f32 = 50.0;
 const N_CIRCLES: usize = 50;
-const N_LINES:usize = 10;
+const N_LINES: usize = 10;
 const CREATE_CIRCLE_ATTEMPTS: usize = 500;
-
 
 //--------------------------------------------------------
 struct Circle {
@@ -62,7 +61,7 @@ struct Model {
     window_id: WindowId,
     touchosc: TouchOscClient,
     circles: Vec<Circle>,
-    line_len: f32
+    line_len: f32,
 }
 
 fn main() {
@@ -72,14 +71,15 @@ fn main() {
 fn model(app: &App) -> Model {
     // app.set_loop_mode(LoopMode::loop_once());
 
-    let window_id = app.new_window()
+    let window_id = app
+        .new_window()
         .size(WIDTH as u32, HEIGHT as u32)
         .decorations(FRAME) //creates a borderless window
         .view(view)
         .build()
         .unwrap();
 
-    app.main_window().set_outer_position_pixels(0,0);
+    app.main_window().set_outer_position_pixels(0, 0);
 
     let line_len = 100.0;
 
@@ -90,9 +90,9 @@ fn model(app: &App) -> Model {
     touchosc.verbose(); //enable debugging
 
     // Adding touchosc client inputs.
-    touchosc.add_button("/redraw", false);  
-    touchosc.add_button("/show-line", false);  
-    touchosc.add_fader("/line-length", 50.0, 380.0, line_len);  
+    touchosc.add_button("/redraw", false);
+    touchosc.add_button("/show-line", false);
+    touchosc.add_fader("/line-length", 50.0, 380.0, line_len);
 
     let mut circles = Vec::<Circle>::with_capacity(N_CIRCLES);
 
@@ -102,59 +102,52 @@ fn model(app: &App) -> Model {
         window_id,
         touchosc,
         circles,
-        line_len
+        line_len,
     }
 }
 
 fn update(app: &App, m: &mut Model, _update: Update) {
-
     m.touchosc.update();
-    
+
     // if m.touchosc.button("/redraw") {
     if m.touchosc.fader("/line-length") != m.line_len {
-
         m.line_len = m.touchosc.fader("/line-length");
-        
+
         m.circles.clear(); //dump prev circles
 
         let window = app.window_rect();
         let spacing = window.h() / N_LINES as f32;
 
         for l in 0..N_LINES {
+            let y = window.bottom() + (spacing * l as f32) + spacing / 2.0;
 
-            let y = window.bottom() + (spacing * l as f32) + spacing/2.0;
-        
             for _ in 0..=N_CIRCLES {
-            for _attempt in 0..=CREATE_CIRCLE_ATTEMPTS {
-    
-                let line_extent = m.touchosc.fader("/line-length");
-                let x = random_range(-line_extent, line_extent);
-    
-    
-                let radius = random_range(MIN_RADIUS, MAX_RADIUS);
-                let h = map_range(radius, MIN_RADIUS, MAX_RADIUS, 0.5, 1.0);
-                let a = map_range(radius, MIN_RADIUS, MAX_RADIUS, 0.5, 1.0);
-                let w = map_range(radius, MIN_RADIUS, MAX_RADIUS, 0.1, 3.0);
-    
-                let c = Circle {
-                    x: x,
-                    y: y,
-                    radius: radius,
-                    weight: w,
-                    color: hsva(h, 1.0, 1.0, a),
-                };
-               
-                if c.any_collision(&m.circles) {
-                    continue;
+                for _attempt in 0..=CREATE_CIRCLE_ATTEMPTS {
+                    let line_extent = m.touchosc.fader("/line-length");
+                    let x = random_range(-line_extent, line_extent);
+
+                    let radius = random_range(MIN_RADIUS, MAX_RADIUS);
+                    let h = map_range(radius, MIN_RADIUS, MAX_RADIUS, 0.5, 1.0);
+                    let a = map_range(radius, MIN_RADIUS, MAX_RADIUS, 0.5, 1.0);
+                    let w = map_range(radius, MIN_RADIUS, MAX_RADIUS, 0.1, 3.0);
+
+                    let c = Circle {
+                        x: x,
+                        y: y,
+                        radius: radius,
+                        weight: w,
+                        color: hsva(h, 1.0, 1.0, a),
+                    };
+
+                    if c.any_collision(&m.circles) {
+                        continue;
+                    }
+
+                    m.circles.push(c);
+                    break;
                 }
-    
-                m.circles.push(c);
-                break;
             }
         }
-        }
-            
-
     }
 }
 //--------------------------------------------------------
@@ -175,23 +168,18 @@ fn view(app: &App, m: &Model, frame: Frame) {
     }
 
     if m.touchosc.button("/show-line") {
-
-        let line_len =m.touchosc.fader("/line-length");
+        let line_len = m.touchosc.fader("/line-length");
         let spacing = window.h() / N_LINES as f32;
 
         for l in 0..N_LINES {
-            let y = window.bottom() + (spacing * l as f32) + spacing/2.0;
+            let y = window.bottom() + (spacing * l as f32) + spacing / 2.0;
 
-            draw
-            .line()
-            .color(WHITE)
-            .stroke_weight(2.0)
-            .points(pt2(-line_len, y), pt2(line_len, y))
-            ;
+            draw.line()
+                .color(WHITE)
+                .stroke_weight(2.0)
+                .points(pt2(-line_len, y), pt2(line_len, y));
         }
     }
-
-
 
     for c in m.circles.iter() {
         let points = (0..=360).map(|i| {
@@ -202,20 +190,14 @@ fn view(app: &App, m: &Model, frame: Frame) {
         });
 
         let mut fill = c.color;
-        let d = c.radius*2.0;
+        let d = c.radius * 2.0;
         let pos = pt2(c.x, c.y);
 
         fill.alpha = 0.1;
-        
-        draw.ellipse()
-        .xy(pos)
-        .color(fill)
-        .w_h(d, d)
-        ;
 
-        draw.polyline()
-            .weight(c.weight)
-            .points_colored(points);
+        draw.ellipse().xy(pos).color(fill).w_h(d, d);
+
+        draw.polyline().weight(c.weight).points_colored(points);
     }
     draw.to_frame(app, &frame).unwrap();
 }

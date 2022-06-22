@@ -23,6 +23,14 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 #--------------------------------------------------------
 
 [[example]]
+name = "circles-exp"
+path = "circles-exp.rs"
+
+[[example]]
+name = "circles-rand-rand-rand" #https://note.com/outburst/n/n631a3845186c
+path = "circles-rand-rand-rand.rs"
+
+[[example]]
 name = "circles-rand-sqrt" #https://note.com/outburst/n/n631a3845186c
 path = "circles-rand-sqrt.rs"
 

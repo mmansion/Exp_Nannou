@@ -23,6 +23,18 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 # n-series / daily sketches
 
 [[example]]
+name = "n-0098"
+path = "n-0098.rs"
+
+[[example]]
+name = "n-0097"
+path = "n-0097.rs"
+
+[[example]]
+name = "n-0096"
+path = "n-0096.rs"
+
+[[example]]
 #ref: https://gist.github.com/timClicks/c61c8e5c2f22625ef0ea917aa421f7a0
 name = "n-0095" #circle packing
 path = "n-0095.rs"
