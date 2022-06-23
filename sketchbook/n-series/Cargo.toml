@@ -23,6 +23,10 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 # n-series / daily sketches
 
 [[example]]
+name = "n-0100"
+path = "n-0100.rs"
+
+[[example]]
 name = "n-0099"
 path = "n-0099.rs"
 
