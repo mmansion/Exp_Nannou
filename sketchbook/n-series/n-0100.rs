@@ -109,9 +109,6 @@ fn view(app: &App, m: &Model, frame: Frame) {
             .x_y(x, y)
             .w_h(stipple_size, stipple_size)
             .color(BLACK);
-        // for ii in 0..3 {
-        //     let y_off = 50.0 * ii as f32;
-        // }
     }
 
     //--------------------------------------------------------
