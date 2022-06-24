@@ -136,3 +136,16 @@ int intersect(float x1, float y1, float x2, float y2, float x3, float y3, float 
   return DO_INTERSECT;
 }
 */
+
+//translated from js:http://jsfiddle.net/mmansion/2hqf1kgv/6/
+pub fn point_inside_triangle(pt: Point2, A: Point2, B: Point2, C: Point2) -> bool {
+    let a = 0.5 * (-B.y * C.x + A.y * (-B.x + C.x) + A.x * (B.y - C.y) + B.x * C.y);
+    let sign = match () {
+        _ if a < 0.0 => -1.0,
+        _ => 1.0,
+    };
+    let s = (A.y * C.x - A.x * C.y + (C.y - A.y) * pt.x + (A.x - C.x) * pt.y) * sign;
+    let t = (A.x * B.y - A.y * B.x + (A.y - B.y) * pt.x + (B.x - A.x) * pt.y) * sign;
+
+    return s > 0.0 && t > 0.0 && (s+t) < 2.0 * a * sign;
+}
