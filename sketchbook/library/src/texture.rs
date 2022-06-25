@@ -1,6 +1,5 @@
 use nannou::prelude::*;
-use library::math::point_in_triangle;
-
+use super::math::point_inside_triangle;
 //--------------------------------------------------------
 // STIPPLE
 
@@ -9,10 +8,11 @@ struct TriangleStipple {
 }
 
 impl TriangleStipple {
-    
+
 }
 
 pub struct StippleRect {
+    pub position: Point2,
     pub c1:Point2,
     pub c2:Point2,
 }
@@ -34,10 +34,12 @@ impl StippleRect {
                 x = self.c2.x + rrand;
             }
 
-            draw.ellipse()
-                .x_y(x, y)
-                .w_h(point_size, point_size)
-                .color(BLACK);
+            draw
+            .translate(pt3(self.position.x, self.position.y, 0.0))
+            .ellipse()
+            .x_y(x, y)
+            .w_h(point_size, point_size)
+            .color(BLACK);
         }
     }
 
@@ -56,6 +58,7 @@ impl StippleRect {
         let stroke_color = rgba(0.0, 0.0, 0.0, opacity);
         if fill {
             draw
+            .translate(pt3(self.position.x, self.position.y, 0.0))
             .polygon()
             .stroke_weight(1.0)
             .color(fill_color)
@@ -64,6 +67,7 @@ impl StippleRect {
             ;
         } else {
             draw
+            .translate(pt3(self.position.x, self.position.y, 0.0))
             .polyline()
             .stroke_weight(1.0)
             .color(stroke_color)
