@@ -21,6 +21,11 @@ library = { path = "../library" }
 nannou_touchosc = { path = "../nannou_touchosc"}
 #--------------------------------------------------------
 # n-series / daily sketches
+
+[[example]]
+name = "n-0103"
+path = "n-0103.rs"
+
 [[example]]
 name = "n-0102"
 path = "n-0102.rs"

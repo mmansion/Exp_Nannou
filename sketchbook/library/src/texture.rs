@@ -1,10 +1,15 @@
 use nannou::prelude::*;
+use library::math::point_in_triangle;
 
 //--------------------------------------------------------
 // STIPPLE
 
 struct TriangleStipple {
 
+}
+
+impl TriangleStipple {
+    
 }
 
 pub struct StippleRect {
