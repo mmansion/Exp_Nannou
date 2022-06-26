@@ -18,3 +18,4 @@ pub mod touchosc4;
 pub mod touchosc5;
 pub mod vehicle;
 pub mod texture;
+pub mod matrix;
