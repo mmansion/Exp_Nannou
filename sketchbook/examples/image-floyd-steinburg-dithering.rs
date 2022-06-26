@@ -7,14 +7,34 @@ static FILENAME: &str = "image-basics";
 static FRAME: bool = true; //hide window chrome when set to false
 static SIZE: u32 = 800;
 
+static TILE_SIZE: usize = 400;
+
 
 fn main() {
     nannou::app(model).run();
 }
 
 struct Model {
-    image: image::DynamicImage
+    image  : image::DynamicImage,
+    pixels : Array
 }
+/*
+let mut array = [[0u8; 10]; 10];
+
+    println!("array length = {}", array.len());
+
+    array[0][0] = 42;
+    array[3][3] = 9;
+
+    println!("array[0][0] = {}", array[0][0]);
+
+    match array.get_mut(3*3) { //check if out of bounds
+        Some(x) => { 
+            println!("array[3][3] = {}", array[3][3]);
+        }
+        None => { println!("oops, out of bounds"); }
+    }
+ */
 
 fn model(app: &App) -> Model {
     app
@@ -43,8 +63,12 @@ fn model(app: &App) -> Model {
     //open and create an image buffer
     let image = image::open(img_path).unwrap();
 
+
+    let mut pixels = vec![vec!['#'; 800]; 800];
+
     Model {
-        image
+        image,
+        pixels
     }
 }
 
@@ -54,6 +78,10 @@ fn view(app: &App, m: &Model, frame: Frame) {
     let draw = app.draw();
     let win = app.window_rect();
     draw.background().color(WHITE);
+
+    //TODO:
+    //https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
+    //https://www.youtube.com/watch?v=0L2n8Tg2FwI
 
 
     // floyd-steinburg algorithm
@@ -115,8 +143,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     }
 
 
-    
-    
+
     
     // let rect_size = win.w() / tile_count as f32;
     // for grid_y in 0..tile_count as usize {
