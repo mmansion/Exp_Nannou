@@ -23,6 +23,10 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 #--------------------------------------------------------
 
 [[example]]
+name = "image-basics"
+path = "image-basics.rs"
+
+[[example]]
 name = "point-inside-triangle"
 path = "point-inside-triangle.rs"
 

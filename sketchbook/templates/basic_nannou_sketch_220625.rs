@@ -1,4 +1,5 @@
 use nannou::prelude::*;
+use nannou::image;
 
 fn main() {
     nannou::sketch(view)
@@ -6,6 +7,8 @@ fn main() {
         .loop_mode(LoopMode::loop_once())
         .run();
 }
+
+
 
 fn view(app: &App, frame: Frame) {
     let draw = app.draw();
