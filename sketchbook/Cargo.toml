@@ -4,11 +4,10 @@ members = [
     "library",
     # "templates",
     "n-series",
-    "scratch",
+    "examples",
     "nannou_touchosc",
     "sketches",
     #"tutorials/schotter1",
-
 ]
 
 resolver = "2"
