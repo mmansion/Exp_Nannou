@@ -23,6 +23,10 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 #--------------------------------------------------------
 
 [[example]]
+name = "image-floyd-steinburg-dithering"
+path = "image-floyd-steinburg-dithering.rs"
+
+[[example]]
 name = "image-pixels-quantize"
 path = "image-pixels-quantize.rs"
 
@@ -61,3 +65,7 @@ path = "pattern-matching.rs"
 [[example]]
 name = "scratch-touchosc" #uses touchosc4, grid3
 path = "scratch-touchosc.rs"
+
+[[example]]
+name = "array-2d"
+path = "array-2d.rs"
