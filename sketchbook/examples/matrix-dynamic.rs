@@ -2,7 +2,7 @@ use nannou::{prelude::*, draw::background::new};
 use std::ops::Index;
 
 pub struct Matrix<T> {
-    data: Vec<Vec<T>>,
+    pub data: Vec<Vec<T>>,
 }
 
 impl<T> Matrix<T> {

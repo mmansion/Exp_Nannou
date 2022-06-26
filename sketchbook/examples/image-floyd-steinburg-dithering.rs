@@ -1,40 +1,27 @@
+use library::matrix::Matrix;
+use nannou::draw::properties::color;
 use nannou::prelude::*;
 use nannou::image;
 use nannou::image::GenericImageView;
+use library::matrix;
 
 //--------------------------------------------------------
 static FILENAME: &str = "image-basics";
 static FRAME: bool = true; //hide window chrome when set to false
 static SIZE: u32 = 800;
 
-static TILE_SIZE: usize = 400;
+static TILE_COUNT: usize = 400;
 
 
 fn main() {
-    nannou::app(model).run();
+    nannou::app(model).update(update).run();
 }
 
 struct Model {
     image  : image::DynamicImage,
-    pixels : Array
+    points : Matrix<Point2>,
+    pixels : Matrix<Rgba>
 }
-/*
-let mut array = [[0u8; 10]; 10];
-
-    println!("array length = {}", array.len());
-
-    array[0][0] = 42;
-    array[3][3] = 9;
-
-    println!("array[0][0] = {}", array[0][0]);
-
-    match array.get_mut(3*3) { //check if out of bounds
-        Some(x) => { 
-            println!("array[3][3] = {}", array[3][3]);
-        }
-        None => { println!("oops, out of bounds"); }
-    }
- */
 
 fn model(app: &App) -> Model {
     app
@@ -63,23 +50,49 @@ fn model(app: &App) -> Model {
     //open and create an image buffer
     let image = image::open(img_path).unwrap();
 
+    let rect_size = win.w() / TILE_COUNT as f32;
 
-    let mut pixels = vec![vec!['#'; 800]; 800];
+    let mut points: Matrix<Point2> = Matrix::new( Vec::new() );
+    let mut pixels: Matrix<Rgba> = Matrix::new(Vec::new());
+
+    for col in 0..TILE_COUNT {
+
+        let mut pts = Vec::new();
+        let mut cols = Vec::new();
+
+        for row in 0..TILE_COUNT {
+    
+            let x = win.left() + row as f32 * rect_size + (rect_size / 2.0);
+            let y = win.top() - col as f32 * rect_size - (rect_size / 2.0);
+
+            pts.push(pt2(x, y));
+
+            //create a color variable for each point
+            let color:Rgba = Rgba::new(1.0, 1.0, 1.0, 1.0);
+
+            cols.push(color);
+
+
+        }
+        points.data.push(pts);
+        pixels.data.push(cols);
+    }
+
+   
 
     Model {
         image,
+        points,
         pixels
     }
 }
 
-// fn index(x:f32, y:f32) -> 
-
-fn view(app: &App, m: &Model, frame: Frame) {
-    let draw = app.draw();
+fn update(app: &App, m: &mut Model, _update: Update) {
     let win = app.window_rect();
-    draw.background().color(WHITE);
+    let rect_size = win.w() / TILE_COUNT as f32;
+    // let mut colors = Vec::new();
 
-    //TODO:
+     //TODO:
     //https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
     //https://www.youtube.com/watch?v=0L2n8Tg2FwI
 
@@ -98,18 +111,15 @@ fn view(app: &App, m: &Model, frame: Frame) {
         pixels[x + 1][y + 1] := pixels[x + 1][y + 1] + quant_error × 1 / 16
     */
 
-    let tile_count = 10;
-    let rect_size = win.w() / tile_count as f32;
-    let mut colors = Vec::new();
-
-
-    for grid_y in 0..tile_count as usize { //from top to bottom
-        for grid_x in 0..tile_count as usize {
-            let px = (grid_x as f32 * rect_size + (rect_size / 2.0)) as u32;
-            let py = (grid_y as f32 * rect_size + (rect_size / 2.0)) as u32;
+    for col in 0..TILE_COUNT as usize { //from top to bottom
+        for row in 0..TILE_COUNT as usize {
+            let x = (row as f32 * rect_size + (rect_size / 2.0)) as u32;
+            let y = (col as f32 * rect_size + (rect_size / 2.0)) as u32;
+            let ux = x as usize;
+            let uy = y as usize;
 
             //old pixel
-            let old_pixel = m.image.get_pixel(px, py);
+            let old_pixel = m.image.get_pixel(x, y);
 
             let old_r = old_pixel[0] as f32;
             let old_g = old_pixel[1] as f32;
@@ -126,6 +136,29 @@ fn view(app: &App, m: &Model, frame: Frame) {
             let error_r = old_r - new_r;
             let error_g = old_g - new_g;
             let error_b = old_b - new_b;
+            let error_a = old_a - new_a;
+
+            m.pixels.data[col][row] = rgba(new_r, new_g, new_b, new_a);
+
+            if col + 1 < TILE_COUNT { //check boundaries
+                
+                //let color:Rgba = Rgba::new( m.pixels.data[col + 1][row]);
+                let color = m.pixels.data[col + 1][row] as Rgba; //right
+                let final_r = color.red   + error_r * 7.0/16.0;
+                let final_g = color.green + error_g * 7.0/16.0;
+                let final_b = color.blue  + error_b * 7.0/16.0;
+                let final_a = color.alpha + error_a * 7.0/16.0;
+                
+                m.pixels.data[col + 1][row] = rgba(final_r, final_g, final_b, final_a)
+                
+            } 
+
+            // 
+           
+
+            // let px2 = m.pixels.data[ux - 1][uy + 1];
+            // let px3 = m.pixels.data[ux    ][uy + 1];
+            // let px3 = m.pixels.data[ux + 1][uy + 1];
 
             // let quantized_r = (old_pixel[0] as f32 / 255.0).round() * 1.0;
             // let quantized_g = (old_pixel[1] as f32 / 255.0).round() * 1.0;
@@ -135,52 +168,36 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
             // colors.push(rgba(quantized_r, quantized_g, quantized_b, quantized_a));
             
-            colors.push(rgba(new_r, new_g, new_b, new_a));
+
+            // colors.push(rgba(new_r, new_g, new_b, new_a));
             // let quantized_g = (c[1] as f32 / 255.0).round() * 1.0;
             // let quantized_b = (c[2] as f32 / 255.0).round() * 1.0;
 
         }
     }
+}
+// fn index(x:f32, y:f32) -> 
+
+fn view(app: &App, m: &Model, frame: Frame) {
+    let draw = app.draw();
+    let win = app.window_rect();
+    draw.background().color(WHITE);
 
 
-
-    
-    // let rect_size = win.w() / tile_count as f32;
-    // for grid_y in 0..tile_count as usize {
-    //     for grid_x in 0..tile_count as usize {
-    //         let px = grid_x as f32 * rect_size + (rect_size / 2.0);
-    //         let py = grid_y as f32 * rect_size + (rect_size / 2.0);
-
-    //         // get pixel color (returns 8bit values 0-255)
-    //         let c = m.image.get_pixel(px as u32, py as u32);
-            
-    //         //normalize values to 0.0-1.0
-    //         let red   = c[0] as f32 / 255.0;
-    //         let green = c[1] as f32 / 255.0;
-    //         let blue  = c[2] as f32 / 255.0;
-    //         let alpha = c[3] as f32 / 255.0;
-
-    //         //depending on the value of the pixel, we quantize to either 0 or 1
-    //         let quantized_r = (c[0] as f32 / 255.0).round() * 1.0;
-    //         let quantized_g = (c[1] as f32 / 255.0).round() * 1.0;
-    //         let quantized_b = (c[2] as f32 / 255.0).round() * 1.0;
-    //         // let quantized_red = (c[0] as f32 / 255.0).round() * 1.0;
-         
-
-    //         colors.push(rgba(quantized_r, quantized_g, quantized_b, alpha));
-    //     }
-    // }
 
     let mut i = 0;
-    for grid_y in 0..tile_count as usize {
-        for grid_x in 0..tile_count as usize {
-            let pos_x = win.left() + grid_x as f32 * rect_size + (rect_size / 2.0);
-            let pos_y = win.top() - grid_y as f32 * rect_size - (rect_size / 2.0);
-            println!("{}, {}", pos_x, pos_y);
+     let rect_size = win.w() / TILE_COUNT as f32;
+    for col in 0..TILE_COUNT as usize {
+        for row in 0..TILE_COUNT as usize {
+            // let pos_x = win.left() + row as f32 * rect_size + (rect_size / 2.0);
+            // let pos_y = win.top() - col as f32 * rect_size - (rect_size / 2.0);
+            // println!("{}, {}", pos_x, pos_y);
+
+    
             draw.rect()
-                .x_y(pos_x, pos_y)
+                .xy(m.points.data[col][row])
                 .w_h(rect_size, rect_size)
-                .color(colors[i]);
+                .color(m.pixels.data[col][row]);
             i += 1;
 
             // draw.ellipse()
