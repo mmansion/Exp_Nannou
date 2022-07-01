@@ -25,13 +25,37 @@ impl StippleRect {
         //let rect_h = abs(self.c1.y - self.c2.y);
 
         for i in 0..count {
-            let rrand = rect_w * random::<f32>() * random::<f32>();
+            let rrand = rect_w * random::<f32>() * random::<f32>() *  random::<f32>();
             let y = map_range(i as f32, 0.0, count as f32, self.c1.y, self.c2.y);
             let mut x = 0.0;
             if self.c1.x < self.c2.x {
                 x = self.c1.x + rrand;
             } else {
                 x = self.c2.x + rrand;
+            }
+
+            draw
+            .translate(pt3(self.position.x, self.position.y, 0.0))
+            .ellipse()
+            .x_y(x, y)
+            .w_h(point_size, point_size)
+            .color(BLACK);
+        }
+    }
+
+    pub fn right(&self,  draw:&Draw, count: i32, point_size:f32) {
+
+        let rect_w = abs(self.c1.x - self.c2.x);
+        //let rect_h = abs(self.c1.y - self.c2.y);
+
+        for i in 0..count {
+            let rrand = rect_w * random::<f32>() * random::<f32>() *  random::<f32>();
+            let y = map_range(i as f32, 0.0, count as f32, self.c1.y, self.c2.y);
+            let mut x = 0.0;
+            if self.c1.x < self.c2.x {
+                x = self.c2.x - rrand;
+            } else {
+                x = self.c1.x - rrand;
             }
 
             draw
