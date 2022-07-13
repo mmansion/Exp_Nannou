@@ -1,6 +1,8 @@
 use nannou::prelude::*;
 // use super::points::Point;
 
+//linear equation of a line
+
 /*
 public float   m; // slope of the line segment
 public float   b; // y-intercept of the line
