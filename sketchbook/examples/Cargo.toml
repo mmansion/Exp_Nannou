@@ -77,3 +77,7 @@ path = "matrix-simple.rs"
 [[example]]
 name = "matrix-dynamic"
 path = "matrix-dynamic.rs"
+
+[[example]]
+name = "vec-perpendicular"
+path = "vec-perpendicular.rs"
