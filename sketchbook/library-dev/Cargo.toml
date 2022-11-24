@@ -1,5 +1,5 @@
 [package]
-name = "n-series"
+name = "library-dev"
 version = "0.1.0"
 authors = ["mmansion <mikhail@transmission.studio>"]
 edition = "2021"
@@ -9,6 +9,7 @@ edition = "2021"
 [dependencies]
 nannou = "0.18.1"
 nannou_osc = "0.18.0"
+points_on_curve = "0.2"
 
 # nannou = { path = "../../nannou/nannou" }
 # nannou = { version ="0.16.0", path = "../../test/nannou/nannou" }
@@ -25,4 +26,3 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 [[example]]
 name = "lines-simple"
 path = "lines-simple.rs"
-

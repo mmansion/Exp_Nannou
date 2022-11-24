@@ -39,6 +39,8 @@ struct Model {
     redraw:bool,
     last_redraw: u128,
     touchosc: TouchOscClient,
+
+    line: Line,
 }
 
 //--------------------------------------------------------
@@ -94,6 +96,8 @@ fn model(app: &App) -> Model {
     //--------------------------------------------------------
     let colors = Palette::new();
 
+    let mut line = Line::new(vec2(-WIDTH/2.0, -HEIGHT/2.0), vec2(WIDTH/2.0, HEIGHT/2.0));
+    line.color(rgba(1.0, 0.0, 1.0, 1.0));
     //--------------------------------------------------------
 
     Model {
@@ -104,7 +108,8 @@ fn model(app: &App) -> Model {
         colors,
         redraw,
         last_redraw,
-        touchosc
+        touchosc,
+        line
     }
 } 
 
@@ -164,6 +169,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
         
         //--------------------------------------------------------
         
+        m.line.draw(&draw);
 
         //--------------------------------------------------------
         // draw frame

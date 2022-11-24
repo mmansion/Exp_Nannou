@@ -3,11 +3,11 @@
 members = [
     "library",
     "library-dev",
+    "n-series",
     # "templates",
-    # "n-series",
-    # "examples",
+    "examples",
     # "nannou_touchosc",
-    # "sketches",
+    "sketches",
     #"tutorials/schotter1",
 ]
 

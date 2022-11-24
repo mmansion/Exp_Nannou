@@ -28,6 +28,8 @@ pub struct Line {
 
     pub normal_p1: Vec2,
     pub normal_p2: Vec2,
+
+    color: Rgba,
 }
 
 impl Line {
@@ -46,6 +48,8 @@ impl Line {
         let mut normal_p1 = vec2(0.0, 0.0);
         let mut normal_p2 = vec2(0.0, 0.0);
 
+        let mut color = rgba(0.0, 0.0, 0.0, 1.0);
+
         // -----------------------------------------
 
         Line {
@@ -59,9 +63,11 @@ impl Line {
             run,
             normal_p1,
             normal_p2,
+            color
         }
     }
 
+    //checks if point is on line
     pub fn point_on_line(&self, test_point: Vec2, threshold: f32) -> bool {
         let x = test_point.x;
         let y = test_point.y;
@@ -161,12 +167,16 @@ impl Line {
         self.normal_p2 = vec2(dy1, -dx1);
     }
 
+    pub fn color(&mut self, c:Rgba) {
+        self.color = c;
+    }
+
     pub fn draw(&self, draw: &Draw) {
         // Draw a line!
         draw.line()
             .weight(1.0)
             .caps_round()
-            .color(BLACK)
+            .color(self.color)
             .points(self.A, self.B);
     }
 }
