@@ -48,3 +48,5 @@ node_modules
 
 # TouchOSC binaries
 *.tosc
+
+mactuitui-nannou-examples/
