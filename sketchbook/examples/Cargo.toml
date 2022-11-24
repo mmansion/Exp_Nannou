@@ -59,6 +59,10 @@ name = "circles-rand" #https://note.com/outburst/n/n631a3845186c
 path = "circles-rand.rs"
 
 [[example]]
+name = "divide-line"
+path = "divide-line.rs"
+
+[[example]]
 name = "pattern-matching" #uses touchosc4, grid3
 path = "pattern-matching.rs"
 
