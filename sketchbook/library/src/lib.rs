@@ -1,3 +1,4 @@
+pub mod background;
 pub mod bezier;
 pub mod colors;
 pub mod easing;

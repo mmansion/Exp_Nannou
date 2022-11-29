@@ -1,15 +1,4 @@
-// Example 1-5: Vector Magnitude
 use nannou::prelude::*;
-
-//  public static Vector2 PerpendicularClockwise(this Vector2 vector2)
-//     {
-//         return new Vector2(vector2.Y, -vector2.X);
-//     }
-
-//     public static Vector2 PerpendicularCounterClockwise(this Vector2 vector2)
-//     {
-//         return new Vector2(-vector2.Y, vector2.X);
-//     }
 
 fn perpendicular_cw(v: Vec2) -> Vec2 {
     vec2(v.y, -v.x)
@@ -58,11 +47,6 @@ fn view(app: &App, frame: Frame) {
         draw2.line().weight(2.0).color(BLACK).points(orig, perp_cw_vec);
         draw2.line().weight(2.0).color(BLACK).points(orig, perp_ccw_vec);
     }
-
-    
-
-
-    
 
 
     // Write the result of our drawing to the window's frame.

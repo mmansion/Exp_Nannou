@@ -26,3 +26,7 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 [[example]]
 name = "lines-simple"
 path = "lines-simple.rs"
+
+[[example]]
+name = "dev-background"
+path = "dev-background.rs"
