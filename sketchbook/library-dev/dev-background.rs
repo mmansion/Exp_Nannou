@@ -96,16 +96,26 @@ struct Model {
 }
 
 fn model(app: &App) -> Model {
-    let _window = app.new_window().view(view).size(800, 800).build().unwrap();
+    let _window = app.new_window().view(view).size(800, 200).build().unwrap();
 
+    app.set_loop_mode(LoopMode::loop_once());
     let palette = Palette::new();
 
     let mut bg = Background::new(app.window_rect().w(), app.window_rect().h());
     
     let start_col = palette.colors[4];
     let end_col = palette.colors[10];
+
+    let mut gradient_colors = Vec::new();
+
+    gradient_colors.push( rgb(1.0, 0.0, 0.0) ); //red
+    gradient_colors.push( rgb(0.0, 1.0, 0.0) ); //green
+    gradient_colors.push( rgb(0.0, 0.0, 1.0) ); //blue
+    // gradient_colors.push( rgb(0.0, 0.0, 0.0) ); //black
+    // gradient_colors.push( rgb(1.0, 1.0, 1.0) ); //white
     
-    bg.set_gradient_colors(start_col, end_col);
+    // bg.set_gradient_colors(start_col, end_col);
+    bg.set_colors(gradient_colors);
 
 
     Model { 
@@ -117,7 +127,7 @@ fn model(app: &App) -> Model {
 }
 
 fn update(_app: &App, m: &mut Model, _update: Update) {
-    m.inc+=0.0001;
+   // m.inc+=0.0001;
 
     
 
@@ -126,8 +136,9 @@ fn update(_app: &App, m: &mut Model, _update: Update) {
 fn view(app: &App, m: &Model, frame: Frame) {
     let draw = app.draw();
     let win  = app.window_rect();
+    draw.background().color(WHITE);
 
-    m.bg.draw_gradient(&draw);
+    m.bg.draw(&draw);
 
     // for i in 0..win.w() as i32 {
     //     let x = map_range(i, 0, win.w() as i32, -win.w()*0.5, win.w()*0.5);
