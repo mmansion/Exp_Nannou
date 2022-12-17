@@ -421,3 +421,12 @@ path = "n-series/2021_01_01.rs"
 [[example]]
 name = "hello_world"
 path = "hello_world.rs"
+
+
+#--------------------------------------------------------
+# simple rules/
+
+[[example]]
+name = "sr-001"
+path = "simple-rules/sr-001.rs"
+

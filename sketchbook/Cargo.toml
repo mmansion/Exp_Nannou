@@ -7,7 +7,7 @@ members = [
     # "templates",
     # "examples",
     # "nannou_touchosc",
-    # "sketches",
+    "sketches",
     #"tutorials/schotter1",
 ]
 
