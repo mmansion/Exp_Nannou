@@ -20,10 +20,14 @@ pub struct Grid4 {
     y_off: f32,
 
     //visualizing grid
-    pub point_size: f32,
+    pub corner_point_size: f32,
+    pub cell_point_size: f32,
+
+    pub corner_point_color: Rgba,
+    pub cell_point_color: Rgba,
+
     pub line_weight: f32,
     pub line_color: Rgba,
-    pub point_color: Rgba,
 
     pub show_lines: bool,
     pub show_points: bool,
@@ -51,8 +55,12 @@ impl Grid4 {
 
         //--------------------------------------------------------
         //default settings
-        let point_size = 5.0;
-        let point_color = rgba(0.0, 0.0, 0.0, 1.0);
+        let corner_point_size = 5.0;
+        let cell_point_size = 2.0;
+
+        let corner_point_color = rgba(0.0, 0.0, 0.0, 1.0);
+        let cell_point_color   = rgba(0.0, 0.0, 1.0, 1.0);
+    
         let line_weight = 1.0;
         let line_color = rgba(0.1, 0.1, 0.1, 1.0);
 
@@ -105,8 +113,12 @@ impl Grid4 {
             y_off,
             x_off,
 
-            point_size,
-            point_color,
+            corner_point_size,
+            cell_point_size,
+
+            corner_point_color,
+            cell_point_color,
+
             line_weight,
             line_color,
 
@@ -148,7 +160,9 @@ impl Grid4 {
     }
 
     fn update_points(&mut self) {
-        self.points.clear(); //clears vec and removes items from memory
+        ////clears vecs and remove items from memory
+        self.points.clear(); 
+        self.cells.clear(); 
 
         for row in 0..(self.rows + 1) {
             let f_height = self.height as f32;
@@ -162,15 +176,22 @@ impl Grid4 {
                 let f_col = col as f32;
                 let x = (f_width / f_cols * f_col) + self.x_off;
                 self.points.push(pt2(x, y));
+
+                //calculate cell position
+                if row < self.rows && col < self.cols {
+                    let cell_x = (f_width / f_cols * f_col) + self.x_off + (f_width / f_cols / 2.0);
+                    let cell_y = (f_height / f_rows * f_row) + self.y_off + (f_height / f_rows / 2.0);
+                    self.cells.push(pt2(cell_x, cell_y));
+                }
             }
         }
     }
 
     fn draw_arrows(&self, draw: &Draw) {
-        for p in 0..self.points.len() {
+        for p in 0..self.cells.len() {
             draw.arrow()
-                .start(self.points[p])
-                .end(self.points[p]+vec2(20.0, 0.0))
+                .start(self.cells[p])
+                .end(self.cells[p]+vec2(20.0, 0.0))
                 .head_length(10.0)
                 .head_width(2.0)
                 .weight(2.0)
@@ -183,8 +204,8 @@ impl Grid4 {
         for p in 0..self.points.len() {
             draw.ellipse()
                 .xy(self.points[p])
-                .radius(self.point_size)
-                .color(self.point_color);
+                .radius(self.corner_point_size)
+                .color(self.corner_point_color);
         }
     }
 
@@ -192,8 +213,8 @@ impl Grid4 {
         for p in 0..self.cells.len() {
             draw.ellipse()
                 .xy(self.cells[p])
-                .radius(self.point_size)
-                .color(self.point_color);
+                .radius(self.cell_point_size)
+                .color(self.cell_point_color);
         }
     }
 
@@ -235,8 +256,6 @@ impl Grid4 {
         if self.show_points {
             self.draw_points(&draw);
         }
-
-        println!("cells: {}", self.cells.len());
 
         self.draw_cell_points(&draw);
         // draw flow field arrows

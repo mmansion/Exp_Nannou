@@ -6,6 +6,8 @@ development file for grid4 lib
 use nannou::lyon::geom::euclid::num::Ceil;
 use nannou::prelude::*;
 
+use nannou_touchosc::TouchOscClient as TouchOscClient;
+
 // use nannou::geom::*;
 // use nannou::geom::Point2;
 // use std::ops::Range;
@@ -17,7 +19,7 @@ use library::colors::Palette;
 use library::grid4::Grid4 as Grid;
 
 // beginning of touch library for nannou
-use library::touchosc3::TouchOscClient;
+// use library::touchosc3::TouchOscClient;
 
 //--------------------------------------------------------
 static CAPTURE: bool = false; // capture to image sequence (or use obs)
@@ -46,7 +48,7 @@ struct Model {
     colors: Palette,
     redraw: bool,
     last_redraw: u128,
-    osc_client: TouchOscClient,
+    touchosc: TouchOscClient,
 
     points: Vec<Point2>,
 
@@ -81,19 +83,19 @@ fn model(app: &App) -> Model {
 
     let colors = Palette::new();
 
-    let mut osc_client = TouchOscClient::new(6555);
+    let mut touchosc = TouchOscClient::new(6555);
 
-    osc_client.add_fader("/grid/rows");
-    osc_client.add_fader("/grid/cols");
+    touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 10.0);
+    touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 10.0);
 
-    osc_client.add_button("/toggle/points");
-    osc_client.add_button("/toggle/lines");
-    osc_client.add_button("/toggle/arrows");
+    touchosc.add_button("/toggle/points", false);
+    touchosc.add_button("/toggle/lines", false);
+    touchosc.add_button("/toggle/arrows", false);
 
-    // osc_client.add_fader("/rect/width");
-    // osc_client.add_fader("/rect/height");
-    // osc_client.add_fader("/rect/weight");
-    // osc_client.add_fader("/rect/rotation");
+    // touchosc.add_fader("/rect/width");
+    // touchosc.add_fader("/rect/height");
+    // touchosc.add_fader("/rect/weight");
+    // touchosc.add_fader("/rect/rotation");
 
     //--------------------------------------------------------
     let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
@@ -114,7 +116,7 @@ fn model(app: &App) -> Model {
         colors,
         redraw,
         last_redraw,
-        osc_client,
+        touchosc,
         points,
         grid,
     }
@@ -151,27 +153,17 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     //--------------------------------------------------------
 
     //OSC
-    m.osc_client.update(); //update vals
+    m.touchosc.update(); //update vals
 
-    //GRID
-    let fader_rows = m.osc_client.fader("/grid/rows").value;
-    let fader_cols = m.osc_client.fader("/grid/cols").value;
 
-    let toggle_points = (m.osc_client.button("/toggle/points").value == 1.0) as bool;
-    let toggle_lines  = (m.osc_client.button("/toggle/lines").value  == 1.0) as bool;
-    let toggle_arrows = (m.osc_client.button("/toggle/arrows").value == 1.0) as bool;
-
-    //println!("{}, {}, {}", toggle_points, toggle_lines, toggle_arrows);
-
-    m.grid.show_points = toggle_points;
-    m.grid.show_lines  = toggle_lines;
-    m.grid.show_arrows = toggle_arrows;
+    m.grid.show_points = m.touchosc.button("/toggle/points");
+    m.grid.show_lines  = m.touchosc.button("/toggle/lines");
+    m.grid.show_arrows = m.touchosc.button("/toggle/arrows");
     // println!("{}", fader_rows);
 
-    let n_rows = map_range(fader_rows, 0.0, 1.0, 2, WIDTH/10);
-    let n_cols = map_range(fader_cols, 0.0, 1.0, 2, WIDTH/10);
-
     // println!("{}, {}", n_rows, n_cols);
+    let n_rows = m.touchosc.fader("/grid/rows") as i32;
+    let n_cols = m.touchosc.fader("/grid/cols") as i32;
     m.grid.set_rows(n_rows);
     m.grid.set_cols(n_cols);
 
