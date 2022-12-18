@@ -6,6 +6,7 @@ pub mod foo;
 pub mod grid;
 pub mod grid2;
 pub mod grid3;
+pub mod grid4;
 pub mod line;
 pub mod lines; //collection of line-types
 pub mod math;
@@ -20,3 +21,4 @@ pub mod touchosc5;
 pub mod vehicle;
 pub mod texture;
 pub mod matrix;
+pub mod helpers;

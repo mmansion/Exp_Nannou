@@ -30,3 +30,7 @@ path = "lines-simple.rs"
 [[example]]
 name = "dev-background"
 path = "dev-background.rs"
+
+[[example]]
+name = "dev-grid4"
+path = "grid4/dev-grid4.rs"

@@ -3,7 +3,6 @@
 members = [
     "library",
     "library-dev",
-    "n-series",
     # "templates",
     # "examples",
     # "nannou_touchosc",
