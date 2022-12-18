@@ -93,6 +93,107 @@ path="exp-forces/particle-force.rs"
 # n-series / daily sketches
 
 [[example]]
+name = "n-0106"
+path = "n-series/n-0106.rs"
+
+[[example]]
+name = "n-0105"
+path = "n-series/n-0105.rs"
+
+[[example]]
+name = "n-0104"
+path = "n-series/n-0104.rs"
+
+[[example]]
+name = "n-0103"
+path = "n-series/n-0103.rs"
+
+[[example]]
+name = "n-0102"
+path = "n-series/n-0102.rs"
+
+[[example]]
+name = "n-0101"
+path = "n-series/n-0101.rs"
+
+[[example]]
+name = "n-0100"
+path = "n-series/n-0100.rs"
+
+[[example]]
+name = "n-0099"
+path = "n-series/n-0099.rs"
+
+[[example]]
+name = "n-0098"
+path = "n-series/n-0098.rs"
+
+[[example]]
+name = "n-0097"
+path = "n-series/n-0097.rs"
+
+[[example]]
+name = "n-0096"
+path = "n-series/n-0096.rs"
+
+[[example]]
+#ref: https://gist.github.com/timClicks/c61c8e5c2f22625ef0ea917aa421f7a0
+name = "n-0095" #circle packing
+path = "n-series/n-0095.rs"
+
+[[example]]
+#ref: https://note.com/outburst/n/n631a3845186c
+name = "n-0094" #recursive-random circle packing
+path = "n-series/n-0094.rs"
+
+[[example]]
+#ref: https://note.com/outburst/n/n631a3845186c
+name = "n-0093" #recursive-random circle packing
+path = "n-series/n-0093.rs"
+
+[[example]]
+#ref: https://note.com/outburst/n/n631a3845186c
+name = "n-0092" #recursive-random circle packing
+path = "n-series/n-0092.rs"
+
+
+[[example]]
+name = "n-0091" #uses touchosc4, grid3
+path = "n-series/n-0091.rs"
+
+[[example]]
+name = "n-0090" # uses lib: touchosc3, grid3
+path = "n-series/n-0090.rs"
+
+[[example]]
+name = "n-0089"
+path = "n-series/n-0089.rs"
+
+[[example]]
+name = "n-0088"
+path = "n-series/n-0088.rs"
+
+[[example]] # uses 4 faders with touchosc
+name = "n-0087"
+path = "n-series/n-0087.rs"
+
+[[example]]
+name = "n-0086"
+path = "n-series/n-0086.rs"
+
+[[example]]
+name = "n-0085"
+path = "n-series/n-0085.rs"
+
+[[example]]
+name = "n-0084"
+path = "n-series/n-0084.rs"
+
+[[example]]
+name = "n-0083"
+path = "n-seriesn-0083.rs"
+
+[[example]]
 name = "82"
 path = "n-series/n-0082.rs"
 
