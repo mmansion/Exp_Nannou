@@ -16,8 +16,8 @@ use nannou_touchosc::TouchOscClient;
 //--------------------------------------------------------
 static CAPTURE  : bool = false; // capture to image sequence (or use obs)
 static FRAME    : bool = true; //hide window chrome when set to false
-static WIDTH    : f32 = 800.0;
-static HEIGHT   : f32 = 800.0; 
+static WIDTH    : f32 = 1000.0;
+static HEIGHT   : f32 = 1000.0; 
 static BORDER   : f32 = 10.0;
 static WAIT     : u128 = 100;
 
@@ -182,21 +182,20 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
         //--------------------------------------------------------
         //simple rules
-
-        // 1. divide the x-axis into 100 points
-        // 2. for each point, calculate the y value
-        // 3. the y value should be a function of the x value
-        // 4. the value should increase exponentially as x approaches 0
        
         for i in 0..100 {
             let x = map_range(i, 0, 100, -win.w()/2.0, win.w()/2.0);
-            //let y = win.h()/2.0 - abs(x);
-            let y = app.mouse.y - abs(x);
+            let y = win.h()/2.0 - abs(x);
             let p = pt2(x, y);
 
             draw.rect()
                 .xy(p)
-                .w_h(10.0, x)
+                .w_h(map_range(y, 0.0, win.h()/2.0, 0.0, win.h()/8.0), 1.0)
+                .color(rgba(1.0, 1.0, 1.0, 0.5));
+
+            draw.rect()
+                .x_y(p.x, -p.y)
+                .w_h(map_range(y, 0.0, win.h()/2.0, 0.0, win.h()/8.0), 1.0)
                 .color(rgba(1.0, 1.0, 1.0, 0.5));
         }
     
