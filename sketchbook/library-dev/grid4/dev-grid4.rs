@@ -88,7 +88,8 @@ fn model(app: &App) -> Model {
     touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 10.0);
     touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 10.0);
 
-    touchosc.add_button("/toggle/points", false);
+    touchosc.add_button("/toggle/corner-points", false);
+    touchosc.add_button("/toggle/cell-points", false);
     touchosc.add_button("/toggle/lines", false);
     touchosc.add_button("/toggle/arrows", false);
 
@@ -156,7 +157,8 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     m.touchosc.update(); //update vals
 
 
-    m.grid.show_points = m.touchosc.button("/toggle/points");
+    m.grid.show_cell_points = m.touchosc.button("/toggle/cell-points");
+    m.grid.show_corner_points = m.touchosc.button("/toggle/corner-points");
     m.grid.show_lines  = m.touchosc.button("/toggle/lines");
     m.grid.show_arrows = m.touchosc.button("/toggle/arrows");
     // println!("{}", fader_rows);

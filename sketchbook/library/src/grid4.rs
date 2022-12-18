@@ -30,7 +30,8 @@ pub struct Grid4 {
     pub line_color: Rgba,
 
     pub show_lines: bool,
-    pub show_points: bool,
+    pub show_corner_points: bool,
+    pub show_cell_points: bool,
     pub show_arrows: bool, //for flowfield
     pub show_cells: bool,
 }
@@ -64,7 +65,8 @@ impl Grid4 {
         let line_weight = 1.0;
         let line_color = rgba(0.1, 0.1, 0.1, 1.0);
 
-        let show_points = true; //default
+        let show_corner_points = false; //default
+        let show_cell_points = true; //default
         let show_lines = false;
         let show_arrows = false;
         let show_cells = true;
@@ -122,7 +124,8 @@ impl Grid4 {
             line_weight,
             line_color,
 
-            show_points,
+            show_cell_points,
+            show_corner_points,
             show_lines,
             show_arrows,
             show_cells,
@@ -200,7 +203,7 @@ impl Grid4 {
         }
     }
 
-    fn draw_points(&self, draw: &Draw) {
+    fn draw_corner_points(&self, draw: &Draw) {
         for p in 0..self.points.len() {
             draw.ellipse()
                 .xy(self.points[p])
@@ -253,11 +256,15 @@ impl Grid4 {
         }
        
         // draw points
-        if self.show_points {
-            self.draw_points(&draw);
+        if self.show_cell_points {
+            self.draw_cell_points(&draw);
         }
 
-        self.draw_cell_points(&draw);
+        if self.show_corner_points {
+            self.draw_corner_points(&draw);
+        }
+
+      
         // draw flow field arrows
         if self.show_arrows {
             self.draw_arrows(&draw);
