@@ -16,6 +16,9 @@ pub struct Grid4 {
     pub points: Vec<Vec2>, //grid points, corners of row/col lines
     pub cells : Vec<Vec2>, //grid cells, inbetween row/col lines
 
+    // TODO: pickup up here
+    pub _points: Vec<Vec<Vec2>>, //multi-dim array of points
+
     x_off: f32,
     y_off: f32,
 

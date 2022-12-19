@@ -88,6 +88,8 @@ fn model(app: &App) -> Model {
     touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 10.0);
     touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 10.0);
 
+    touchosc.add_fader("/grid/cols-rows", 2.0, (WIDTH/10) as f32, 10.0);
+
     touchosc.add_button("/toggle/corner-points", false);
     touchosc.add_button("/toggle/cell-points", false);
     touchosc.add_button("/toggle/lines", false);
@@ -100,6 +102,17 @@ fn model(app: &App) -> Model {
 
     //--------------------------------------------------------
     let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
+
+    // setup flowfield angles
+    // TODO: change grid to use multi-dim vector
+    // for i in 0..grid.rows {
+    //     for j in 0..grid.cols {
+    //         grid.cells[i][j].angle = 0.0;
+    //     }
+    // }
+
+    // loop code here
+    }
 
     //--------------------------------------------------------
     let mut points = Vec::new();
