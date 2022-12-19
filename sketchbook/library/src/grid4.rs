@@ -3,8 +3,8 @@ use nannou::prelude::*;
 // use crate::helpers::symbols::draw_flowfield_arrow as draw_flowfield_arrow;
 
 pub struct Grid4 {
-    rows: usize,
-    cols: usize,
+    pub rows: usize,
+    pub cols: usize,
     rotation: f32,
 
     inner_margin: i32,
@@ -12,12 +12,14 @@ pub struct Grid4 {
 
     pub width: i32,
     pub height: i32,
-    pub points: Vec<Vec2>, //grid points, corners of row/col lines
-    pub cells : Vec<Vec2>, //grid cells, inbetween row/col lines
+    // pub points: Vec<Vec2>, //grid points, corners of row/col lines
+    // pub cells : Vec<Vec2>, //grid cells, inbetween row/col lines
 
     // TODO: pickup up here
     pub corner_points: Vec<Vec<Vec2>>, //multi-dim array of points
-    pub cell_points: Vec<Vec<Vec2>>, //multi-dim array of points
+    pub cell_points: Vec<Vec<Vec2>>, 
+
+    pub cell_angles: Vec<Vec<f32>>, 
 
     x_off: f32,
     y_off: f32,
@@ -52,10 +54,12 @@ impl Grid4 {
         let y_off = -height as f32 / 2.0;
         let x_off = -width as f32 / 2.0;
 
-        let mut points = Vec::new();
-        let mut cells  = Vec::new();
+        // let mut points = Vec::new();
+        // let mut cells  = Vec::new();
         let mut corner_points = Vec::new();
         let mut cell_points = Vec::new();
+
+        let mut cell_angles = Vec::new();
 
         //--------------------------------------------------------
         //default settings
@@ -84,6 +88,7 @@ impl Grid4 {
 
             corner_points.push(Vec::new());
             cell_points.push(Vec::new());
+            cell_angles.push(Vec::new());
 
             for col in 0..(cols + 1) as usize {
                 let f_width = width as f32;
@@ -100,6 +105,7 @@ impl Grid4 {
                     //cells.push(pt2(cell_x, cell_y));
 
                     cell_points[row].push(pt2(cell_x, cell_y));
+                    cell_angles[row].push(0.0);
 
                 }
             }
@@ -117,10 +123,11 @@ impl Grid4 {
             width,
             height,
             
-            points,
-            cells,
+            // points,
+            // cells,
             corner_points,
             cell_points,
+            cell_angles,
 
             rotation,
 
@@ -186,6 +193,7 @@ impl Grid4 {
 
             self.corner_points.push(Vec::new());
             self.cell_points.push(Vec::new());
+            self.cell_angles.push(Vec::new());
 
             for col in 0..(self.cols + 1) {
                 let f_width = self.width as f32;
@@ -203,7 +211,7 @@ impl Grid4 {
                     // self.cells.push(pt2(cell_x, cell_y));
 
                     self.cell_points[row].push(pt2(cell_x, cell_y));
-
+                    self.cell_angles[row].push(0.0); //no angle
                 }
             }
         }
@@ -213,8 +221,8 @@ impl Grid4 {
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
                 draw.arrow()
-                    .start(self.cell_points[row][col])
-                    .end(self.cell_points[row][col]+vec2(20.0, 0.0))
+                    .start(self.cell_points[row][col]-vec2(10.0, 0.0))
+                    .end(self.cell_points[row][col]+vec2(10.0, 0.0))
                     .head_length(10.0)
                     .head_width(2.0)
                     .weight(2.0)

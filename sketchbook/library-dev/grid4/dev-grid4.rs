@@ -105,15 +105,14 @@ fn model(app: &App) -> Model {
 
     // setup flowfield angles
     // TODO: change grid to use multi-dim vector
-    // for i in 0..grid.rows as usize{
-    //     for j in 0..grid.cols as usize {
-    //         let p = grid._points[i][j];
-    //         println!("x: {}, y: {}", p.x, p.y);
-    //         // grid.cells[i][j].angle = 0.0;
-    //     }
-    // }
-
-  
+    for row in 0..grid.cell_points.len() {
+        for col in 0..grid.cell_points[row].len() {
+            let p = grid.cell_points[row][col];
+            let a = (row / grid.rows) as f32 * PI;
+            grid.cell_angles[row][col] = a;
+           
+        }
+    }
 
     //--------------------------------------------------------
     let mut points = Vec::new();
