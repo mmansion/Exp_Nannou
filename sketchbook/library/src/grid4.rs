@@ -4,8 +4,8 @@ use nannou::prelude::*;
 
 pub struct Grid4 {
 
-    rows: i32,
-    cols: i32,
+    rows: usize,
+    cols: usize,
     rotation: f32,
 
     inner_margin: i32,
@@ -17,7 +17,8 @@ pub struct Grid4 {
     pub cells : Vec<Vec2>, //grid cells, inbetween row/col lines
 
     // TODO: pickup up here
-    pub _points: Vec<Vec<Vec2>>, //multi-dim array of points
+    pub corner_points: Vec<Vec<Vec2>>, //multi-dim array of points
+    pub cell_points: Vec<Vec<Vec2>>, //multi-dim array of points
 
     x_off: f32,
     y_off: f32,
@@ -41,13 +42,11 @@ pub struct Grid4 {
 
 impl Grid4 {
 
-    pub fn new(rows: i32, cols: i32, width: i32, height: i32) -> Self {
+    pub fn new(rows: usize, cols: usize, width: i32, height: i32) -> Self {
         let width = width;
         let height = height;
-
         let rows = rows;
         let cols = cols;
-
         let rotation = 0.0;
 
         //offset for nannou coord sys
@@ -56,6 +55,8 @@ impl Grid4 {
 
         let mut points = Vec::new();
         let mut cells  = Vec::new();
+        let mut corner_points = Vec::new();
+        let mut cell_points = Vec::new();
 
         //--------------------------------------------------------
         //default settings
@@ -76,24 +77,31 @@ impl Grid4 {
 
         //--------------------------------------------------------
         //populate points
-        for row in 0..(rows + 1) {
+        for row in 0..(rows + 1) as usize {
             let f_height = height as f32;
             let f_rows = rows as f32;
             let f_row = row as f32;
             let y = (f_height / f_rows * f_row) + y_off;
 
-            for col in 0..(cols + 1) {
+            corner_points.push(Vec::new());
+            cell_points.push(Vec::new());
+
+            for col in 0..(cols + 1) as usize {
                 let f_width = width as f32;
                 let f_cols = cols as f32;
                 let f_col = col as f32; 
                 let x = (f_width / f_cols * f_col) + x_off;
-                points.push(pt2(x, y));
+                // points.push(pt2(x, y));
+                corner_points[row].push(pt2(x, y));
 
                 //calculate cell position
                 if row < rows && col < cols {
                     let cell_x = (f_width / f_cols * f_col) + x_off + (f_width / f_cols / 2.0);
                     let cell_y = (f_height / f_rows * f_row) + y_off + (f_height / f_rows / 2.0);
-                    cells.push(pt2(cell_x, cell_y));
+                    //cells.push(pt2(cell_x, cell_y));
+
+                    cell_points[row].push(pt2(cell_x, cell_y));
+
                 }
             }
         }
@@ -112,6 +120,8 @@ impl Grid4 {
             
             points,
             cells,
+            corner_points,
+            cell_points,
 
             rotation,
 
@@ -146,14 +156,14 @@ impl Grid4 {
         self.inner_margin = margin;
     }
 
-    pub fn set_rows(&mut self, rows: i32) {
+    pub fn set_rows(&mut self, rows: usize) {
         if self.rows != rows {
             //update only if change
             self.rows = rows;
             self.update_points();
         }
     }
-    pub fn set_cols(&mut self, cols: i32) {
+    pub fn set_cols(&mut self, cols: usize) {
         if self.cols != cols {
             //update only if change
             self.cols = cols;
@@ -167,8 +177,11 @@ impl Grid4 {
 
     fn update_points(&mut self) {
         ////clears vecs and remove items from memory
-        self.points.clear(); 
-        self.cells.clear(); 
+        // self.points.clear(); 
+        // self.cells.clear(); 
+
+        self.corner_points.clear();
+        self.cell_points.clear();
 
         for row in 0..(self.rows + 1) {
             let f_height = self.height as f32;
@@ -176,18 +189,26 @@ impl Grid4 {
             let f_row = row as f32;
             let y = (f_height / f_rows * f_row) + self.y_off;
 
+            self.corner_points.push(Vec::new());
+            self.cell_points.push(Vec::new());
+
             for col in 0..(self.cols + 1) {
                 let f_width = self.width as f32;
                 let f_cols = self.cols as f32;
                 let f_col = col as f32;
                 let x = (f_width / f_cols * f_col) + self.x_off;
-                self.points.push(pt2(x, y));
+                
+                // self.points.push(pt2(x, y));
+                self.corner_points[row].push(pt2(x, y));
 
                 //calculate cell position
                 if row < self.rows && col < self.cols {
                     let cell_x = (f_width / f_cols * f_col) + self.x_off + (f_width / f_cols / 2.0);
                     let cell_y = (f_height / f_rows * f_row) + self.y_off + (f_height / f_rows / 2.0);
-                    self.cells.push(pt2(cell_x, cell_y));
+                    // self.cells.push(pt2(cell_x, cell_y));
+
+                    self.cell_points[row].push(pt2(cell_x, cell_y));
+
                 }
             }
         }
@@ -216,38 +237,69 @@ impl Grid4 {
     }
 
     fn draw_cell_points(&self, draw: &Draw) {
-        for p in 0..self.cells.len() {
-            draw.ellipse()
-                .xy(self.cells[p])
-                .radius(self.cell_point_size)
-                .color(self.cell_point_color);
+
+        //draw cell points
+
+        for row in 0..self.cell_points.len() {
+            for col in 0..self.cell_points[row].len() {
+                draw.ellipse()
+                    .xy(self.cell_points[row][col])
+                    .radius(self.cell_point_size)
+                    .color(self.cell_point_color);
+            }
         }
     }
 
     fn draw_grid_lines(&self, draw: &Draw) {
-        //draw col lines
-        for c in 0..(self.cols + 1) as usize {
-            let start_pt = self.points[c];
 
-            let end_pt = pt2(self.points[c].x, self.points[c].y + self.height as f32);
+        //draw row lines
+        for r in 0..self.corner_points.len() {
+            for c in 0..self.corner_points[r].len() {
+                //row line points
+                let row_start_pt = self.corner_points[r][c];
+                let row_end_pt = pt2(self.corner_points[r][c].x + self.width as f32, self.corner_points[r][c].y);
 
-            draw.line()
-                .stroke_weight(self.line_weight)
-                .color(self.line_color)
-                .points(start_pt, end_pt);
+                // col line points
+                let col_start_pt = self.corner_points[r][c];
+                let col_end_pt = pt2(self.corner_points[r][c].x, self.corner_points[r][c].y + self.height as f32);
+
+                draw.line()
+                    .stroke_weight(self.line_weight)
+                    .color(self.line_color)
+                    .points(row_start_pt, row_end_pt);
+
+                draw.line()
+                    .stroke_weight(self.line_weight)
+                    .color(self.line_color)
+                    .points(col_start_pt, col_end_pt);
+            }
         }
-        // draw row line
-         for r in 0..(self.rows + 1) as usize {
-            let r = r * (self.cols + 1) as usize;
-            let start_pt = self.points[r];
 
-            let end_pt = pt2(self.points[r].x + self.width as f32, self.points[r].y);
 
-            draw.line()
-                .stroke_weight(self.line_weight)
-                .color(self.line_color)
-                .points(start_pt, end_pt);
-        }
+
+        // //draw col lines
+        // for c in 0..(self.cols + 1) as usize {
+        //     let start_pt = self.points[c];
+
+        //     let end_pt = pt2(self.points[c].x, self.points[c].y + self.height as f32);
+
+        //     draw.line()
+        //         .stroke_weight(self.line_weight)
+        //         .color(self.line_color)
+        //         .points(start_pt, end_pt);
+        // }
+        // // draw row line
+        //  for r in 0..(self.rows + 1) as usize {
+        //     let r = r * (self.cols + 1) as usize;
+        //     let start_pt = self.points[r];
+
+        //     let end_pt = pt2(self.points[r].x + self.width as f32, self.points[r].y);
+
+        //     draw.line()
+        //         .stroke_weight(self.line_weight)
+        //         .color(self.line_color)
+        //         .points(start_pt, end_pt);
+        // }
     }
 
     pub fn draw(&self, draw: &Draw) {

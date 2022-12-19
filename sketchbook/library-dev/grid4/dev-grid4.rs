@@ -91,8 +91,8 @@ fn model(app: &App) -> Model {
     touchosc.add_fader("/grid/cols-rows", 2.0, (WIDTH/10) as f32, 10.0);
 
     touchosc.add_button("/toggle/corner-points", false);
-    touchosc.add_button("/toggle/cell-points", false);
-    touchosc.add_button("/toggle/lines", false);
+    touchosc.add_button("/toggle/cell-points", true);
+    touchosc.add_button("/toggle/lines", true);
     touchosc.add_button("/toggle/arrows", false);
 
     // touchosc.add_fader("/rect/width");
@@ -105,14 +105,15 @@ fn model(app: &App) -> Model {
 
     // setup flowfield angles
     // TODO: change grid to use multi-dim vector
-    // for i in 0..grid.rows {
-    //     for j in 0..grid.cols {
-    //         grid.cells[i][j].angle = 0.0;
+    // for i in 0..grid.rows as usize{
+    //     for j in 0..grid.cols as usize {
+    //         let p = grid._points[i][j];
+    //         println!("x: {}, y: {}", p.x, p.y);
+    //         // grid.cells[i][j].angle = 0.0;
     //     }
     // }
 
-    // loop code here
-    }
+  
 
     //--------------------------------------------------------
     let mut points = Vec::new();
@@ -177,8 +178,8 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     // println!("{}", fader_rows);
 
     // println!("{}, {}", n_rows, n_cols);
-    let n_rows = m.touchosc.fader("/grid/rows") as i32;
-    let n_cols = m.touchosc.fader("/grid/cols") as i32;
+    let n_rows = m.touchosc.fader("/grid/rows") as usize;
+    let n_cols = m.touchosc.fader("/grid/cols") as usize;
     m.grid.set_rows(n_rows);
     m.grid.set_cols(n_cols);
 
