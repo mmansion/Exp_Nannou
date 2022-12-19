@@ -3,7 +3,6 @@ use nannou::prelude::*;
 // use crate::helpers::symbols::draw_flowfield_arrow as draw_flowfield_arrow;
 
 pub struct Grid4 {
-
     rows: usize,
     cols: usize,
     rotation: f32,
@@ -215,7 +214,7 @@ impl Grid4 {
     }
 
     fn draw_arrows(&self, draw: &Draw) {
-        for p in 0..self.cells.len() {
+        for p in 0..self.cell_points.len() {
             draw.arrow()
                 .start(self.cells[p])
                 .end(self.cells[p]+vec2(20.0, 0.0))
@@ -228,18 +227,18 @@ impl Grid4 {
     }
 
     fn draw_corner_points(&self, draw: &Draw) {
-        for p in 0..self.points.len() {
-            draw.ellipse()
-                .xy(self.points[p])
-                .radius(self.corner_point_size)
-                .color(self.corner_point_color);
+        for row in 0..self.corner_points.len() {
+            for col in 0..self.corner_points[row].len() {
+                draw.ellipse()
+                    .xy(self.corner_points[row][col])
+                    .radius(self.corner_point_size)
+                    .color(self.corner_point_color);
+            }
         }
     }
 
     fn draw_cell_points(&self, draw: &Draw) {
-
         //draw cell points
-
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
                 draw.ellipse()
@@ -251,7 +250,6 @@ impl Grid4 {
     }
 
     fn draw_grid_lines(&self, draw: &Draw) {
-
         //draw row lines
         for r in 0..self.corner_points.len() {
             for c in 0..self.corner_points[r].len() {
@@ -274,32 +272,6 @@ impl Grid4 {
                     .points(col_start_pt, col_end_pt);
             }
         }
-
-
-
-        // //draw col lines
-        // for c in 0..(self.cols + 1) as usize {
-        //     let start_pt = self.points[c];
-
-        //     let end_pt = pt2(self.points[c].x, self.points[c].y + self.height as f32);
-
-        //     draw.line()
-        //         .stroke_weight(self.line_weight)
-        //         .color(self.line_color)
-        //         .points(start_pt, end_pt);
-        // }
-        // // draw row line
-        //  for r in 0..(self.rows + 1) as usize {
-        //     let r = r * (self.cols + 1) as usize;
-        //     let start_pt = self.points[r];
-
-        //     let end_pt = pt2(self.points[r].x + self.width as f32, self.points[r].y);
-
-        //     draw.line()
-        //         .stroke_weight(self.line_weight)
-        //         .color(self.line_color)
-        //         .points(start_pt, end_pt);
-        // }
     }
 
     pub fn draw(&self, draw: &Draw) {
@@ -319,7 +291,6 @@ impl Grid4 {
             self.draw_corner_points(&draw);
         }
 
-      
         // draw flow field arrows
         if self.show_arrows {
             self.draw_arrows(&draw);

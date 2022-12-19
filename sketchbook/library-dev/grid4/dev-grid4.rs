@@ -90,9 +90,9 @@ fn model(app: &App) -> Model {
 
     touchosc.add_fader("/grid/cols-rows", 2.0, (WIDTH/10) as f32, 10.0);
 
-    touchosc.add_button("/toggle/corner-points", false);
-    touchosc.add_button("/toggle/cell-points", true);
-    touchosc.add_button("/toggle/lines", true);
+    touchosc.add_button("/toggle/corner-points", true);
+    touchosc.add_button("/toggle/cell-points", false);
+    touchosc.add_button("/toggle/lines", false);
     touchosc.add_button("/toggle/arrows", false);
 
     // touchosc.add_fader("/rect/width");
