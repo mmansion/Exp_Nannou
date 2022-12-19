@@ -175,10 +175,6 @@ impl Grid4 {
     }
 
     fn update_points(&mut self) {
-        ////clears vecs and remove items from memory
-        // self.points.clear(); 
-        // self.cells.clear(); 
-
         self.corner_points.clear();
         self.cell_points.clear();
 
@@ -214,15 +210,17 @@ impl Grid4 {
     }
 
     fn draw_arrows(&self, draw: &Draw) {
-        for p in 0..self.cell_points.len() {
-            draw.arrow()
-                .start(self.cells[p])
-                .end(self.cells[p]+vec2(20.0, 0.0))
-                .head_length(10.0)
-                .head_width(2.0)
-                .weight(2.0)
-                .color(BLACK)
-                .stroke_weight(1.0);
+        for row in 0..self.cell_points.len() {
+            for col in 0..self.cell_points[row].len() {
+                draw.arrow()
+                    .start(self.cell_points[row][col])
+                    .end(self.cell_points[row][col]+vec2(20.0, 0.0))
+                    .head_length(10.0)
+                    .head_width(2.0)
+                    .weight(2.0)
+                    .color(self.cell_point_color)
+                    .stroke_weight(1.0);
+            }
         }
     }
 
