@@ -154,6 +154,21 @@ impl Grid4 {
         }
     }
 
+    pub fn get_nearest_cell_angle(&self, pos: Vec2) -> f32 {
+        let mut min_dist = 999999.0;
+        let mut angle = 0.0;
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                let dist = pos.distance(self.cell_points[row][col]);
+                if dist < min_dist {
+                    min_dist = dist;
+                    angle = self.cell_angles[row][col];
+                }
+            }
+        }
+        angle
+    }
+
     pub fn set_outer_margin(&mut self, margin: i32) {
         self.outer_margin = margin;
     }
@@ -220,9 +235,15 @@ impl Grid4 {
     fn draw_arrows(&self, draw: &Draw) {
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
+                let x = self.cell_points[row][col].x;
+                let y = self.cell_points[row][col].y;
+
+                let draw = draw.translate(vec3(x,y,0.0));
+
                 draw.arrow()
-                    .start(self.cell_points[row][col]-vec2(10.0, 0.0))
-                    .end(self.cell_points[row][col]+vec2(10.0, 0.0))
+                    .rotate(self.cell_angles[row][col])
+                    .start(vec2(-10.0, 0.0))
+                    .end(vec2(10.0, 0.0))
                     .head_length(10.0)
                     .head_width(2.0)
                     .weight(2.0)

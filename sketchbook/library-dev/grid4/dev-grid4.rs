@@ -49,9 +49,6 @@ struct Model {
     redraw: bool,
     last_redraw: u128,
     touchosc: TouchOscClient,
-
-    points: Vec<Point2>,
-
     grid: Grid,
 }
 
@@ -85,8 +82,8 @@ fn model(app: &App) -> Model {
 
     let mut touchosc = TouchOscClient::new(6555);
 
-    touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 10.0);
-    touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 10.0);
+    touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 20.0);
+    touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 20.0);
 
     touchosc.add_fader("/grid/cols-rows", 2.0, (WIDTH/10) as f32, 10.0);
 
@@ -107,18 +104,12 @@ fn model(app: &App) -> Model {
     // TODO: change grid to use multi-dim vector
     for row in 0..grid.cell_points.len() {
         for col in 0..grid.cell_points[row].len() {
-            let p = grid.cell_points[row][col];
-            let a = (row / grid.rows) as f32 * PI;
-            grid.cell_angles[row][col] = a;
-           
+            let rows = grid.rows as f32;
+            let this_row = row as f32;
+            let angle = this_row / rows * PI;
+            grid.cell_angles[row][col] = angle;       
         }
     }
-
-    //--------------------------------------------------------
-    let mut points = Vec::new();
-
-    points.push(pt2(-0.5, 0.0));
-    points.push(pt2(0.5, 0.0));
 
     //--------------------------------------------------------
 
@@ -131,12 +122,13 @@ fn model(app: &App) -> Model {
         redraw,
         last_redraw,
         touchosc,
-        points,
         grid,
     }
 }
 
 fn update(app: &App, m: &mut Model, _update: Update) {
+
+    let win = app.window_rect();
     // ref:
     //https://doc.rust-lang.org/nightly/core/time/struct.Duration.html
     //let millis = Duration::from_millis(100).as_millis();
@@ -177,10 +169,24 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     // println!("{}", fader_rows);
 
     // println!("{}, {}", n_rows, n_cols);
-    let n_rows = m.touchosc.fader("/grid/rows") as usize;
-    let n_cols = m.touchosc.fader("/grid/cols") as usize;
+    // let n_rows = m.touchosc.fader("/grid/rows") as usize;
+    // let n_cols = m.touchosc.fader("/grid/cols") as usize;
+
+    let resolution = (win.w() * 0.08); 
+    let n_cols = ( win.w()  / resolution) as usize; 
+    let n_rows = ( win.h() / resolution) as usize;
+
     m.grid.set_rows(n_rows);
     m.grid.set_cols(n_cols);
+
+    for row in 0..m.grid.cell_points.len() {
+        for col in 0..m.grid.cell_points[row].len() {
+            let rows = m.grid.rows as f32;
+            let this_row = row as f32;
+            let angle = this_row / rows * PI;
+            m.grid.cell_angles[row][col] = angle;       
+        }
+    }
 
 }
 
@@ -212,6 +218,45 @@ fn view(app: &App, m: &Model, frame: Frame) {
         //--------------------------------------------------------
         // Create a polyline builder. Hot-tip: polyline is short-hand for a path that is
         // drawn via "stroke" tessellation rather than "fill" tessellation.
+        let num_steps = 10;
+        let start = pt2(-300.0, 300.0);
+        let step = pt2(10.0, -10.0);
+        let mut x = start.x;
+        let mut y = start.y;
+
+        let left_x = win.left();
+        let top_y = win.top();
+
+        let resolution = (win.w() * 0.01); 
+
+        for n in 0..num_steps {
+
+            draw.ellipse()
+            .x_y(x, y)
+            .radius(5.0)
+            .color(WHITE);
+
+            let x_offset = x - left_x;
+            let y_offset = y - top_y;
+
+            let x_index = (x_offset / resolution) as usize;
+            let y_index = (y_offset / resolution) as usize;
+
+            print!("{}, {}", x_index, y_index);
+
+            
+//             let x_off = win.w() / m.grid.cols as f32;
+//             let y_off = -win.h() / m.grid.rows as f32;
+
+//             let step = pt2(x + x_off, y + y_off);
+// ;           let angle = m.grid.get_nearest_cell_angle(s);
+
+//             // println!("{}", x_off);
+
+//             x = p.x;
+//             y = p.y;
+            // print!("{}, {}", x, y);
+        }
 
         //--------------------------------------------------------
         // draw frame
