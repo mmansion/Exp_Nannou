@@ -34,6 +34,13 @@ static NUM_FADERS: usize = 4; //num of sliders used
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 6555;
 
+pub fn flowfield_1(v:Vec2) -> f32 {
+    v.x.sin() * v.y.cos()
+}
+pub fn flowfield_2(v:Vec2) -> f32 {
+    (v.x.cos() + v.y.sin()) * PI
+}
+
 //--------------------------------------------------------
 fn main() {
     nannou::app(model).update(update).run();
@@ -63,6 +70,8 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
+    let win = app.window_rect();
+
     // app.set_loop_mode(LoopMode::loop_once());
     // app.set_loop_mode(LoopMode::rate_fps(0.1));
 
@@ -82,6 +91,8 @@ fn model(app: &App) -> Model {
 
     let mut touchosc = TouchOscClient::new(6555);
 
+    touchosc.add_fader("/grid/resolution", win.w() * 0.1, win.w() * 0.01, win.w() * 0.08);
+
     touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 20.0);
     touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 20.0);
 
@@ -89,7 +100,7 @@ fn model(app: &App) -> Model {
 
     touchosc.add_button("/toggle/corner-points", false);
     touchosc.add_button("/toggle/cell-points", false);
-    touchosc.add_button("/toggle/lines", false);
+    touchosc.add_button("/toggle/lines", true);
     touchosc.add_button("/toggle/arrows", true);
 
     // touchosc.add_fader("/rect/width");
@@ -100,16 +111,10 @@ fn model(app: &App) -> Model {
     //--------------------------------------------------------
     let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
 
-    // setup flowfield angles
-    // TODO: change grid to use multi-dim vector
-    for row in 0..grid.cell_points.len() {
-        for col in 0..grid.cell_points[row].len() {
-            let rows = grid.rows as f32;
-            let this_row = row as f32;
-            let angle = this_row / rows * PI;
-            grid.cell_angles[row][col] = angle;       
-        }
-    }
+    grid.set_angles(flowfield_2);
+
+
+    grid.set_line_color(rgba( 169.0/255.0, 156.0/255.0, 217.0/255.0, 255.0/255.0));
 
     //--------------------------------------------------------
 
@@ -172,21 +177,15 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     // let n_rows = m.touchosc.fader("/grid/rows") as usize;
     // let n_cols = m.touchosc.fader("/grid/cols") as usize;
 
-    let resolution = (win.w() * 0.08); 
+    // let resolution = (win.w() * 0.08); 
+    let resolution = m.touchosc.fader("/grid/resolution");
     let n_cols = ( win.w()  / resolution) as usize; 
     let n_rows = ( win.h() / resolution) as usize;
 
     m.grid.set_rows(n_rows);
     m.grid.set_cols(n_cols);
 
-    for row in 0..m.grid.cell_points.len() {
-        for col in 0..m.grid.cell_points[row].len() {
-            let rows = m.grid.rows as f32;
-            let this_row = row as f32;
-            let angle = this_row / rows * PI;
-            m.grid.cell_angles[row][col] = angle;       
-        }
-    }
+    m.grid.set_angles(flowfield_2);
 
 }
 
@@ -200,7 +199,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
         //--------------------------------------------------------
         // background
         // let bg = m.colors.get_random();
-        let bg = m.colors.mango;
+        let bg = m.colors.vapor_blue;
 
         if app.elapsed_frames() < 10 {
             //must clear render context once for fullscreen
@@ -218,44 +217,43 @@ fn view(app: &App, m: &Model, frame: Frame) {
         //--------------------------------------------------------
         // Create a polyline builder. Hot-tip: polyline is short-hand for a path that is
         // drawn via "stroke" tessellation rather than "fill" tessellation.
-        let num_steps = 10;
-        let start = pt2(-300.0, 300.0);
-        let step = pt2(10.0, -10.0);
+   
+        let start = pt2(0.0,0.0);
         let mut x = start.x;
         let mut y = start.y;
+        
+        let resolution = win.w() * 0.01; 
+        let step_len = 20.0;
+        let mut last_xy = pt2(x, y);
 
-        let left_x = win.left();
-        let top_y = win.top();
+        for n in 0..50 {
 
-        let resolution = (win.w() * 0.01); 
-
-        for n in 0..num_steps {
-
+            // let draw = draw.translate(vec3(-win.w()*0.5, win.h()*0.5, 0.0));
             draw.ellipse()
             .x_y(x, y)
             .radius(5.0)
             .color(WHITE);
 
-            let x_offset = x - left_x;
-            let y_offset = y - top_y;
+    
+            let angle = m.grid.get_nearest_cell_angle( pt2(x, y) );
 
-            let x_index = (x_offset / resolution) as usize;
-            let y_index = (y_offset / resolution) as usize;
+            let x_step = step_len * angle.cos();
+            let y_step = step_len * angle.sin();
 
-            print!("{}, {}", x_index, y_index);
+             if n > 0 {
+                draw.line()
+                .start(pt2(x, y))
+                .end(last_xy)
+                .color(WHITE);
+            }
 
-            
-//             let x_off = win.w() / m.grid.cols as f32;
-//             let y_off = -win.h() / m.grid.rows as f32;
+            last_xy = pt2(x, y);
 
-//             let step = pt2(x + x_off, y + y_off);
-// ;           let angle = m.grid.get_nearest_cell_angle(s);
 
-//             // println!("{}", x_off);
+            x = x + x_step;
+            y = y + y_step;
 
-//             x = p.x;
-//             y = p.y;
-            // print!("{}, {}", x, y);
+
         }
 
         //--------------------------------------------------------

@@ -169,6 +169,20 @@ impl Grid4 {
         angle
     }
 
+    pub fn set_angles(&mut self, f: fn(Vec2) -> f32) {
+        for row in 0..self.cell_points.len() {
+            for col in 0..self.cell_points[row].len() {
+                let point = self.cell_points[row][col];
+                let angle = f(point);
+                self.cell_angles[row][col] = angle;
+            }
+        }
+    }
+
+    pub fn set_line_color(&mut self, color: Rgba) {
+        self.line_color = color;
+    }
+
     pub fn set_outer_margin(&mut self, margin: i32) {
         self.outer_margin = margin;
     }
