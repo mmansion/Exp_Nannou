@@ -169,16 +169,25 @@ impl Grid4 {
         angle
     }
 
-    pub fn set_angles(&mut self, f: fn(Vec2) -> f32) {
+    pub fn set_angles(&mut self, f: fn(Vec2, usize, usize) -> f32) {
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
                 let point = self.cell_points[row][col];
-                let angle = f(point);
+                let angle = f(point, self.rows, self.cols);
                 self.cell_angles[row][col] = angle;
             }
         }
     }
 
+    pub fn set_angles_by_index(&mut self, f: fn(Vec2, usize, usize) -> f32) {
+        for row in 0..self.cell_points.len() {
+            for col in 0..self.cell_points[row].len() {
+                let angle = f( vec2(row as f32, col as f32), self.rows, self.cols);
+                self.cell_angles[row][col] = angle;
+            }
+        }
+    }
+    
     pub fn set_line_color(&mut self, color: Rgba) {
         self.line_color = color;
     }

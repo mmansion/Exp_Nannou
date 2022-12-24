@@ -3,7 +3,9 @@ development file for grid4 lib
 */
 
 // use nannou::lyon::path::AttributeStore;
-use nannou::lyon::geom::euclid::num::Ceil;
+
+use nannou::lyon;
+// use nannou::lyon::geom::euclid::num::Ceil;
 use nannou::prelude::*;
 
 use nannou_touchosc::TouchOscClient as TouchOscClient;
@@ -34,12 +36,17 @@ static NUM_FADERS: usize = 4; //num of sliders used
 // Make sure this matches the `TARGET_PORT` in the `osc_sender.rs` example.
 const PORT: u16 = 6555;
 
-pub fn flowfield_1(v:Vec2) -> f32 {
+pub fn flowfield_1(v:Vec2, rows:usize, cols:usize) -> f32 {
     v.x.sin() * v.y.cos()
 }
-pub fn flowfield_2(v:Vec2) -> f32 {
+pub fn flowfield_2(v:Vec2, rows:usize, cols:usize) -> f32 {
     (v.x.cos() + v.y.sin()) * PI
 }
+
+pub fn flowfield_3(v:Vec2, rows:usize, cols:usize) -> f32 {    
+    (v.x / rows as f32) * PI
+}
+ 
 
 //--------------------------------------------------------
 fn main() {
@@ -56,6 +63,7 @@ struct Model {
     redraw: bool,
     last_redraw: u128,
     touchosc: TouchOscClient,
+    line_length: f32,
     grid: Grid,
 }
 
@@ -85,6 +93,8 @@ fn model(app: &App) -> Model {
     let mut redraw = false;
     let mut last_redraw = 0;
 
+    let mut builder = nannou::geom::path::Builder::new().with_svg();
+
     //--------------------------------------------------------
 
     let colors = Palette::new();
@@ -92,6 +102,10 @@ fn model(app: &App) -> Model {
     let mut touchosc = TouchOscClient::new(6555);
 
     touchosc.add_fader("/grid/resolution", win.w() * 0.1, win.w() * 0.01, win.w() * 0.08);
+
+    touchosc.add_fader("/line-length", 0.001, 200.0, 50.0);
+
+    let line_length = touchosc.fader("/line-length");
 
     touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 20.0);
     touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 20.0);
@@ -102,6 +116,7 @@ fn model(app: &App) -> Model {
     touchosc.add_button("/toggle/cell-points", false);
     touchosc.add_button("/toggle/lines", true);
     touchosc.add_button("/toggle/arrows", true);
+    touchosc.add_button("/toggle/curves", false);
 
     // touchosc.add_fader("/rect/width");
     // touchosc.add_fader("/rect/height");
@@ -111,9 +126,9 @@ fn model(app: &App) -> Model {
     //--------------------------------------------------------
     let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
 
-    grid.set_angles(flowfield_2);
-
-
+    // grid.set_angles(flowfield_1);
+    // grid.set_angles(flowfield_2);
+    grid.set_angles_by_index(flowfield_3);
     grid.set_line_color(rgba( 169.0/255.0, 156.0/255.0, 217.0/255.0, 255.0/255.0));
 
     //--------------------------------------------------------
@@ -126,6 +141,7 @@ fn model(app: &App) -> Model {
         colors,
         redraw,
         last_redraw,
+        line_length,
         touchosc,
         grid,
     }
@@ -185,7 +201,9 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     m.grid.set_rows(n_rows);
     m.grid.set_cols(n_cols);
 
-    m.grid.set_angles(flowfield_2);
+    m.grid.set_angles_by_index(flowfield_3);
+
+    m.line_length = m.touchosc.fader("/line-length");
 
 }
 
@@ -214,27 +232,15 @@ fn view(app: &App, m: &Model, frame: Frame) {
         //--------------------------------------------------------
         m.grid.draw(&draw);
 
-        //--------------------------------------------------------
-        // Create a polyline builder. Hot-tip: polyline is short-hand for a path that is
-        // drawn via "stroke" tessellation rather than "fill" tessellation.
-   
-        let start = pt2(0.0,0.0);
-        let mut x = start.x;
-        let mut y = start.y;
-        
-        let resolution = win.w() * 0.01; 
-        let step_len = 20.0;
-        let mut last_xy = pt2(x, y);
 
+        /*
         for n in 0..50 {
-
             // let draw = draw.translate(vec3(-win.w()*0.5, win.h()*0.5, 0.0));
             draw.ellipse()
             .x_y(x, y)
             .radius(5.0)
             .color(WHITE);
 
-    
             let angle = m.grid.get_nearest_cell_angle( pt2(x, y) );
 
             let x_step = step_len * angle.cos();
@@ -242,18 +248,87 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
              if n > 0 {
                 draw.line()
-                .start(pt2(x, y))
+                .start_pos(pt2(x, y))
                 .end(last_xy)
                 .color(WHITE);
             }
 
             last_xy = pt2(x, y);
-
-
+d
             x = x + x_step;
             y = y + y_step;
+        }
+        */
 
+        if m.touchosc.button("/toggle/curves") {
 
+            let start_pos = pt2(0.0,0.0);
+            let mut x = start_pos.x;
+            let mut y = start_pos.y;
+            let mut last_pt = pt2(x, y);
+        
+           
+        
+            for n in 0..50 {
+
+                let pt = pt2(x, y);
+                let angle = m.grid.get_nearest_cell_angle(pt2(x, y));
+                let x_step = m.line_length * angle.cos();
+                let y_step = m.line_length * angle.sin();
+
+                
+                // println!("line length: {}", m.line_length);
+
+                /*
+                let builder = nannou::geom::path::Builder::new();
+
+                let path = builder
+                    .begin(m.p1)
+                    .cubic_bezier_to(m.cp1, m.cp2, m.p2)
+                    .build();
+
+                // draw the bezier curve path
+                draw.path()
+                    .stroke()
+                    .weight(2.0)
+                    .rgba(0.0, 0.0, 0.0, 1.0)
+                    .events(path.iter());
+                
+                */
+
+                if n > 0 {
+                    let mut builder = nannou::geom::path::Builder::new().with_svg();
+                    //builder.line_to(lyon::math::point(last_pt.x, last_pt.y));
+
+                    builder.line_to(lyon::math::point(last_pt.x, last_pt.y));
+
+                    builder.quadratic_bezier_to(
+                        lyon::math::point(last_pt.x, last_pt.y),
+                        lyon::math::point(last_pt.x, last_pt.y)
+                    );
+
+                    builder.quadratic_bezier_to(
+                        lyon::math::point(pt.x, pt.y),
+                        lyon::math::point(pt.x, pt.y)
+                    );
+
+                    // end control point
+                    builder.move_to(lyon::math::point(pt.x, pt.y));
+                    builder.close();
+
+                    let path = builder.build();
+
+                    draw.path()
+                    .stroke()
+                    .color(WHITE)
+                    .events(path.iter());
+                }
+
+                last_pt = pt2(x, y);
+
+                x = x + x_step;
+                y = y + y_step;
+            }
         }
 
         //--------------------------------------------------------
