@@ -46,7 +46,7 @@ pub fn flowfield_2(v:Vec2, rows:usize, cols:usize) -> f32 {
 pub fn flowfield_3(v:Vec2, rows:usize, cols:usize) -> f32 {    
     (v.x / rows as f32) * PI
 }
- 
+
 
 //--------------------------------------------------------
 fn main() {
@@ -65,6 +65,7 @@ struct Model {
     touchosc: TouchOscClient,
     line_length: f32,
     grid: Grid,
+    curve_starting_points: Vec<Point2>,
 }
 
 //--------------------------------------------------------
@@ -95,28 +96,39 @@ fn model(app: &App) -> Model {
 
     let mut builder = nannou::geom::path::Builder::new().with_svg();
 
+    let mut curve_starting_points = Vec::new();
+
+    // for i in 0..10 {
+    //     for j in 0..10 {
+    //         let x = i as f32 * 80.0 + 40.0;
+    //         let y = j as f32 * 80.0 + 40.0 + (-win.w()*0.5);
+    //         let p = pt2(x, y);
+    //         curve_starting_points.push(p);
+    //     }
+    // }
+
     //--------------------------------------------------------
 
     let colors = Palette::new();
 
     let mut touchosc = TouchOscClient::new(6555);
 
-    touchosc.add_fader("/grid/resolution", win.w() * 0.1, win.w() * 0.01, win.w() * 0.08);
+    touchosc.add_fader("/grid/resolution", win.w() * 0.1, win.w() * 0.01, win.w() * 0.05);
 
     touchosc.add_fader("/line-length", 0.001, 200.0, 50.0);
 
     let line_length = touchosc.fader("/line-length");
 
-    touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 20.0);
+    touchosc.add_fader("/grid/rows, 2.0, (WIDTH/10) as f32, 20.0);
     touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 20.0);
 
     touchosc.add_fader("/grid/cols-rows", 2.0, (WIDTH/10) as f32, 10.0);
 
     touchosc.add_button("/toggle/corner-points", false);
     touchosc.add_button("/toggle/cell-points", false);
-    touchosc.add_button("/toggle/lines", true);
-    touchosc.add_button("/toggle/arrows", true);
-    touchosc.add_button("/toggle/curves", false);
+    touchosc.add_button("/toggle/lines", false);
+    touchosc.add_button("/toggle/arrows", false);
+    touchosc.add_button("/toggle/curves", true);
 
     // touchosc.add_fader("/rect/width");
     // touchosc.add_fader("/rect/height");
@@ -144,6 +156,7 @@ fn model(app: &App) -> Model {
         line_length,
         touchosc,
         grid,
+        curve_starting_points
     }
 }
 
@@ -260,41 +273,20 @@ d
         }
         */
 
+        //--------------------------------------------------------
         if m.touchosc.button("/toggle/curves") {
+            for i in 0..m.curve_starting_points.len() {
 
-            let start_pos = pt2(0.0,0.0);
-            let mut x = start_pos.x;
-            let mut y = start_pos.y;
-            let mut last_pt = pt2(x, y);
+                let start_pos = m.curve_starting_points[i];
+                let mut x = start_pos.x;
+                let mut y = start_pos.y;
+                let mut last_pt = pt2(x, y);
         
-           
-        
-            for n in 0..50 {
-
+                for n in 0..50 {
                 let pt = pt2(x, y);
                 let angle = m.grid.get_nearest_cell_angle(pt2(x, y));
                 let x_step = m.line_length * angle.cos();
                 let y_step = m.line_length * angle.sin();
-
-                
-                // println!("line length: {}", m.line_length);
-
-                /*
-                let builder = nannou::geom::path::Builder::new();
-
-                let path = builder
-                    .begin(m.p1)
-                    .cubic_bezier_to(m.cp1, m.cp2, m.p2)
-                    .build();
-
-                // draw the bezier curve path
-                draw.path()
-                    .stroke()
-                    .weight(2.0)
-                    .rgba(0.0, 0.0, 0.0, 1.0)
-                    .events(path.iter());
-                
-                */
 
                 if n > 0 {
                     let mut builder = nannou::geom::path::Builder::new().with_svg();
@@ -329,6 +321,7 @@ d
                 x = x + x_step;
                 y = y + y_step;
             }
+            }            
         }
 
         //--------------------------------------------------------
@@ -347,8 +340,10 @@ d
 
             let path = format!("{}{}{}", directory, frame_num, extension);
             app.main_window().capture_frame(path);
-        }
+        } 
     }
 }
 
-fn mouse_pressed(_app: &App, m: &mut Model, _button: MouseButton) {}
+fn mouse_pressed(_app: &App, m: &mut Model, _button: MouseButton) {
+    m.curve_starting_points.push(_app.mouse.position());
+}
