@@ -119,7 +119,7 @@ fn model(app: &App) -> Model {
 
     let line_length = touchosc.fader("/line-length");
 
-    touchosc.add_fader("/grid/rows, 2.0, (WIDTH/10) as f32, 20.0);
+    touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 20.0);
     touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 20.0);
 
     touchosc.add_fader("/grid/cols-rows", 2.0, (WIDTH/10) as f32, 10.0);
