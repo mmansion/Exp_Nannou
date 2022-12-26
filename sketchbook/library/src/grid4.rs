@@ -154,6 +154,14 @@ impl Grid4 {
         }
     }
 
+    pub fn get_num_rows(&self) -> usize {
+        self.rows
+    }
+
+    pub fn get_num_cols(&self) -> usize {
+        self.cols
+    }
+
     pub fn get_nearest_cell_angle(&self, pos: Vec2) -> f32 {
         let mut min_dist = 999999.0;
         let mut angle = 0.0;
@@ -179,7 +187,19 @@ impl Grid4 {
         }
     }
 
-    pub fn set_angles_by_index(&mut self, f: fn(Vec2, usize, usize) -> f32) {
+    // pub fn set_angles_by_index(&mut self, f: fn(Vec2, usize, usize) -> f32) {
+    //     for row in 0..self.cell_points.len() {
+    //         for col in 0..self.cell_points[row].len() {
+    //             let angle = f( vec2(row as f32, col as f32), self.rows, self.cols);
+    //             self.cell_angles[row][col] = angle;
+    //         }
+    //     }
+    // }
+    
+    //can pass a function to a function expecting a closure, 
+    // but cannot pass closure to a function expecting a function 
+    // https://stackoverflow.com/questions/52696907/why-does-passing-a-closure-to-function-which-accepts-a-function-pointer-not-work
+    pub fn set_angles_by_index(&mut self, f:  impl Fn(Vec2, usize, usize)-> f32) {
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
                 let angle = f( vec2(row as f32, col as f32), self.rows, self.cols);

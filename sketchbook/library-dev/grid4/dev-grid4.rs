@@ -66,6 +66,7 @@ struct Model {
     line_length: f32,
     grid: Grid,
     curve_starting_points: Vec<Point2>,
+    mouse_pressed: bool
 }
 
 //--------------------------------------------------------
@@ -74,6 +75,9 @@ fn model(app: &App) -> Model {
         .new_window()
         .size(WIDTH as u32, HEIGHT as u32)
         .mouse_pressed(mouse_pressed)
+        .mouse_released(mouse_released)
+        .mouse_moved(mouse_moved)
+        .key_pressed(key_pressed)
         .decorations(FRAME) //creates a borderless window
         .view(view)
         .build()
@@ -123,12 +127,15 @@ fn model(app: &App) -> Model {
     touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 20.0);
 
     touchosc.add_fader("/grid/cols-rows", 2.0, (WIDTH/10) as f32, 10.0);
+    touchosc.add_fader("/angle/offset", 0.0, 1.0, 0.5);
 
     touchosc.add_button("/toggle/corner-points", false);
     touchosc.add_button("/toggle/cell-points", false);
     touchosc.add_button("/toggle/lines", false);
-    touchosc.add_button("/toggle/arrows", false);
+    touchosc.add_button("/toggle/arrows", true);
     touchosc.add_button("/toggle/curves", true);
+
+    touchosc.add_radar("/color/background", (0.0, 1.0, 1.0), (0.0, 1.0, 0.1));
 
     // touchosc.add_fader("/rect/width");
     // touchosc.add_fader("/rect/height");
@@ -140,10 +147,11 @@ fn model(app: &App) -> Model {
 
     // grid.set_angles(flowfield_1);
     // grid.set_angles(flowfield_2);
-    grid.set_angles_by_index(flowfield_3);
+    // grid.set_angles_by_index(flowfield_3);
     grid.set_line_color(rgba( 169.0/255.0, 156.0/255.0, 217.0/255.0, 255.0/255.0));
 
     //--------------------------------------------------------
+    let mouse_pressed = false;
 
     Model {
         window_id,
@@ -156,7 +164,8 @@ fn model(app: &App) -> Model {
         line_length,
         touchosc,
         grid,
-        curve_starting_points
+        curve_starting_points,
+        mouse_pressed,
     }
 }
 
@@ -214,7 +223,17 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     m.grid.set_rows(n_rows);
     m.grid.set_cols(n_cols);
 
-    m.grid.set_angles_by_index(flowfield_3);
+    // m.grid.set_angles_by_index(flowfield_3);
+
+    //A program defines an anonymous function slightly differently than a named function. 
+    // The syntax is | parameter_list | body. 
+    let angle_offset = m.touchosc.fader("/angle/offset");
+    
+    let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
+        (v.x / rows as f32) * PI + (angle_offset * cols as f32)
+    };
+    m.grid.set_angles_by_index(closure);
+    // m.grid.set_angles_by_index(f);
 
     m.line_length = m.touchosc.fader("/line-length");
 
@@ -230,7 +249,10 @@ fn view(app: &App, m: &Model, frame: Frame) {
         //--------------------------------------------------------
         // background
         // let bg = m.colors.get_random();
-        let bg = m.colors.vapor_blue;
+        // let bg = m.colors.vapor_blue;
+        let radar = m.touchosc.radar("/color/background");
+        let bg = hsva(radar.y, radar.x, radar.x, 1.0);
+        
 
         if app.elapsed_frames() < 10 {
             //must clear render context once for fullscreen
@@ -344,6 +366,22 @@ d
     }
 }
 
-fn mouse_pressed(_app: &App, m: &mut Model, _button: MouseButton) {
-    m.curve_starting_points.push(_app.mouse.position());
+fn mouse_pressed(app: &App, m: &mut Model, button: MouseButton) {
+    m.mouse_pressed = true;   
+}
+
+fn mouse_released(app: &App, m: &mut Model, button: MouseButton) {
+    m.mouse_pressed = false;
+}
+
+fn key_pressed(app: &App, m: &mut Model, key: Key) {
+     if key == Key::Space {
+        m.curve_starting_points.clear();
+     }
+}
+
+fn mouse_moved(app: &App, m: &mut Model, pos: Point2) {
+    if m.mouse_pressed {
+        m.curve_starting_points.push(pos);
+    }
 }
