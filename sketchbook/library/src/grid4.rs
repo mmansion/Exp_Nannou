@@ -177,6 +177,21 @@ impl Grid4 {
         angle
     }
 
+    pub fn get_nearest_cell_pos(&self, pos: Vec2) -> Vec2 {
+        let mut min_dist = 999999.0;
+        let mut cell_pos = vec2(0.0, 0.0);
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                let dist = pos.distance(self.cell_points[row][col]);
+                if dist < min_dist {
+                    min_dist = dist;
+                    cell_pos = self.cell_points[row][col];
+                }
+            }
+        }
+        cell_pos
+    }
+
     pub fn set_angles(&mut self, f: fn(Vec2, usize, usize) -> f32) {
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
@@ -366,4 +381,15 @@ impl Grid4 {
             self.draw_arrows(&draw);
         }
     }
+
+    pub fn draw_cell_highlight(&mut self, draw: &Draw, pos: Vec2) {
+        
+        let draw = draw.translate(vec3(pos.x, pos.y,0.0));
+
+        draw.rect()
+            .w_h(self.width as f32 / self.cols as f32, self.height as f32 / self.rows as f32)
+            .color(WHITE); 
+
+    }
+
 }
