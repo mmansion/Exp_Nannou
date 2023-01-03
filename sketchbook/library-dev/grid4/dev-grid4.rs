@@ -127,13 +127,15 @@ fn model(app: &App) -> Model {
     touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 20.0);
 
     touchosc.add_fader("/grid/cols-rows", 2.0, (WIDTH/10) as f32, 10.0);
-    touchosc.add_fader("/angle/offset", 0.0, 1.0, 0.5);
+    touchosc.add_fader("/angle/rotate", 0.0, 1.0, 0.5);
+    touchosc.add_radial("/angle/rotate-selected", 0.0, PI*2.0, 0.0);
 
     touchosc.add_button("/toggle/corner-points", false);
     touchosc.add_button("/toggle/cell-points", false);
-    touchosc.add_button("/toggle/lines", false);
+    touchosc.add_button("/toggle/lines", true);
     touchosc.add_button("/toggle/arrows", true);
     touchosc.add_button("/toggle/curves", true);
+    touchosc.add_button("/toggle/edit-mode", false);
 
     touchosc.add_radar("/color/background", (0.0, 1.0, 1.0), (0.0, 1.0, 0.1));
 
@@ -209,6 +211,8 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     m.grid.show_corner_points = m.touchosc.button("/toggle/corner-points");
     m.grid.show_lines  = m.touchosc.button("/toggle/lines");
     m.grid.show_arrows = m.touchosc.button("/toggle/arrows");
+    
+    m.grid.enable_edit_mode = m.touchosc.button("/toggle/edit-mode");
     // println!("{}", fader_rows);
 
     // println!("{}, {}", n_rows, n_cols);
@@ -227,13 +231,17 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     //A program defines an anonymous function slightly differently than a named function. 
     // The syntax is | parameter_list | body. 
-    let angle_offset = m.touchosc.fader("/angle/offset");
+    let angle_rotate = m.touchosc.fader("/angle/rotate");
     
     let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
-        (v.x / rows as f32) * PI + (angle_offset * cols as f32)
+        (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
     };
     m.grid.set_angles_by_index(closure);
     // m.grid.set_angles_by_index(f);
+
+    let angle_rotate_selected = m.touchosc.radial("/angle/rotate-selected");
+    //println!("{}", angle_rotate_selected);
+    m.grid.set_editable_cells_angle(angle_rotate_selected);
 
     m.line_length = m.touchosc.fader("/line-length");
 
@@ -368,6 +376,8 @@ d
 
 fn mouse_pressed(app: &App, m: &mut Model, button: MouseButton) {
     m.mouse_pressed = true;   
+
+    
 }
 
 fn mouse_released(app: &App, m: &mut Model, button: MouseButton) {
@@ -382,6 +392,10 @@ fn key_pressed(app: &App, m: &mut Model, key: Key) {
 
 fn mouse_moved(app: &App, m: &mut Model, pos: Point2) {
     if m.mouse_pressed {
-        m.curve_starting_points.push(pos);
+        if m.grid.enable_edit_mode {
+            m.grid.set_editable_cell( vec2(app.mouse.x, app.mouse.y), true);
+        } else {
+            m.curve_starting_points.push(pos);
+        }
     }
 }

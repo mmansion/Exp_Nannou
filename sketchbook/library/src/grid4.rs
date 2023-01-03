@@ -18,8 +18,9 @@ pub struct Grid4 {
     // TODO: pickup up here
     pub corner_points: Vec<Vec<Vec2>>, //multi-dim array of points
     pub cell_points: Vec<Vec<Vec2>>, 
-
+    
     pub cell_angles: Vec<Vec<f32>>, 
+    cell_angles_editable: Vec<Vec<bool>>,
 
     x_off: f32,
     y_off: f32,
@@ -39,6 +40,10 @@ pub struct Grid4 {
     pub show_cell_points: bool,
     pub show_arrows: bool, //for flowfield
     pub show_cells: bool,
+
+    pub edit_cell_angle: bool,
+    pub is_reset: bool,
+
 }
 
 impl Grid4 {
@@ -60,6 +65,7 @@ impl Grid4 {
         let mut cell_points = Vec::new();
 
         let mut cell_angles = Vec::new();
+        let mut cell_angles_editable = Vec::new();
 
         //--------------------------------------------------------
         //default settings
@@ -78,6 +84,8 @@ impl Grid4 {
         let show_arrows = false;
         let show_cells = true;
 
+        let edit_cell_angle = false;
+        let is_reset = false;
         //--------------------------------------------------------
         //populate points
         for row in 0..(rows + 1) as usize {
@@ -89,6 +97,7 @@ impl Grid4 {
             corner_points.push(Vec::new());
             cell_points.push(Vec::new());
             cell_angles.push(Vec::new());
+            cell_angles_editable.push(Vec::new());
 
             for col in 0..(cols + 1) as usize {
                 let f_width = width as f32;
@@ -106,6 +115,7 @@ impl Grid4 {
 
                     cell_points[row].push(pt2(cell_x, cell_y));
                     cell_angles[row].push(0.0);
+                    cell_angles_editable[row].push(false);//default
 
                 }
             }
@@ -128,6 +138,7 @@ impl Grid4 {
             corner_points,
             cell_points,
             cell_angles,
+            cell_angles_editable,
 
             rotation,
 
@@ -148,6 +159,8 @@ impl Grid4 {
             show_lines,
             show_arrows,
             show_cells,
+            edit_cell_angle,
+            is_reset,
 
             inner_margin,
             outer_margin,
@@ -192,7 +205,40 @@ impl Grid4 {
         cell_pos
     }
 
-    pub fn set_angles(&mut self, f: fn(Vec2, usize, usize) -> f32) {
+    fn get_nearest_index(&self, pos: Vec2) -> (usize, usize) {
+        let mut min_dist = 999999.0;
+        let mut index = (0, 0);
+        for row in 0..self.rows {
+            for col in 0..self.cols {
+                let dist = pos.distance(self.cell_points[row][col]);
+                if dist < min_dist {
+                    min_dist = dist;
+                    index = (row, col);
+                }
+            }
+        }
+        index
+    }
+
+   
+
+    pub fn set_editable_cell(&mut self, pos: Vec2, editable: bool) {
+        let index = self.get_nearest_index(pos);
+        // println!("index: {:?}", index); 
+        self.cell_angles_editable[index.0][index.1] = editable;
+    }
+
+    pub fn set_editable_cells_angle(&mut self, a:f32) {
+        for row in 0..self.cell_points.len() {
+            for col in 0..self.cell_points[row].len() {
+                if self.cell_angles_editable[row][col] {
+                    self.cell_angles[row][col] = a;
+                }
+            }
+        }
+    }
+
+     pub fn set_angles(&mut self, f: fn(Vec2, usize, usize) -> f32) {
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
                 let point = self.cell_points[row][col];
@@ -201,18 +247,9 @@ impl Grid4 {
             }
         }
     }
-
-    // pub fn set_angles_by_index(&mut self, f: fn(Vec2, usize, usize) -> f32) {
-    //     for row in 0..self.cell_points.len() {
-    //         for col in 0..self.cell_points[row].len() {
-    //             let angle = f( vec2(row as f32, col as f32), self.rows, self.cols);
-    //             self.cell_angles[row][col] = angle;
-    //         }
-    //     }
-    // }
     
-    //can pass a function to a function expecting a closure, 
-    // but cannot pass closure to a function expecting a function 
+    // yes, you can pass a function to a function expecting a closure, 
+    // no, you cannot pass closure to a function expecting a function 
     // https://stackoverflow.com/questions/52696907/why-does-passing-a-closure-to-function-which-accepts-a-function-pointer-not-work
     pub fn set_angles_by_index(&mut self, f:  impl Fn(Vec2, usize, usize)-> f32) {
         for row in 0..self.cell_points.len() {
@@ -258,6 +295,9 @@ impl Grid4 {
         self.corner_points.clear();
         self.cell_points.clear();
 
+        self.cell_angles.clear();
+        self.cell_angles_editable.clear();
+
         for row in 0..(self.rows + 1) {
             let f_height = self.height as f32;
             let f_rows = self.rows as f32;
@@ -267,6 +307,7 @@ impl Grid4 {
             self.corner_points.push(Vec::new());
             self.cell_points.push(Vec::new());
             self.cell_angles.push(Vec::new());
+            self.cell_angles_editable.push(Vec::new());
 
             for col in 0..(self.cols + 1) {
                 let f_width = self.width as f32;
@@ -285,6 +326,7 @@ impl Grid4 {
 
                     self.cell_points[row].push(pt2(cell_x, cell_y));
                     self.cell_angles[row].push(0.0); //no angle
+                    self.cell_angles_editable[row].push(false); //not editable
                 }
             }
         }
@@ -362,33 +404,66 @@ impl Grid4 {
     pub fn draw(&self, draw: &Draw) {
         let draw = draw.rotate(self.rotation);
 
-        // draw grid lines
-        if self.show_lines {
+        if self.edit_cell_angle {
+
             self.draw_grid_lines(&draw);
-        }
-       
-        // draw points
-        if self.show_cell_points {
-            self.draw_cell_points(&draw);
-        }
-
-        if self.show_corner_points {
-            self.draw_corner_points(&draw);
-        }
-
-        // draw flow field arrows
-        if self.show_arrows {
             self.draw_arrows(&draw);
+            self.draw_cell_highlights(&draw);
+
+        } else {
+
+            // draw grid lines
+            if self.show_lines {
+                self.draw_grid_lines(&draw);
+            }
+           
+            // draw points
+            if self.show_cell_points {
+                self.draw_cell_points(&draw);
+            }
+    
+            if self.show_corner_points {
+                self.draw_corner_points(&draw);
+            }
+    
+            // draw flow field arrows
+            if self.show_arrows {
+                self.draw_arrows(&draw);
+            }
         }
+
+   
+
     }
 
-    pub fn draw_cell_highlight(&mut self, draw: &Draw, pos: Vec2) {
+    pub fn draw_cell_highlights(&self, draw: &Draw) {
         
-        let draw = draw.translate(vec3(pos.x, pos.y,0.0));
+        for i in 0..self.cell_angles_editable.len() {
+            for j in 0..self.cell_angles_editable[i].len() {
+                if self.cell_angles_editable[i][j] {
+                    let x = self.cell_points[i][j].x;
+                    let y = self.cell_points[i][j].y;
+                    let w = self.width as f32 / self.cols as f32;
+                    let h = self.height as f32 / self.rows as f32;
 
-        draw.rect()
-            .w_h(self.width as f32 / self.cols as f32, self.height as f32 / self.rows as f32)
-            .color(WHITE); 
+                    let draw = draw.translate(vec3(x,y,0.0));
+
+            
+                    draw.polyline()
+                        .color(BLACK)
+                        .weight(3.0)
+                        .points(
+                            vec![
+                                pt2(-w/2.0, -h/2.0),
+                                pt2(w/2.0, -h/2.0),
+                                pt2(w/2.0, h/2.0),
+                                pt2(-w/2.0, h/2.0),
+                                pt2(-w/2.0, -h/2.0),
+                            ]
+                        );
+                }
+            }
+        }
 
     }
 
