@@ -1,2 +1,1 @@
-Creative Coding Explorations with Nannou
-
+My creative coding explorations with Nannou
