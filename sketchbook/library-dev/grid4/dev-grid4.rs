@@ -4,6 +4,7 @@ development file for grid4 lib
 
 // use nannou::lyon::path::AttributeStore;
 
+use library::grid4;
 use nannou::lyon;
 // use nannou::lyon::geom::euclid::num::Ceil;
 use nannou::prelude::*;
@@ -152,6 +153,32 @@ fn model(app: &App) -> Model {
     // grid.set_angles_by_index(flowfield_3);
     grid.set_line_color(rgba( 169.0/255.0, 156.0/255.0, 217.0/255.0, 255.0/255.0));
 
+    // grid.on_resize = on_grid_resized;
+   
+    
+
+    grid.on_resize = |grid| {
+        println!("resizing grid to {},{}", grid.rows, grid.cols);
+        // let angle_rotate = touchosc.fader("/angle/rotate");
+        let angle_rotate = 0.0;
+        let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
+            (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
+        };
+        grid.set_angles_by_index(closure);
+    };
+
+
+
+    // on_grid_resized();
+
+    
+    // grid.on_resize = || {
+    //     println!("angle/rotate: {}", touchosc.fader("/angle/rotate"));
+    //     // println!("grid resized");
+    //      //A program defines an anonymous function slightly differently than a named function. 
+    //     // The syntax is | parameter_list | body. 
+        
+    // };
     //--------------------------------------------------------
     let mouse_pressed = false;
 
@@ -212,7 +239,7 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     m.grid.show_lines  = m.touchosc.button("/toggle/lines");
     m.grid.show_arrows = m.touchosc.button("/toggle/arrows");
     
-    m.grid.enable_edit_mode = m.touchosc.button("/toggle/edit-mode");
+    // m.grid.edit_mode = m.touchosc.button("/toggle/edit-mode");
     // println!("{}", fader_rows);
 
     // println!("{}, {}", n_rows, n_cols);
@@ -224,20 +251,19 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     let n_cols = ( win.w()  / resolution) as usize; 
     let n_rows = ( win.h() / resolution) as usize;
 
-    m.grid.set_rows(n_rows);
-    m.grid.set_cols(n_cols);
+    // m.grid.set_rows(n_rows);
+    // m.grid.set_cols(n_cols);
+    m.grid.set_rows_cols(n_rows, n_cols);
 
-    // m.grid.set_angles_by_index(flowfield_3);
 
-    //A program defines an anonymous function slightly differently than a named function. 
-    // The syntax is | parameter_list | body. 
-    let angle_rotate = m.touchosc.fader("/angle/rotate");
-    
-    let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
-        (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
-    };
-    m.grid.set_angles_by_index(closure);
-    // m.grid.set_angles_by_index(f);
+    // let angle_rotate = m.touchosc.fader("/angle/rotate");
+        
+    // let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
+    //     (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
+    // };
+    // m.grid.set_angles_by_index(closure);
+
+   
 
     let angle_rotate_selected = m.touchosc.radial("/angle/rotate-selected");
     //println!("{}", angle_rotate_selected);
@@ -375,13 +401,16 @@ d
 }
 
 fn mouse_pressed(app: &App, m: &mut Model, button: MouseButton) {
-    m.mouse_pressed = true;   
+    m.mouse_pressed = true; 
 
+    m.grid.toggle_editable_cell( vec2(app.mouse.x, app.mouse.y));
     
 }
 
 fn mouse_released(app: &App, m: &mut Model, button: MouseButton) {
     m.mouse_pressed = false;
+
+    
 }
 
 fn key_pressed(app: &App, m: &mut Model, key: Key) {
@@ -391,11 +420,20 @@ fn key_pressed(app: &App, m: &mut Model, key: Key) {
 }
 
 fn mouse_moved(app: &App, m: &mut Model, pos: Point2) {
-    if m.mouse_pressed {
-        if m.grid.enable_edit_mode {
-            m.grid.set_editable_cell( vec2(app.mouse.x, app.mouse.y), true);
-        } else {
-            m.curve_starting_points.push(pos);
-        }
-    }
+    // if m.mouse_pressed {
+    //     if m.grid.enable_edit_mode {`
+    //         m.grid.set_editable_cell( vec2(app.mouse.x, app.mouse.y), true);
+    //     } else {
+    //         m.curve_starting_points.push(pos);
+    //     }
+    // }
 }
+
+// fn on_grid_resized() {
+//     println!("grid resized");
+// }
+// fn on_grid_resized(grid: &mut Grid4) {
+//     println!("grid resized");
+    
+//     // m.curve_starting_points.clear();`
+// }

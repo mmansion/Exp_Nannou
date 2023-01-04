@@ -3,6 +3,7 @@ use nannou::prelude::*;
 // use crate::helpers::symbols::draw_flowfield_arrow as draw_flowfield_arrow;
 
 pub struct Grid4 {
+
     pub rows: usize,
     pub cols: usize,
     rotation: f32,
@@ -21,6 +22,7 @@ pub struct Grid4 {
     
     pub cell_angles: Vec<Vec<f32>>, 
     cell_angles_editable: Vec<Vec<bool>>,
+    // pub cell_angle: f32, //set by editor
 
     x_off: f32,
     y_off: f32,
@@ -41,8 +43,11 @@ pub struct Grid4 {
     pub show_arrows: bool, //for flowfield
     pub show_cells: bool,
 
-    pub edit_cell_angle: bool,
+    pub edit_mode: bool,
     pub is_reset: bool,
+
+    // pub on_resize: Box<fn()>,
+    pub on_resize: fn(grid: &mut Grid4),
 
 }
 
@@ -84,9 +89,10 @@ impl Grid4 {
         let show_arrows = false;
         let show_cells = true;
 
-        let edit_cell_angle = false;
+        let edit_mode = false;
         let is_reset = false;
         //--------------------------------------------------------
+
         //populate points
         for row in 0..(rows + 1) as usize {
             let f_height = height as f32;
@@ -159,11 +165,13 @@ impl Grid4 {
             show_lines,
             show_arrows,
             show_cells,
-            edit_cell_angle,
+            edit_mode,
             is_reset,
 
             inner_margin,
             outer_margin,
+          
+            on_resize: |grid| {},
         }
     }
 
@@ -220,11 +228,9 @@ impl Grid4 {
         index
     }
 
-   
-
-    pub fn set_editable_cell(&mut self, pos: Vec2, editable: bool) {
+    pub fn toggle_editable_cell(&mut self, pos: Vec2) {
         let index = self.get_nearest_index(pos);
-        // println!("index: {:?}", index); 
+        let editable = !self.cell_angles_editable[index.0][index.1];
         self.cell_angles_editable[index.0][index.1] = editable;
     }
 
@@ -272,18 +278,29 @@ impl Grid4 {
         self.inner_margin = margin;
     }
 
+    pub fn set_rows_cols(&mut self, rows: usize, cols: usize) {
+        if self.rows != rows || self.cols != cols {
+            //update only if change
+            self.rows = rows;
+            self.cols = cols;
+
+            //resize only if change
+            self.resize_grid();
+        }
+    }
+
     pub fn set_rows(&mut self, rows: usize) {
         if self.rows != rows {
             //update only if change
             self.rows = rows;
-            self.update_points();
+            self.resize_grid();
         }
     }
     pub fn set_cols(&mut self, cols: usize) {
         if self.cols != cols {
             //update only if change
             self.cols = cols;
-            self.update_points();
+            self.resize_grid();
         }
     }
 
@@ -291,7 +308,7 @@ impl Grid4 {
         self.rotation = radials;
     }
 
-    fn update_points(&mut self) {
+    fn resize_grid(&mut self) {
         self.corner_points.clear();
         self.cell_points.clear();
 
@@ -330,6 +347,10 @@ impl Grid4 {
                 }
             }
         }
+        // (self.on_resize)(); //call resize callback
+        (self.on_resize)(self);
+   
+
     }
 
     fn draw_arrows(&self, draw: &Draw) {
@@ -404,33 +425,29 @@ impl Grid4 {
     pub fn draw(&self, draw: &Draw) {
         let draw = draw.rotate(self.rotation);
 
-        if self.edit_cell_angle {
-
+    
+        // draw grid lines
+        if self.show_lines {
             self.draw_grid_lines(&draw);
-            self.draw_arrows(&draw);
-            self.draw_cell_highlights(&draw);
-
-        } else {
-
-            // draw grid lines
-            if self.show_lines {
-                self.draw_grid_lines(&draw);
-            }
-           
-            // draw points
-            if self.show_cell_points {
-                self.draw_cell_points(&draw);
-            }
-    
-            if self.show_corner_points {
-                self.draw_corner_points(&draw);
-            }
-    
-            // draw flow field arrows
-            if self.show_arrows {
-                self.draw_arrows(&draw);
-            }
         }
+        
+        // draw points
+        if self.show_cell_points {
+            self.draw_cell_points(&draw);
+        }
+
+        if self.show_corner_points {
+            self.draw_corner_points(&draw);
+        }
+
+        // draw flow field arrows
+        if self.show_arrows {
+            self.draw_arrows(&draw);
+        }
+
+        // draw editable cell highlights
+        self.draw_cell_highlights(&draw);
+        
 
    
 
