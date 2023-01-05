@@ -48,7 +48,6 @@ pub fn flowfield_3(v:Vec2, rows:usize, cols:usize) -> f32 {
     (v.x / rows as f32) * PI
 }
 
-
 //--------------------------------------------------------
 fn main() {
     nannou::app(model).update(update).run();
@@ -103,14 +102,11 @@ fn model(app: &App) -> Model {
 
     let mut curve_starting_points = Vec::new();
 
-    // for i in 0..10 {
-    //     for j in 0..10 {
-    //         let x = i as f32 * 80.0 + 40.0;
-    //         let y = j as f32 * 80.0 + 40.0 + (-win.w()*0.5);
-    //         let p = pt2(x, y);
-    //         curve_starting_points.push(p);
-    //     }
-    // }
+    //--------------------------------------------------------
+    //event handlers
+    let handle_on_grid_resized = || {
+        println!("window resized");
+    };
 
     //--------------------------------------------------------
 
@@ -140,24 +136,16 @@ fn model(app: &App) -> Model {
 
     touchosc.add_radar("/color/background", (0.0, 1.0, 1.0), (0.0, 1.0, 0.1));
 
-    // touchosc.add_fader("/rect/width");
-    // touchosc.add_fader("/rect/height");
-    // touchosc.add_fader("/rect/weight");
-    // touchosc.add_fader("/rect/rotation");
 
     //--------------------------------------------------------
     let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
 
-    // grid.set_angles(flowfield_1);
-    // grid.set_angles(flowfield_2);
-    // grid.set_angles_by_index(flowfield_3);
+
     grid.set_line_color(rgba( 169.0/255.0, 156.0/255.0, 217.0/255.0, 255.0/255.0));
 
-    // grid.on_resize = on_grid_resized;
-   
     
-
     grid.on_resize = |grid| {
+
         println!("resizing grid to {},{}", grid.rows, grid.cols);
         // let angle_rotate = touchosc.fader("/angle/rotate");
         let angle_rotate = 0.0;
@@ -166,19 +154,9 @@ fn model(app: &App) -> Model {
         };
         grid.set_angles_by_index(closure);
     };
-
-
-
-    // on_grid_resized();
-
     
-    // grid.on_resize = || {
-    //     println!("angle/rotate: {}", touchosc.fader("/angle/rotate"));
-    //     // println!("grid resized");
-    //      //A program defines an anonymous function slightly differently than a named function. 
-    //     // The syntax is | parameter_list | body. 
-        
-    // };
+
+
     //--------------------------------------------------------
     let mouse_pressed = false;
 
