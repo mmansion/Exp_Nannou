@@ -57,7 +57,7 @@ fn model(app: &App) -> Model {
     // and pass the OSC port where messages will be received.
     let mut touchosc = TouchOscClient::new(6555);
 
-    touchosc.verbose();//enable debugging
+     touchosc.verbose();//enable debugging
 
     // EXAMPLE: Adding client inputs.
     // Any type of TouchOSC controller inputs can be added to the TouchOscClient instance.

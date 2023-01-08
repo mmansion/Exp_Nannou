@@ -5,8 +5,8 @@ use super::points::Point;
 
 pub struct Vehicle {
     pub history: VecDeque<Vec2>,
-    pub position: Vec2,
-    pub velocity: Vec2,
+    position: Vec2,
+    velocity: Vec2,
     acceleration: Vec2,
     // Maximum steering force
     pub max_force: f32,
@@ -44,6 +44,15 @@ impl Vehicle {
         }
     }
 
+    pub fn get_position(&self) -> Vec2 {
+        self.position
+    }
+
+    pub fn get_velocity(&self) -> Vec2 {
+        // println!("velocity: {:?}", self.velocity);
+        self.velocity.clone()
+    }
+
     // Method to update position
     pub fn update(&mut self) {
         // Update velocity
@@ -60,6 +69,7 @@ impl Vehicle {
         }
     }
 
+
     pub fn display(&self, draw: &Draw) {
         // Draw a triangle rotated in the direction of velocity
         // This calculation is wrong
@@ -70,7 +80,7 @@ impl Vehicle {
             pt2(self.r, self.r * 2.0),
         ];
         draw.polygon()
-            .stroke(BLACK)
+            .stroke(WHITE)
             .stroke_weight(1.0)
             .points(points)
             .xy(self.position)
@@ -102,6 +112,10 @@ impl Vehicle {
         if distance <= size {
             self.velocity = self.velocity.rotate(PI / (random_f32() * 4.0));
         }
+    }
+
+    pub fn rotate(&mut self, angle: f32) {
+        self.velocity = self.velocity.rotate(angle);
     }
 
     pub fn hasCollision(&mut self, point: Vec2, size: f32) -> bool {
@@ -164,39 +178,14 @@ impl Vehicle {
         } else if self.position.y > top {
             vec2(self.velocity.x, -self.max_speed)
         } else {
-            vec2(0.0, 0.0)
+            self.velocity
         };
+        //Returns self normalized to length 1.0 if possible, else returns zero.
+        //In particular, if the input is zero (or very close to zero), or non-finite, the result of this operation will be zero.
+        let desired = desired.normalize_or_zero() * self.max_speed;
 
-        // let desired = match self.position {
-
-        //     Vec2 { x, .. } if x < left => Some(vec2(self.max_speed, self.velocity.y)),
-        //     Vec2 { x, .. } if x > right => Some(vec2(-self.max_speed, self.velocity.y)),
-        //     Vec2 { y, .. } if y < bottom => Some(vec2(self.velocity.x, self.max_speed)),
-        //     Vec2 { y, .. } if y > top => Some(vec2(self.velocity.x, -self.max_speed)),
-        //     _ => None,
-        // };
-
-        // let desired =
-        //     if self.position.x < left {
-        //         vec2(self.max_speed, self.velocity.y)
-        //     } else
-
-        //     if self.position.x > right {
-        //         vec2(-self.max_speed, self.velocity.y)
-        //     } else
-
-        //     if self.position.y < bottom {
-        //         vec2(self.velocity.x, self.max_speed)
-        //     } else
-
-        //     if self.position.y > top {
-        //         vec2(self.velocity.x, -self.max_speed)
-        //     }
-
-        //if let Some(desired) = desired {
-        let desired = desired.normalize() * self.max_speed;
         let steer = (desired - self.velocity).clamp_length_max(self.max_force);
+   
         self.apply_force(steer);
-        // }
     }
 }
