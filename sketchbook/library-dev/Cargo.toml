@@ -10,7 +10,7 @@ edition = "2021"
 nannou = "0.18.1"
 nannou_osc = "0.18.0"
 points_on_curve = "0.2"
-
+winit = "0.27.5"
 # nannou = { path = "../../nannou/nannou" }
 # nannou = { version ="0.16.0", path = "../../test/nannou/nannou" }
 

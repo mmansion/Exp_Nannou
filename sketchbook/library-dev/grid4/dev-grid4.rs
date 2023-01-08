@@ -10,6 +10,7 @@ use nannou::lyon;
 use nannou::prelude::*;
 
 use nannou_touchosc::TouchOscClient as TouchOscClient;
+use winit::event_loop;
 
 // use nannou::geom::*;
 // use nannou::geom::Point2;
@@ -23,6 +24,12 @@ use library::grid4::Grid4 as Grid;
 
 // beginning of touch library for nannou
 // use library::touchosc3::TouchOscClient;
+
+use winit::{
+        event::{Event, WindowEvent},
+        event_loop::EventLoopBuilder,
+        window::WindowBuilder,
+    };
 
 //--------------------------------------------------------
 static CAPTURE: bool = false; // capture to image sequence (or use obs)
@@ -48,8 +55,10 @@ pub fn flowfield_3(v:Vec2, rows:usize, cols:usize) -> f32 {
     (v.x / rows as f32) * PI
 }
 
+
 //--------------------------------------------------------
 fn main() {
+
     nannou::app(model).update(update).run();
 }
 
@@ -66,7 +75,7 @@ struct Model {
     line_length: f32,
     grid: Grid,
     curve_starting_points: Vec<Point2>,
-    mouse_pressed: bool
+    mouse_pressed: bool,
 }
 
 //--------------------------------------------------------
@@ -101,12 +110,6 @@ fn model(app: &App) -> Model {
     let mut builder = nannou::geom::path::Builder::new().with_svg();
 
     let mut curve_starting_points = Vec::new();
-
-    //--------------------------------------------------------
-    //event handlers
-    let handle_on_grid_resized = || {
-        println!("window resized");
-    };
 
     //--------------------------------------------------------
 
@@ -144,17 +147,16 @@ fn model(app: &App) -> Model {
     grid.set_line_color(rgba( 169.0/255.0, 156.0/255.0, 217.0/255.0, 255.0/255.0));
 
     
-    grid.on_resize = |grid| {
+    // grid.on_resize = |grid| {
 
-        println!("resizing grid to {},{}", grid.rows, grid.cols);
-        // let angle_rotate = touchosc.fader("/angle/rotate");
-        let angle_rotate = 0.0;
-        let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
-            (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
-        };
-        grid.set_angles_by_index(closure);
-    };
-    
+    //     println!("resizing grid to {},{}", grid.rows, grid.cols);
+    //     // let angle_rotate = touchosc.fader("/angle/rotate");
+    //     let angle_rotate = 0.0;
+    //     let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
+    //         (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
+    //     };
+    //     grid.set_angles_by_index(closure);
+    // };
 
 
     //--------------------------------------------------------

@@ -8,6 +8,7 @@ members = [
     "nannou_touchosc",
     "sketches",
     #"tutorials/schotter1",
+    'rust_patterns/*'
 ]
 
 resolver = "2"

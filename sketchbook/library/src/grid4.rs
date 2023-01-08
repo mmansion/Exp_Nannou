@@ -1,4 +1,5 @@
 use nannou::prelude::*;
+use observer::{};
 
 // use crate::helpers::symbols::draw_flowfield_arrow as draw_flowfield_arrow;
 
@@ -244,19 +245,19 @@ impl Grid4 {
         }
     }
 
-     pub fn set_angles(&mut self, f: fn(Vec2, usize, usize) -> f32) {
+     // yes, you can pass a function to a function expecting a closure, 
+    // no, you cannot pass closure to a function expecting a function 
+    // https://stackoverflow.com/questions/52696907/why-does-passing-a-closure-to-function-which-accepts-a-function-pointer-not-work
+    pub fn set_angles(&mut self, f:  impl Fn(Vec2, usize, usize)-> f32) {
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
-                let point = self.cell_points[row][col];
-                let angle = f(point, self.rows, self.cols);
+                let angle = f( vec2(row as f32, col as f32), self.rows, self.cols);
                 self.cell_angles[row][col] = angle;
             }
         }
     }
     
-    // yes, you can pass a function to a function expecting a closure, 
-    // no, you cannot pass closure to a function expecting a function 
-    // https://stackoverflow.com/questions/52696907/why-does-passing-a-closure-to-function-which-accepts-a-function-pointer-not-work
+   
     pub fn set_angles_by_index(&mut self, f:  impl Fn(Vec2, usize, usize)-> f32) {
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
