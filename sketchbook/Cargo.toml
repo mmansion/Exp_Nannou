@@ -4,7 +4,7 @@ members = [
     "library",
     "library-dev",
     # "templates",
-    # "examples",
+    "examples",
     "nannou_touchosc",
     "sketches",
     #"tutorials/schotter1",

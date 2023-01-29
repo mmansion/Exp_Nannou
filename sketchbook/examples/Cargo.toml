@@ -23,6 +23,10 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 #--------------------------------------------------------
 
 [[example]]
+name = "lerp-color-array"
+path = "lerp-color-array.rs"
+
+[[example]]
 name = "image-floyd-steinburg-dithering"
 path = "image-floyd-steinburg-dithering.rs"
 

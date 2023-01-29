@@ -1,7 +1,12 @@
+// Vechile (work in progress)
+
 use nannou::prelude::*;
 use std::collections::VecDeque;
 
+use crate::helpers::nibs::draw_boid;
+
 use super::points::Point;
+use super::helpers::*;
 
 pub struct Vehicle {
     pub history: VecDeque<Vec2>,
@@ -15,7 +20,9 @@ pub struct Vehicle {
     mass: f32,
     margin: f32,
     line_len: usize,
+    pub nib_size: f32,
     r: f32,
+    pub nib_color: Rgb
 }
 
 impl Vehicle {
@@ -30,6 +37,8 @@ impl Vehicle {
         let max_speed = max_speed;
         let margin = 0.0;
         let r = 6.0;
+        let nib_size = 2.0;
+        let nib_color   = rgb(1.0, 1.0, 1.0);
         Vehicle {
             mass,
             history,
@@ -40,6 +49,8 @@ impl Vehicle {
             max_speed,
             margin,
             line_len,
+            nib_size,
+            nib_color,
             r,
         }
     }
@@ -58,7 +69,7 @@ impl Vehicle {
         // Update velocity
         self.velocity += self.acceleration;
         // Limit speed
-        self.velocity.clamp_length_max(self.max_speed);
+        self.velocity = self.velocity.clamp_length_max(self.max_speed);
 
         self.position += self.velocity;
         // Reset accelerationelertion to 0 each cycle
@@ -74,18 +85,21 @@ impl Vehicle {
         // Draw a triangle rotated in the direction of velocity
         // This calculation is wrong
         let theta = (self.velocity.angle() + PI / 2.0) * -1.0;
-        let points = vec![
-            pt2(0.0, -self.r * 2.0),
-            pt2(-self.r, self.r * 2.0),
-            pt2(self.r, self.r * 2.0),
-        ];
-        draw.polygon()
-            .stroke(WHITE)
-            .stroke_weight(1.0)
-            .points(points)
-            .xy(self.position)
-            .rgb(0.5, 0.5, 0.5)
-            .rotate(-theta);
+        draw_boid(draw, self.position, self.nib_size, self.nib_color, theta);
+
+        // let theta = (self.velocity.angle() + PI / 2.0) * -1.0;
+        // let points = vec![
+        //     pt2(0.0, -self.r * 2.0),
+        //     pt2(-self.r, self.r * 2.0),
+        //     pt2(self.r, self.r * 2.0),
+        // ];
+        // draw.polygon()
+        //     .stroke(WHITE)
+        //     .stroke_weight(1.0)
+        //     .points(points)
+        //     .xy(self.position)
+        //     .rgb(0.5, 0.5, 0.5)
+        //     .rotate(-theta);
     }
 
     pub fn apply_force(&mut self, force: Vec2) {
@@ -128,6 +142,23 @@ impl Vehicle {
         }
     }
 
+    pub fn boundaries_loop(&mut self, win: &Rect) {
+        let left = win.left() + self.margin as f32;
+        let right = win.right() - self.margin as f32;
+        let top = win.top() - self.margin as f32;
+        let bottom = win.bottom() + self.margin as f32;
+
+        if self.position.x < left {
+            self.position.x = right;
+        } else if self.position.x > right {
+            self.position.x = left;
+        } else if self.position.y < bottom {
+            self.position.y = top;
+        } else if self.position.y > top {
+            self.position.y = bottom;
+        }
+    }
+
     pub fn boundaries(&mut self, win: &Rect) {
         let left = win.left() + self.margin as f32;
         let right = win.right() - self.margin as f32;
@@ -148,13 +179,6 @@ impl Vehicle {
         } else {
             vec2(0.0, 0.0)
         };
-        // let desired = match self.position {
-        //     Vec2 { x, .. } if x < left => Some(vec2(self.max_speed, self.velocity.y)),
-        //     Vec2 { x, .. } if x > right => Some(vec2(-self.max_speed, self.velocity.y)),
-        //     Vec2 { y, .. } if y < bottom => Some(vec2(self.velocity.x, self.max_speed)),
-        //     Vec2 { y, .. } if y > top => Some(vec2(self.velocity.x, -self.max_speed)),
-        //     _ => None,
-        // };
 
         //if let Some(desired) = desired {
         let desired = desired.normalize() * self.max_speed;
@@ -163,7 +187,7 @@ impl Vehicle {
         //}
     }
 
-    pub fn boundaries2(&mut self, win: &Rect, margin: i32) {
+    pub fn boundaries_with_margin(&mut self, win: &Rect, margin: i32) {
         let left = win.left() + margin as f32;
         let right = win.right() - margin as f32;
         let top = win.top() - margin as f32;

@@ -1,3 +1,3 @@
-pub mod symbols;
+pub mod nibs;
 
 // pub use self::arrows::FlowFieldArrow;
