@@ -23,6 +23,10 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 #--------------------------------------------------------
 
 [[example]]
+name = "event-handler"
+path = "event-handler.rs"
+
+[[example]]
 name = "lerp-color-array"
 path = "lerp-color-array.rs"
 
