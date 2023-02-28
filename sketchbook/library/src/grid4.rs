@@ -1,13 +1,21 @@
 use nannou::prelude::*;
-use observer::{};
+// use observer::{};
 
 // use crate::helpers::symbols::draw_flowfield_arrow as draw_flowfield_arrow;
 
+pub enum RECT_MODE { //todo: implement
+    CORNER,
+    CENTER,
+}
+
 pub struct Grid4 {
+    grid_pos: Vec2,
 
     pub rows: usize,
     pub cols: usize,
     rotation: f32,
+
+    pub rect_mode: RECT_MODE,
 
     inner_margin: i32,
     outer_margin: i32,
@@ -54,16 +62,26 @@ pub struct Grid4 {
 
 impl Grid4 {
 
-    pub fn new(rows: usize, cols: usize, width: i32, height: i32) -> Self {
-        let width = width;
+    pub fn new(pos:Vec2, width: i32, height: i32, rows: usize, cols: usize) -> Self {
+
+        let rect_mode: RECT_MODE = RECT_MODE::CORNER;
+        let grid_pos = pos;
+
+        // let margin = 100.0;
+        let width  = width;
         let height = height;
         let rows = rows;
         let cols = cols;
         let rotation = 0.0;
 
-        //offset for nannou coord sys
-        let y_off = -height as f32 / 2.0;
-        let x_off = -width as f32 / 2.0;
+        //offset for nannou's center origin coord sys
+
+        //positioning for CORNER mode
+        // let y_off = -height as f32 / 2.0;
+        let y_off = grid_pos.y - height as f32;
+        
+        // let x_off = -width as f32 / 2.0;
+        let x_off = grid_pos.x;
 
         // let mut points = Vec::new();
         // let mut cells  = Vec::new();
@@ -135,10 +153,13 @@ impl Grid4 {
         //--------------------------------------------------------
 
         Grid4 {
+            grid_pos,
             cols,
             rows,
             width,
             height,
+
+            rect_mode,
             
             // points,
             // cells,
@@ -175,6 +196,7 @@ impl Grid4 {
             on_resize: |grid| {},
         }
     }
+
 
     pub fn get_num_rows(&self) -> usize {
         self.rows
@@ -310,6 +332,7 @@ impl Grid4 {
     }
 
     fn resize_grid(&mut self) {
+        
         self.corner_points.clear();
         self.cell_points.clear();
 
@@ -398,28 +421,28 @@ impl Grid4 {
         }
     }
 
-    fn draw_grid_lines(&self, draw: &Draw) {
+    fn draw_grid_lines(&self, draw: &Draw) {      
+        //draw column lines
+        for c in 0..self.corner_points[0].len() {
+            // col line points
+            let col_start_pt = self.corner_points[0][c];
+            let col_end_pt = pt2(self.corner_points[0][c].x, self.corner_points[0][c].y + self.height as f32);
+
+            draw.line()
+                .stroke_weight(self.line_weight)
+                .color(self.line_color)
+                .points(col_start_pt, col_end_pt);
+        }
         //draw row lines
         for r in 0..self.corner_points.len() {
-            for c in 0..self.corner_points[r].len() {
-                //row line points
-                let row_start_pt = self.corner_points[r][c];
-                let row_end_pt = pt2(self.corner_points[r][c].x + self.width as f32, self.corner_points[r][c].y);
+            // row line points
+            let row_start_pt = self.corner_points[r][0];
+            let row_end_pt = pt2(self.corner_points[r][0].x + self.width as f32, self.corner_points[r][0].y);
 
-                // col line points
-                let col_start_pt = self.corner_points[r][c];
-                let col_end_pt = pt2(self.corner_points[r][c].x, self.corner_points[r][c].y + self.height as f32);
-
-                draw.line()
-                    .stroke_weight(self.line_weight)
-                    .color(self.line_color)
-                    .points(row_start_pt, row_end_pt);
-
-                draw.line()
-                    .stroke_weight(self.line_weight)
-                    .color(self.line_color)
-                    .points(col_start_pt, col_end_pt);
-            }
+            draw.line()
+                .stroke_weight(self.line_weight)
+                .color(self.line_color)
+                .points(row_start_pt, row_end_pt);
         }
     }
 
@@ -448,9 +471,6 @@ impl Grid4 {
 
         // draw editable cell highlights
         self.draw_cell_highlights(&draw);
-        
-
-   
 
     }
 

@@ -131,9 +131,9 @@ fn model(app: &App) -> Model {
     touchosc.add_radial("/angle/rotate-selected", 0.0, PI*2.0, 0.0);
 
     touchosc.add_button("/toggle/corner-points", false);
-    touchosc.add_button("/toggle/cell-points", false);
+    touchosc.add_button("/toggle/cell-points", true);
     touchosc.add_button("/toggle/lines", true);
-    touchosc.add_button("/toggle/arrows", true);
+    touchosc.add_button("/toggle/arrows", false);
     touchosc.add_button("/toggle/curves", true);
     touchosc.add_button("/toggle/edit-mode", false);
 
@@ -141,7 +141,12 @@ fn model(app: &App) -> Model {
 
 
     //--------------------------------------------------------
-    let mut grid = Grid::new(10, 10, WIDTH, HEIGHT);
+
+    // grid_pos, grid_width, grid_height, num_rows, num_cols
+    let mut grid = Grid::new(pt2(-400.0, 400.0), WIDTH, HEIGHT, 10, 10);
+
+    // grid.rect_mode = RectMode::Center;
+
 
 
     grid.set_line_color(rgba( 169.0/255.0, 156.0/255.0, 217.0/255.0, 255.0/255.0));
@@ -150,7 +155,7 @@ fn model(app: &App) -> Model {
     // grid.on_resize = |grid| {
 
     //     println!("resizing grid to {},{}", grid.rows, grid.cols);
-    //     // let angle_rotate = touchosc.fader("/angle/rotate");
+    //     //let angle_rotate = touchosc.fader("/angle/rotate");
     //     let angle_rotate = 0.0;
     //     let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
     //         (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
@@ -233,25 +238,28 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     // m.grid.set_rows(n_rows);
     // m.grid.set_cols(n_cols);
-    m.grid.set_rows_cols(n_rows, n_cols);
+    //m.grid.set_rows_cols(n_rows, n_cols);
 
 
-    // let angle_rotate = m.touchosc.fader("/angle/rotate");
+    let angle_rotate = m.touchosc.fader("/angle/rotate");
         
-    // let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
-    //     (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
-    // };
-    // m.grid.set_angles_by_index(closure);
+    let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
+        (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
+    };
+    m.grid.set_angles_by_index(closure);
 
    
 
-    let angle_rotate_selected = m.touchosc.radial("/angle/rotate-selected");
+    //let angle_rotate_selected = m.touchosc.radial("/angle/rotate-selected");
     //println!("{}", angle_rotate_selected);
-    m.grid.set_editable_cells_angle(angle_rotate_selected);
+    //m.grid.set_editable_cells_angle(angle_rotate_selected);
 
     m.line_length = m.touchosc.fader("/line-length");
 
 }
+
+//--------------------------------------------------------
+// DRAW
 
 fn view(app: &App, m: &Model, frame: Frame) {
     if (m.redraw) {
@@ -383,7 +391,7 @@ d
 fn mouse_pressed(app: &App, m: &mut Model, button: MouseButton) {
     m.mouse_pressed = true; 
 
-    m.grid.toggle_editable_cell( vec2(app.mouse.x, app.mouse.y));
+   // m.grid.toggle_editable_cell( vec2(app.mouse.x, app.mouse.y));
     
 }
 
@@ -400,13 +408,14 @@ fn key_pressed(app: &App, m: &mut Model, key: Key) {
 }
 
 fn mouse_moved(app: &App, m: &mut Model, pos: Point2) {
-    // if m.mouse_pressed {
-    //     if m.grid.enable_edit_mode {`
-    //         m.grid.set_editable_cell( vec2(app.mouse.x, app.mouse.y), true);
-    //     } else {
-    //         m.curve_starting_points.push(pos);
-    //     }
-    // }
+    if m.mouse_pressed {
+         m.curve_starting_points.push(pos);
+        // if m.grid.enable_edit_mode {
+        //     m.grid.toggle_editable_cell( vec2(app.mouse.x, app.mouse.y) );
+        // } else {
+        //     m.curve_starting_points.push(pos);
+        // }
+    }
 }
 
 // fn on_grid_resized() {
