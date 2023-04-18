@@ -152,16 +152,16 @@ fn model(app: &App) -> Model {
     grid.set_line_color(rgba( 169.0/255.0, 156.0/255.0, 217.0/255.0, 255.0/255.0));
 
     
-    // grid.on_resize = |grid| {
+    grid.on_resize = |grid| {
 
-    //     println!("resizing grid to {},{}", grid.rows, grid.cols);
-    //     //let angle_rotate = touchosc.fader("/angle/rotate");
-    //     let angle_rotate = 0.0;
-    //     let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
-    //         (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
-    //     };
-    //     grid.set_angles_by_index(closure);
-    // };
+        println!("resizing grid to {},{}", grid.rows, grid.cols);
+        //let angle_rotate = touchosc.fader("/angle/rotate");
+        let angle_rotate = 0.0;
+        let closure = |v:Vec2, rows:usize, cols:usize| -> f32 {   
+            (v.x / rows as f32) * PI + (angle_rotate * cols as f32)
+        };
+        grid.set_angles_by_index(closure);
+    };
 
 
     //--------------------------------------------------------
@@ -236,9 +236,9 @@ fn update(app: &App, m: &mut Model, _update: Update) {
     let n_cols = ( win.w()  / resolution) as usize; 
     let n_rows = ( win.h() / resolution) as usize;
 
-    // m.grid.set_rows(n_rows);
-    // m.grid.set_cols(n_cols);
-    //m.grid.set_rows_cols(n_rows, n_cols);
+    m.grid.set_rows(n_rows);
+    m.grid.set_cols(n_cols);
+    m.grid.set_rows_cols(n_rows, n_cols);
 
 
     let angle_rotate = m.touchosc.fader("/angle/rotate");
