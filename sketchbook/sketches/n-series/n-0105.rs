@@ -40,7 +40,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     draw.background().color(WHITE);
     // let draw = draw.rotate(-PI/4.0);
    
-    let pos = pt2(0.0, 0.0);
+    let pos    = pt2(0.0, 0.0);
     let radius = 300.0;
     let angles = 360;
     let points = 300;

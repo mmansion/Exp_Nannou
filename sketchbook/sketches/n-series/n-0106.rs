@@ -147,8 +147,6 @@ fn view(app: &App, m: &Model, frame: Frame) {
     // // m.stipple.outline(&draw, 0.6, true);
     // m.stipple2.left(&draw, 10000, 1.0);
 
-
-
     // let points = [
     //     pt2(-win.w()*0.35, win.h() * 0.35),
     //     pt2(win.w()*0.35, win.h() * 0.35),

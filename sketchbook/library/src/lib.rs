@@ -7,6 +7,7 @@ pub mod grid;
 pub mod grid2;
 pub mod grid3;
 pub mod grid4;
+pub mod grid5;
 pub mod line;
 pub mod lines; //collection of line-types
 pub mod math;

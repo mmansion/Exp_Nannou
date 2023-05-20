@@ -327,44 +327,44 @@ d
                 let mut last_pt = pt2(x, y);
         
                 for n in 0..50 {
-                let pt = pt2(x, y);
-                let angle = m.grid.get_nearest_cell_angle(pt2(x, y));
-                let x_step = m.line_length * angle.cos();
-                let y_step = m.line_length * angle.sin();
+                    let pt = pt2(x, y);
+                    let angle = m.grid.get_nearest_cell_angle(pt2(x, y));
+                    let x_step = m.line_length * angle.cos();
+                    let y_step = m.line_length * angle.sin();
 
-                if n > 0 {
-                    let mut builder = nannou::geom::path::Builder::new().with_svg();
-                    //builder.line_to(lyon::math::point(last_pt.x, last_pt.y));
+                    if n > 0 {
+                        let mut builder = nannou::geom::path::Builder::new().with_svg();
+                        //builder.line_to(lyon::math::point(last_pt.x, last_pt.y));
 
-                    builder.line_to(lyon::math::point(last_pt.x, last_pt.y));
+                        builder.line_to(lyon::math::point(last_pt.x, last_pt.y));
 
-                    builder.quadratic_bezier_to(
-                        lyon::math::point(last_pt.x, last_pt.y),
-                        lyon::math::point(last_pt.x, last_pt.y)
-                    );
+                        builder.quadratic_bezier_to(
+                            lyon::math::point(last_pt.x, last_pt.y),
+                            lyon::math::point(last_pt.x, last_pt.y)
+                        );
 
-                    builder.quadratic_bezier_to(
-                        lyon::math::point(pt.x, pt.y),
-                        lyon::math::point(pt.x, pt.y)
-                    );
+                        builder.quadratic_bezier_to(
+                            lyon::math::point(pt.x, pt.y),
+                            lyon::math::point(pt.x, pt.y)
+                        );
 
-                    // end control point
-                    builder.move_to(lyon::math::point(pt.x, pt.y));
-                    builder.close();
+                        // end control point
+                        builder.move_to(lyon::math::point(pt.x, pt.y));
+                        builder.close();
 
-                    let path = builder.build();
+                        let path = builder.build();
 
-                    draw.path()
-                    .stroke()
-                    .color(WHITE)
-                    .events(path.iter());
+                        draw.path()
+                        .stroke()
+                        .color(WHITE)
+                        .events(path.iter());
+                    }
+
+                    last_pt = pt2(x, y);
+
+                    x = x + x_step;
+                    y = y + y_step;
                 }
-
-                last_pt = pt2(x, y);
-
-                x = x + x_step;
-                y = y + y_step;
-            }
             }            
         }
 
