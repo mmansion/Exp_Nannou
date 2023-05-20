@@ -56,11 +56,11 @@ pub struct Grid5 {
     pub is_reset: bool,
 
     // pub on_resize: Box<fn()>,
-    pub on_resize: fn(grid: &mut Grid4),
+    pub on_resize: fn(grid: &mut Grid5),
 
 }
 
-impl Grid4 {
+impl Grid5 {
 
     pub fn new(pos:Vec2, width: i32, height: i32, rows: usize, cols: usize) -> Self {
 
@@ -152,7 +152,7 @@ impl Grid4 {
 
         //--------------------------------------------------------
 
-        Grid4 {
+        Grid5 {
             grid_pos,
             cols,
             rows,

@@ -32,5 +32,9 @@ name = "dev-background"
 path = "dev-background.rs"
 
 [[example]]
+name = "dev-grid5"
+path = "grid5/dev-grid5.rs"
+
+[[example]]
 name = "dev-grid4"
 path = "grid4/dev-grid4.rs"
