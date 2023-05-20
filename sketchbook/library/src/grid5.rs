@@ -9,11 +9,13 @@ pub enum RECT_MODE { //todo: implement
 }
 
 pub struct Grid5 {
-    grid_pos: Vec2,
+    pub grid_pos: Vec2,
 
     pub rows: usize,
     pub cols: usize,
+
     rotation: f32,
+    scale  : f32,
 
     pub rect_mode: RECT_MODE,
 
@@ -73,6 +75,7 @@ impl Grid5 {
         let rows = rows;
         let cols = cols;
         let rotation = 0.0;
+        let scale = 1.0;
 
         //offset for nannou's center origin coord sys
 
@@ -169,6 +172,7 @@ impl Grid5 {
             cell_angles_editable,
 
             rotation,
+            scale,
 
             y_off,
             x_off,
@@ -326,10 +330,16 @@ impl Grid5 {
             self.resize_grid();
         }
     }
-
-    pub fn rotation(&mut self, radials: f32) {
+    pub fn set_rotation(&mut self, radials: f32) {
         self.rotation = radials;
     }
+    pub fn set_scale(&mut self, scale: f32) {
+        self.scale = scale;
+    }
+
+    // pub fn rotation(&mut self, radials: f32) {
+    //     self.rotation = radials;
+    // }
 
     fn resize_grid(&mut self) {
         
@@ -447,9 +457,9 @@ impl Grid5 {
     }
 
     pub fn draw(&self, draw: &Draw) {
-        let draw = draw.rotate(self.rotation);
+        let draw = draw.scale(self.scale).rotate(self.rotation);
+        // let draw = draw.rotate(self.rotation);
 
-    
         // draw grid lines
         if self.show_lines {
             self.draw_grid_lines(&draw);

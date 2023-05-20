@@ -89,6 +89,8 @@ fn model(app: &App) -> Model {
 
     touchosc.add_fader("/grid/rows", 2.0, (WIDTH/10) as f32, 20.0);
     touchosc.add_fader("/grid/cols", 2.0, (HEIGHT/10) as f32, 20.0);
+    touchosc.add_fader("/grid/rotate", 0.0, PI*2.0, 0.0);
+    touchosc.add_fader("/grid/scale", 0.1, 1.0, 1.0);
 
     touchosc.add_fader("/grid/cols-rows", 2.0, (WIDTH/10) as f32, 10.0);
     touchosc.add_fader("/angle/rotate", 0.0, 1.0, 0.5);
@@ -189,9 +191,14 @@ fn update(app: &App, m: &mut Model, _update: Update) {
 
     // let resolution = (win.w() * 0.08); 
     let resolution = m.touchosc.fader("/grid/resolution");
+    let rotation = m.touchosc.fader("/grid/rotate");
+    let scale = m.touchosc.fader("/grid/scale");
+
     let n_cols = ( win.w()  / resolution) as usize; 
     let n_rows = ( win.h() / resolution) as usize;
 
+    m.grid.set_rotation(rotation);
+    m.grid.set_scale(scale);
     m.grid.set_rows(n_rows);
     m.grid.set_cols(n_cols);
     m.grid.set_rows_cols(n_rows, n_cols);
