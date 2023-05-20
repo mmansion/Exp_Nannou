@@ -109,7 +109,7 @@ fn model(app: &App) -> Model {
     //--------------------------------------------------------
 
     // grid_pos, grid_width, grid_height, num_rows, num_cols
-    let mut grid = Grid::new(pt2(-400.0, 400.0), WIDTH, HEIGHT, 10, 10);
+    let mut grid = Grid::new(pt2(-400.0, 400.0), WIDTH as f32, HEIGHT as f32, 10, 10);
 
     // grid.rect_mode = RectMode::Center;
 
@@ -265,6 +265,8 @@ fn view(app: &App, m: &Model, frame: Frame) {
 fn mouse_pressed(app: &App, m: &mut Model, button: MouseButton) {
     m.mouse_pressed = true; 
 
+
+    println!("{}", m.grid.get_cell(0,0));
    // m.grid.toggle_editable_cell( vec2(app.mouse.x, app.mouse.y));
     
 }

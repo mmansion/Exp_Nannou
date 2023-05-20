@@ -22,8 +22,11 @@ pub struct Grid5 {
     inner_margin: i32,
     outer_margin: i32,
 
-    pub width: i32,
-    pub height: i32,
+    orig_w: f32,
+    orig_h: f32,
+    pub width: f32,
+    pub height: f32,
+
     // pub points: Vec<Vec2>, //grid points, corners of row/col lines
     // pub cells : Vec<Vec2>, //grid cells, inbetween row/col lines
 
@@ -64,12 +67,17 @@ pub struct Grid5 {
 
 impl Grid5 {
 
-    pub fn new(pos:Vec2, width: i32, height: i32, rows: usize, cols: usize) -> Self {
+    pub fn new(pos:Vec2, width: f32, height: f32, rows: usize, cols: usize) -> Self {
 
         let rect_mode: RECT_MODE = RECT_MODE::CORNER;
         let grid_pos = pos;
 
         // let margin = 100.0;
+
+        //maintain orig width/height for scaling
+        let orig_w = width;
+        let orig_h = height;
+        
         let width  = width;
         let height = height;
         let rows = rows;
@@ -159,6 +167,8 @@ impl Grid5 {
             grid_pos,
             cols,
             rows,
+            orig_w,
+            orig_h,
             width,
             height,
 
@@ -334,12 +344,15 @@ impl Grid5 {
         self.rotation = radials;
     }
     pub fn set_scale(&mut self, scale: f32) {
-        self.scale = scale;
+        // self.scale = scale;
+        self.width  = self.orig_w * scale;
+        self.height = self.orig_h * scale;
+        self.resize_grid();
     }
 
-    // pub fn rotation(&mut self, radials: f32) {
-    //     self.rotation = radials;
-    // }
+    pub fn get_cell(&mut self, x:usize, y:usize) -> Vec2 {
+        self.cell_points[y][x]
+    }
 
     fn resize_grid(&mut self) {
         
@@ -381,10 +394,8 @@ impl Grid5 {
                 }
             }
         }
-        // (self.on_resize)(); //call resize callback
-        (self.on_resize)(self);
+        (self.on_resize)(self);//call resize callback
    
-
     }
 
     fn draw_arrows(&self, draw: &Draw) {
@@ -457,7 +468,7 @@ impl Grid5 {
     }
 
     pub fn draw(&self, draw: &Draw) {
-        let draw = draw.scale(self.scale).rotate(self.rotation);
+        // let draw = draw.scale(self.scale).rotate(self.rotation);
         // let draw = draw.rotate(self.rotation);
 
         // draw grid lines
