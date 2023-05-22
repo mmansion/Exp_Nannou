@@ -105,19 +105,16 @@ fn model(app: &App) -> Model {
 
     // touchosc.add_radar("/color/background", (0.0, 1.0, 1.0), (0.0, 1.0, 0.1));
 
-
     //--------------------------------------------------------
 
     // grid_pos, grid_width, grid_height, num_rows, num_cols
-    let mut grid = Grid::new(pt2(-400.0, 400.0), WIDTH as f32, HEIGHT as f32, 10, 10);
+    let mut grid = Grid::new(pt2(0.0, 0.0), WIDTH as f32, HEIGHT as f32, 10, 10);
 
-    // grid.rect_mode = RectMode::Center;
-
-
+    grid.set_rect_mode(library::grid5::RectMode::Center);
+    // grid.set_rect_mode(library::grid5::RectMode::Corner);
 
     grid.set_line_color(rgba( 169.0/255.0, 156.0/255.0, 217.0/255.0, 255.0/255.0));
 
-    
     grid.on_resize = |grid| {
 
         println!("resizing grid to {},{}", grid.rows, grid.cols);

@@ -1,11 +1,14 @@
+use std::borrow::Borrow;
+
 use nannou::prelude::*;
 // use observer::{};
 
 // use crate::helpers::symbols::draw_flowfield_arrow as draw_flowfield_arrow;
 
-pub enum RECT_MODE { //todo: implement
-    CORNER,
-    CENTER,
+#[derive(Debug)]
+pub enum RectMode { //todo: implement
+    Corner,
+    Center,
 }
 
 pub struct Grid5 {
@@ -17,7 +20,7 @@ pub struct Grid5 {
     rotation: f32,
     scale  : f32,
 
-    pub rect_mode: RECT_MODE,
+    pub rect_mode: RectMode,
 
     inner_margin: i32,
     outer_margin: i32,
@@ -69,7 +72,7 @@ impl Grid5 {
 
     pub fn new(pos:Vec2, width: f32, height: f32, rows: usize, cols: usize) -> Self {
 
-        let rect_mode: RECT_MODE = RECT_MODE::CORNER;
+        let mut rect_mode:RectMode = RectMode::Corner;
         let grid_pos = pos;
 
         // let margin = 100.0;
@@ -87,9 +90,9 @@ impl Grid5 {
 
         //offset for nannou's center origin coord sys
 
-        //positioning for CORNER mode
+        //positioning for Corner mode
         // let y_off = -height as f32 / 2.0;
-        let y_off = grid_pos.y - height as f32;
+        let y_off = grid_pos.y;
         
         // let x_off = -width as f32 / 2.0;
         let x_off = grid_pos.x;
@@ -125,10 +128,9 @@ impl Grid5 {
 
         //populate points
         for row in 0..(rows + 1) as usize {
-            let f_height = height as f32;
             let f_rows = rows as f32;
             let f_row = row as f32;
-            let y = (f_height / f_rows * f_row) + y_off;
+            let y = (height / f_rows * f_row) + y_off;
 
             corner_points.push(Vec::new());
             cell_points.push(Vec::new());
@@ -136,17 +138,16 @@ impl Grid5 {
             cell_angles_editable.push(Vec::new());
 
             for col in 0..(cols + 1) as usize {
-                let f_width = width as f32;
                 let f_cols = cols as f32;
                 let f_col = col as f32; 
-                let x = (f_width / f_cols * f_col) + x_off;
+                let x = (width / f_cols * f_col) + x_off;
                 // points.push(pt2(x, y));
                 corner_points[row].push(pt2(x, y));
 
                 //calculate cell position
                 if row < rows && col < cols {
-                    let cell_x = (f_width / f_cols * f_col) + x_off + (f_width / f_cols / 2.0);
-                    let cell_y = (f_height / f_rows * f_row) + y_off + (f_height / f_rows / 2.0);
+                    let cell_x = (width / f_cols * f_col) + x_off + (width / f_cols / 2.0);
+                    let cell_y = (height / f_rows * f_row) + y_off + (height / f_rows / 2.0);
                     //cells.push(pt2(cell_x, cell_y));
 
                     cell_points[row].push(pt2(cell_x, cell_y));
@@ -271,6 +272,41 @@ impl Grid5 {
         self.cell_angles_editable[index.0][index.1] = editable;
     }
 
+    //--------------------------------------------------------
+    //setters
+
+    pub fn set_rect_mode(&mut self, mode: RectMode) {
+        //print the enum mode
+        println!("rect mode: {:?}", mode);
+       
+        // // //if mode same as before return
+        // if  matches!(self.rect_mode.borrow(), mode.borrow()) {
+        //     return;
+        // } 
+        
+        // self.rect_mode = mode;
+        
+
+
+        // change the offset based on mode
+        match mode {
+            RectMode::Corner => {
+                self.x_off = self.grid_pos.x;
+                self.y_off = self.grid_pos.y;
+            },
+            RectMode::Center => {
+                self.x_off = self.grid_pos.x - self.width / 2.0;
+                self.y_off = self.grid_pos.y - self.height / 2.0;
+            },
+        }
+        self.resize_grid();
+
+
+
+
+
+    }
+
     pub fn set_editable_cells_angle(&mut self, a:f32) {
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
@@ -344,10 +380,12 @@ impl Grid5 {
         self.rotation = radials;
     }
     pub fn set_scale(&mut self, scale: f32) {
-        // self.scale = scale;
-        self.width  = self.orig_w * scale;
-        self.height = self.orig_h * scale;
-        self.resize_grid();
+        if self.scale != scale {
+            self.scale = scale;
+            self.width  = self.orig_w * self.scale;
+            self.height = self.orig_h * self.scale;
+            self.resize_grid();
+        }
     }
 
     pub fn get_cell(&mut self, x:usize, y:usize) -> Vec2 {
@@ -355,18 +393,15 @@ impl Grid5 {
     }
 
     fn resize_grid(&mut self) {
-        
         self.corner_points.clear();
         self.cell_points.clear();
-
         self.cell_angles.clear();
         self.cell_angles_editable.clear();
 
         for row in 0..(self.rows + 1) {
-            let f_height = self.height as f32;
             let f_rows = self.rows as f32;
             let f_row = row as f32;
-            let y = (f_height / f_rows * f_row) + self.y_off;
+            let y = (self.height / f_rows * f_row) + self.y_off;
 
             self.corner_points.push(Vec::new());
             self.cell_points.push(Vec::new());
@@ -374,18 +409,17 @@ impl Grid5 {
             self.cell_angles_editable.push(Vec::new());
 
             for col in 0..(self.cols + 1) {
-                let f_width = self.width as f32;
                 let f_cols = self.cols as f32;
                 let f_col = col as f32;
-                let x = (f_width / f_cols * f_col) + self.x_off;
+                let x = (self.width / f_cols * f_col) + self.x_off;
                 
                 // self.points.push(pt2(x, y));
                 self.corner_points[row].push(pt2(x, y));
 
                 //calculate cell position
                 if row < self.rows && col < self.cols {
-                    let cell_x = (f_width / f_cols * f_col) + self.x_off + (f_width / f_cols / 2.0);
-                    let cell_y = (f_height / f_rows * f_row) + self.y_off + (f_height / f_rows / 2.0);
+                    let cell_x = (self.width / f_cols * f_col) + self.x_off + (self.width / f_cols / 2.0);
+                    let cell_y = (self.height / f_rows * f_row) + self.y_off + (self.height / f_rows / 2.0);
                     // self.cells.push(pt2(cell_x, cell_y));
 
                     self.cell_points[row].push(pt2(cell_x, cell_y));
@@ -434,6 +468,14 @@ impl Grid5 {
         //draw cell points
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
+                if row == 0 && col == 0 {
+                    //draw a big ellipse
+                    draw.ellipse()
+                        .xy(self.cell_points[row][col])
+                        .radius(self.cell_point_size * 2.0)
+                        .color(self.cell_point_color);
+                    continue;
+                }
                 draw.ellipse()
                     .xy(self.cell_points[row][col])
                     .radius(self.cell_point_size)
@@ -447,7 +489,7 @@ impl Grid5 {
         for c in 0..self.corner_points[0].len() {
             // col line points
             let col_start_pt = self.corner_points[0][c];
-            let col_end_pt = pt2(self.corner_points[0][c].x, self.corner_points[0][c].y + self.height as f32);
+            let col_end_pt = pt2(self.corner_points[0][c].x, self.corner_points[0][c].y + self.height);
 
             draw.line()
                 .stroke_weight(self.line_weight)
@@ -503,7 +545,7 @@ impl Grid5 {
                     let x = self.cell_points[i][j].x;
                     let y = self.cell_points[i][j].y;
                     let w = self.width as f32 / self.cols as f32;
-                    let h = self.height as f32 / self.rows as f32;
+                    let h = self.height / self.rows as f32;
 
                     let draw = draw.translate(vec3(x,y,0.0));
 
