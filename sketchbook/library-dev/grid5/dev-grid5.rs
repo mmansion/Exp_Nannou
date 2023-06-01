@@ -239,6 +239,14 @@ fn view(app: &App, m: &Model, frame: Frame) {
         //--------------------------------------------------------
         m.grid.draw(&draw);
 
+        // let xy = m.grid.get_cell();
+
+        //draw and ellipse
+        draw.ellipse()
+            .xy(m.grid.get_cell(random_range(0, m.grid.rows),random_range(0, m.grid.cols)))
+            .w_h(100.0, 100.0)
+            .color(rgba(1.0, 0.0, 0.0, 1.0));
+
         //--------------------------------------------------------
         // draw frame
 
@@ -263,7 +271,7 @@ fn mouse_pressed(app: &App, m: &mut Model, button: MouseButton) {
     m.mouse_pressed = true; 
 
 
-    println!("{}", m.grid.get_cell(0,0));
+    // println!("{}", m.grid.get_cell(0,0));
    // m.grid.toggle_editable_cell( vec2(app.mouse.x, app.mouse.y));
     
 }

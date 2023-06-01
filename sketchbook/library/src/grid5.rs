@@ -286,8 +286,6 @@ impl Grid5 {
         
         // self.rect_mode = mode;
         
-
-
         // change the offset based on mode
         match mode {
             RectMode::Corner => {
@@ -300,9 +298,6 @@ impl Grid5 {
             },
         }
         self.resize_grid();
-
-
-
 
 
     }
@@ -387,9 +382,11 @@ impl Grid5 {
             self.resize_grid();
         }
     }
+    
+    //public function to set the grid position
 
-    pub fn get_cell(&mut self, x:usize, y:usize) -> Vec2 {
-        self.cell_points[y][x]
+    pub fn get_cell(&self, x:usize, y:usize) -> Vec2 {
+        return self.cell_points[x][y];
     }
 
     fn resize_grid(&mut self) {
@@ -468,14 +465,14 @@ impl Grid5 {
         //draw cell points
         for row in 0..self.cell_points.len() {
             for col in 0..self.cell_points[row].len() {
-                if row == 0 && col == 0 {
-                    //draw a big ellipse
-                    draw.ellipse()
-                        .xy(self.cell_points[row][col])
-                        .radius(self.cell_point_size * 2.0)
-                        .color(self.cell_point_color);
-                    continue;
-                }
+                // if row == 0 && col == 0 {
+                //     //draw a big ellipse
+                //     draw.ellipse()
+                //         .xy(self.cell_points[row][col])
+                //         .radius(self.cell_point_size * 2.0)
+                //         .color(self.cell_point_color);
+                //     continue;
+                // }
                 draw.ellipse()
                     .xy(self.cell_points[row][col])
                     .radius(self.cell_point_size)

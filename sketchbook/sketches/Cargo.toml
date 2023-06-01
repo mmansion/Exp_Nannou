@@ -22,27 +22,33 @@ library = { path = "../library" }
 nannou_touchosc = { path = "../nannou_touchosc"}
 
 #--------------------------------------------------------
-# learning
+# sandbox
+
+
+[[example]]
+# simple line animation
+name = "animate_line"
+path = "sandbox/animate_line.rs"
 
 [[example]]
 name = "vec2_add"
-path = "learning/vec2_add.rs"
+path = "sandbox/vec2_add.rs"
 
 [[example]]
 name = "vec2_bounce_angle"
-path = "learning/vec2_bounce_angle.rs"
+path = "sandbox/vec2_bounce_angle.rs"
 
 [[example]]
 name = "vec2_bounce_angle_bounds"
-path = "learning/vec2_bounce_angle_bounds.rs"
+path = "sandbox/vec2_bounce_angle_bounds.rs"
 
 [[example]]
 name = "slider"
-path = "learning/slider.rs"
+path = "sandbox/slider.rs"
 
 [[example]]
 name = "bezier_curve_cubic"
-path = "learning/bezier_curve_cubic.rs"
+path = "sandbox/bezier_curve_cubic.rs"
 
 #--------------------------------------------------------
 # lineworks
