@@ -98,6 +98,11 @@ path="exp-forces/particle-force.rs"
 #--------------------------------------------------------
 # n-series / daily sketches
 
+# circle packing techniques
+[[example]]
+name = "n-0108"
+path = "n-series/n-0108.rs"
+
 [[example]]
 name = "n-0107"
 path = "n-series/n-0107.rs"

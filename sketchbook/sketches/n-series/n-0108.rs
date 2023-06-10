@@ -1,9 +1,9 @@
 use nannou::{prelude::*, color::white_point::F2};
 
 //--------------------------------------------------------
-static FILENAME: &str = "n-0104";
+static FILENAME: &str = "n-0108";
 static CAPTURE: bool = true;
-static FRAME: bool = false; //hide window chrome when set to false
+static FRAME: bool = true; //hide window chrome when set to false
 
 static SIZE: u32 = 800;
 
@@ -39,7 +39,9 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     draw.background().color(WHITE);
     // let draw = draw.rotate(-PI/4.0);
-   
+    
+
+    /*
     let pos    = pt2(0.0, 0.0);
     let radius = 300.0;
     let angles = 360;
@@ -132,6 +134,24 @@ fn view(app: &App, m: &Model, frame: Frame) {
             ;
         }
     }
+     
+     */
+    //draw a polyline sine wave
+    let mut points = Vec::new();
+    let s = SIZE as i32;
+    let start = -s/2;
+    let end = s/2;
+    for i in start..end {
+        let degree = map_range(i, start, end, -360, 360) as i32;
+        let x = i as f32;
+        let y = ((degree as f32).to_radians()).sin() * (SIZE/4) as f32;
+        points.push(pt2(x, y));
+    }
+    draw.polyline()
+        .weight(1.0)
+        .points(points)
+        .color(BLACK);
+    
 
     // put everything on the frame
     draw.to_frame(app, &frame).unwrap();
