@@ -19,7 +19,9 @@ fn view(app: &App, frame: Frame) {
     let mag = (vec_pt2 - vec_pt1).length();
     
     const segments:usize = 6;
-    let mut vertices: [Vec2; segments] = Default::default();
+
+    //implement the Default trait if the element type allows it
+    let mut vertices: [Vec2; segments] = Default::default(); //array of len 6, retuns default type for Vec2 (0.0, 0.0)
     // let array: [Vec<u8>; 10] = Default::default();
 
     for n in 1..segments {
