@@ -24,6 +24,9 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 #--------------------------------------------------------
 # sandbox
 
+[[example]]
+name = "test-overlaps"
+path = "sandbox/test-overlaps.rs"
 
 [[example]]
 # simple line animation
@@ -98,7 +101,12 @@ path="exp-forces/particle-force.rs"
 #--------------------------------------------------------
 # n-series / daily sketches
 
-# triangle
+# dunno yet
+[[example]]
+name = "n-0110"
+path = "n-series/n-0110.rs"
+
+# a nice hole
 [[example]]
 name = "n-0109"
 path = "n-series/n-0109.rs"

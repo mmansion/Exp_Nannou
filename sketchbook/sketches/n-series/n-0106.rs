@@ -5,7 +5,7 @@ static FILENAME: &str = "n-0106";
 static CAPTURE: bool = true;
 static FRAME: bool = false; //hide window chrome when set to false
 
-static SIZE: u32 = 800;
+static SIZE: u32 = 1000;
 
 use library::math::point_inside_triangle as point_in_triangle;
 use library::texture::StippleRect as StippleRect;
@@ -86,7 +86,6 @@ fn view(app: &App, m: &Model, frame: Frame) {
     // let draw = draw.rotate(-PI/2.0);
 
     //--------------------------------------------------------
-
 
     let angles = 181;
     let radius = 30.0;

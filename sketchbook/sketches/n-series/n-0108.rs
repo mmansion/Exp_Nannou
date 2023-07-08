@@ -4,7 +4,6 @@ use nannou::{prelude::*, color::white_point::F2};
 static FILENAME: &str = "n-0108";
 static CAPTURE: bool = false;
 static FRAME: bool = false; //hide window chrome when set to false
-
 static SIZE: u32 = 800;
 
 fn main() {

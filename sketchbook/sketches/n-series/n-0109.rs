@@ -1,9 +1,11 @@
+use std::os::unix::process;
+
 use nannou::{prelude::*, color::white_point::F2};
 
 //--------------------------------------------------------
 static FILENAME: &str = "n-0108";
-static CAPTURE: bool = false;
-static FRAME: bool = false; //hide window chrome when set to false
+static CAPTURE: bool = true;
+static FRAME: bool = true; //hide window chrome when set to false
 
 static SIZE: u32 = 800;
 
@@ -72,7 +74,7 @@ fn view(app: &App, m: &Model, frame: Frame) {
     
 
     for i in 0..m.center_circle_points.len() {
-        println!( "{},{}", m.inner_circle_points[i].x, m.inner_circle_points[i].y );
+        // println!( "{},{}", m.inner_circle_points[i].x, m.inner_circle_points[i].y );
 
         // draw.line()
         //     .start(pt2(m.inner_circle_points[i].x, m.inner_circle_points[i].y))
@@ -113,6 +115,16 @@ fn view(app: &App, m: &Model, frame: Frame) {
 
     // put everything on the frame
     draw.to_frame(app, &frame).unwrap();
+
+    if CAPTURE {      
+        let directory  = "captures/".to_string();
+        // let app_name   = app.exe_name().unwrap().to_string();
+        let extension  = ".png".to_string();
+        let filename   = FILENAME.to_string();
+
+        let path = format!("{}{}{}", directory, filename, extension);
+        app.main_window().capture_frame(path);
+    }
 }
 
 //https://stackoverflow.com/questions/30492259/get-a-random-number-focused-on-center

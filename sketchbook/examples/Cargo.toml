@@ -21,6 +21,13 @@ library = { path = "../library" }
 nannou_touchosc = { path = "../nannou_touchosc"}
 
 #--------------------------------------------------------
+[[example ]]
+name = "offscreen-render"
+path = "offscreen-render.rs"
+
+[[example]]
+name = "gradient"
+path = "gradient.rs"
 
 [[example]]
 name = "event-handler"
