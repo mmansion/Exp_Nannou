@@ -103,6 +103,11 @@ path="exp-forces/particle-force.rs"
 
 # dunno yet
 [[example]]
+name = "n-0111"
+path = "n-series/n-0111.rs"
+
+# overlapped circles
+[[example]]
 name = "n-0110"
 path = "n-series/n-0110.rs"
 

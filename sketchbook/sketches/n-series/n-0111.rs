@@ -2,12 +2,20 @@
 // as a PNG and displaying a down-scaled version of the image within the window each frame.
 
 use nannou::prelude::*;
+static FILENAME: &str = "n-0111";
+static CAPTURE: bool = true;
+// static SIZE: u32 = 16384;
+static SIZE: u32 = 2160;
 
 fn main() {
     nannou::app(model).update(update).exit(exit).run();
 }
 
 struct Model {
+    window_id: WindowId,
+    outer_circle_points: Vec<Vec2>,
+    inner_circle_points: Vec<Vec2>,
+    center_circle_points: Vec<Vec2>,
     captured_complete: bool,
 
     // The texture that we will draw to.
@@ -23,12 +31,12 @@ struct Model {
 }
 
 fn model(app: &App) -> Model {
-    // Lets write to a 2160x2160px texture.
-    let texture_size = [2_160, 2_160];
+    // Lets write to a 4K UHD texture.
+    let texture_size = [SIZE, SIZE];
 
     // Create the window.
-    let [win_w, win_h] = [texture_size[0] / 4, texture_size[1] / 4];
-    let w_id = app
+    let [win_w, win_h] = [800, 800];
+    let window_id = app
         .new_window()
         .size(win_w, win_h)
         .title("nannou")
@@ -36,9 +44,8 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-    // app.set_loop_mode(LoopMode::loop_once());
-    let window = app.window(w_id).unwrap();
-
+  
+    let window = app.window(window_id).unwrap();
 
     // Retrieve the wgpu device.
     let device = window.device();
@@ -80,10 +87,49 @@ fn model(app: &App) -> Model {
     );
 
     // Make sure the directory where we will save images to exists.
-    std::fs::create_dir_all(&capture_directory(app)).unwrap();
+    
+
+    if CAPTURE {      
+        let dir     = "captures/".to_string();
+        let sub_dir = FILENAME.to_string();
+        let path = format!("{}/{}", dir, sub_dir);
+        // app.main_window().capture_frame(path);
+        std::fs::create_dir_all(path).unwrap();
+    }
 
     let captured_complete = false;
+
+    //--------------------------------------------------------
+    let mut center_circle_points = Vec::new();
+    let mut inner_circle_points = Vec::new();
+    let mut outer_circle_points = Vec::new();
+
+    let s = SIZE as f32 * 0.25;
+    let n = 360;
+
+
+    for i in 0..360 {
+        let degree = i * (360/n);
+    
+        let x = ((degree as f32).to_radians()).cos() * s;
+        let y = ((degree as f32).to_radians()).sin() * s;
+        center_circle_points.push(pt2(x, y));
+
+        let x_outer = ((degree as f32).to_radians()).cos() * (s * 2.0);
+        let y_outer = ((degree as f32).to_radians()).sin() * (s * 2.0);
+        outer_circle_points.push(pt2(x_outer, y_outer));
+
+        let x_inner = ((degree as f32).to_radians()).cos() * (s * 0.5);
+        let y_inner = ((degree as f32).to_radians()).sin() * (s * 0.5);
+        inner_circle_points.push(pt2(x_inner, y_inner));
+        
+    }
+
     Model {
+        window_id,
+        outer_circle_points,
+        inner_circle_points,
+        center_circle_points,
         texture,
         draw,
         renderer,
@@ -98,7 +144,6 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     if model.captured_complete {
         return;
     } else {
-
         // First, reset the `draw` state.
         let draw = &model.draw;
         draw.reset();
@@ -112,16 +157,52 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         let t = elapsed_frames as f32 / 60.0;
     
         // Draw like we normally would in the `view`.
+        //--------------------------------------------------------
         draw.background().color(WHITE);
-        
-        draw.rect()
-            .x_y(0.0, 0.0)
-            .w_h(100.0, 100.0)
-            .color(BLACK);
-        draw.rect()
-            .x_y(50.0, 50.0)
-            .w_h(100.0, 100.0)
-            .color(BLACK);
+        // let draw = draw.rotate(-PI/4.0);
+    
+        for i in 0..model.center_circle_points.len() {
+            // println!( "{},{}", model.inner_circle_points[i].x, model.inner_circle_points[i].y );
+
+            // draw.line()
+            //     .start(pt2(model.inner_circle_points[i].x, model.inner_circle_points[i].y))
+            //     .end(pt2(model.outer_circle_points[i].x, model.outer_circle_points[i].y))
+            //     .color(BLACK)
+            //     .weight(0.5);
+
+            // get random points along the line
+            for r in 0..1000 {
+
+                // weight the random value based on how far away from center_circle_point
+                
+                // let random = random_range(0.0, 1.0);
+                let random = weighted_random(0.0, 1.0, 3);
+                
+                // let random = rng.gen_range(0.0, 1.0);
+                let x = map_range(random, 0.0, 1.0, model.inner_circle_points[i].x, model.outer_circle_points[i].x);
+                let y = map_range(random, 0.0, 1.0, model.inner_circle_points[i].y, model.outer_circle_points[i].y);
+                let pt = pt2(x, y);
+                
+                // get the distance from the center
+                let total_dist = model.center_circle_points[i].distance(model.outer_circle_points[i]);
+                let dist = model.center_circle_points[i].distance(pt);
+                
+                //create a color based on the dist 
+                // let color = rgba(0.0, 0.0, 0.0, map_range(dist, 0.0, total_dist, 9.0, 0.0));
+                let gray_scale = map_range(dist, 0.0, total_dist, 0.0, 5.0);
+                let gray = rgba(gray_scale, gray_scale, gray_scale, 1.0);
+                let stipple_size = map_range(dist, 0.0, total_dist, 140.0, 0.0);
+                println!("{} ", stipple_size);
+
+                draw.ellipse()
+                    .x_y(x, y)
+                    .w_h(stipple_size, stipple_size)
+                    .color(gray);
+                
+            }
+        }
+    
+
     
         // Render our drawing to the texture.
         let window = app.main_window();
@@ -158,7 +239,6 @@ fn update(app: &App, model: &mut Model, _update: Update) {
                 let image = result.expect("failed to map texture memory").to_owned();
                 image.save(&path).expect("failed to save texture to png image");
                 println!("Captured frame {} to {:?}", elapsed_frames, path);
-                // model.model.captured_complete = true;
             })
             .unwrap();
         model.captured_complete = true;
@@ -187,7 +267,20 @@ fn exit(app: &App, model: Model) {
 
 // The directory where we'll save the frames.
 fn capture_directory(app: &App) -> std::path::PathBuf {
+    let dir     = "captures/".to_string();
+    let sub_dir = FILENAME.to_string();
+    let path = format!("{}/{}", dir, sub_dir);
+
     app.project_path()
         .expect("could not locate project_path")
-        .join(app.exe_name().unwrap())
+        .join(path)
 }
+//https://stackoverflow.com/questions/30492259/get-a-random-number-focused-on-center
+fn weighted_random(min:f32, max:f32, weight:u32) -> f32 {
+    let mut num = 0.0;
+    for i in 0..weight {
+        num += random_range(min, max) * (max/weight as f32);
+    }  
+    return num;
+}
+

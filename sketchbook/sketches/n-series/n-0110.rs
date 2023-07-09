@@ -4,7 +4,8 @@
 use nannou::prelude::*;
 static FILENAME: &str = "n-0110";
 static CAPTURE: bool = true;
-static SIZE: u32 = 16384;
+// static SIZE: u32 = 16384;
+static SIZE: u32 = 2160;
 
 fn main() {
     nannou::app(model).update(update).exit(exit).run();
@@ -34,7 +35,7 @@ fn model(app: &App) -> Model {
     let texture_size = [SIZE, SIZE];
 
     // Create the window.
-    let [win_w, win_h] = [texture_size[0] / 10, texture_size[1] / 10];
+    let [win_w, win_h] = [800, 800];
     let window_id = app
         .new_window()
         .size(win_w, win_h)
@@ -170,7 +171,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
             //     .weight(0.5);
 
             // get random points along the line
-            for r in 0..1 {
+            for r in 0..1000 {
 
                 // weight the random value based on how far away from center_circle_point
                 
@@ -187,15 +188,17 @@ fn update(app: &App, model: &mut Model, _update: Update) {
                 let dist = model.center_circle_points[i].distance(pt);
                 
                 //create a color based on the dist 
-                let color = rgba(0.0, 0.0, 0.0, map_range(dist, 0.0, total_dist, 9.0, 0.0));
-                let stipple_size = map_range(dist, 0.0, total_dist, 200.0, 0.0);
+                // let color = rgba(0.0, 0.0, 0.0, map_range(dist, 0.0, total_dist, 9.0, 0.0));
+                let gray_scale = map_range(dist, 0.0, total_dist, 0.0, 5.0);
+                let gray = rgba(gray_scale, gray_scale, gray_scale, 1.0);
+                let stipple_size = map_range(dist, 0.0, total_dist, 140.0, 0.0);
                 println!("{} ", stipple_size);
 
-                draw.rect()
-                    .rotate((r as f32).to_radians())
+                draw.ellipse()
                     .x_y(x, y)
                     .w_h(stipple_size, stipple_size)
-                    .color(color);
+                    .color(gray);
+                
             }
         }
     
