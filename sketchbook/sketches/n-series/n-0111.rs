@@ -171,7 +171,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
             //     .weight(0.5);
 
             // get random points along the line
-            for r in 0..1000 {
+            for r in 0..100 {
 
                 // weight the random value based on how far away from center_circle_point
                 
@@ -189,10 +189,10 @@ fn update(app: &App, model: &mut Model, _update: Update) {
                 
                 //create a color based on the dist 
                 // let color = rgba(0.0, 0.0, 0.0, map_range(dist, 0.0, total_dist, 9.0, 0.0));
-                let gray_scale = map_range(dist, 0.0, total_dist, 0.0, 5.0);
-                let gray = rgba(gray_scale, gray_scale, gray_scale, 1.0);
-                let stipple_size = map_range(dist, 0.0, total_dist, 140.0, 0.0);
-                println!("{} ", stipple_size);
+                let gray_scale = map_range(dist, 0.0, total_dist, 0.9, 0.0);
+                let gray = rgba(gray_scale, gray_scale, gray_scale, gray_scale);
+                let stipple_size = map_range(dist, 0.0, total_dist, 14.0, 0.0);
+                // println!("{} ", gray_scale);
 
                 draw.ellipse()
                     .x_y(x, y)
