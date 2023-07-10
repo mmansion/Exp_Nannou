@@ -22,6 +22,10 @@ nannou_touchosc = { path = "../nannou_touchosc"}
 
 #--------------------------------------------------------
 [[example ]]
+name = "hsl-check"
+path = "hsl-check.rs"
+
+[[example ]]
 name = "offscreen-render"
 path = "offscreen-render.rs"
 
