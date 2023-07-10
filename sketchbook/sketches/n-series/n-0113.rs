@@ -2,7 +2,7 @@
 // as a PNG and displaying a down-scaled version of the image within the window each frame.
 
 use nannou::prelude::*;
-static FILENAME: &str = "n-0112";
+static FILENAME: &str = "n-0113";
 static CAPTURE: bool = true;
 // static SIZE: u32 = 16384;
 static SIZE: u32 = 2160;
@@ -42,7 +42,7 @@ fn model(app: &App) -> Model {
     let window_id = app
         .new_window()
         .size(win_w, win_h)
-        .title("nannou")
+        .title(FILENAME)
         .view(view)
         .build()
         .unwrap();
@@ -164,27 +164,22 @@ fn update(app: &App, model: &mut Model, _update: Update) {
         draw.background().color(WHITE);
         // let draw = draw.rotate(-PI/4.0);
 
-        draw.ellipse()
-            .x_y(0.0, 0.0)
-            .radius(800.0)
-            .color(hsva(3.0, 0.5, 0.5, 0.1));
+        // draw.ellipse()
+        //     .x_y(0.0, 0.0)
+        //     .radius(800.0)
+        //     .color(hsva(3.0, 0.5, 0.5, 0.1));
     
         for i in 0..model.center_circle_points.len() {
-            // println!( "{},{}", model.inner_circle_points[i].x, model.inner_circle_points[i].y );
+           
 
-            // draw.line()
-            //     .start(pt2(model.inner_circle_points[i].x, model.inner_circle_points[i].y))
-            //     .end(pt2(model.outer_circle_points[i].x, model.outer_circle_points[i].y))
-            //     .color(BLACK)
-            //     .weight(0.5);
-
-            for r in 0..1000 {
+            // get random points along the line
+            for r in 0..100 {
 
                 // weight the random value based on how far away from center_circle_point
                 
                 // let random = random_range(0.0, 1.0);
-                let random = weighted_random(0.0, 1.0, 3);
-                
+                let random = weighted_random(0.0, 1.0, 1); //1-100 weight (see fn below)
+                 
                 // let random = rng.gen_range(0.0, 1.0);
                 let x = map_range(random, 0.0, 1.0, model.inner_circle_points[i].x, model.outer_circle_points[i].x);
                 let y = map_range(random, 0.0, 1.0, model.inner_circle_points[i].y, model.outer_circle_points[i].y);
@@ -193,33 +188,26 @@ fn update(app: &App, model: &mut Model, _update: Update) {
                 // get the distance from the center
                 let total_dist = model.center_circle_points[i].distance(model.outer_circle_points[i]);
                 let dist = model.center_circle_points[i].distance(pt);
-                
+                println!("{} ", dist );
                 //create a color based on the dist 
                 // let color = rgba(0.0, 0.0, 0.0, map_range(dist, 0.0, total_dist, 9.0, 0.0));
-                let alpha_scale = map_range(dist, 0.0, total_dist, 0.0, 1.0);
-                let hue_scale = map_range(dist, 0.0, total_dist, 0.5, 0.4);
-
-                let gray = rgba(alpha_scale, alpha_scale, alpha_scale, alpha_scale);
-
-                let col_hsva = hsva(hue_scale, 0.5, 0.5, alpha_scale);
-
+                let alpha_scale = map_range(dist, 0.0, total_dist, 1.0, 0.0);
+                let gray = rgba(0.0, 0.0, 0.0, alpha_scale);
                 let stipple_size = map_range(dist, 0.0, total_dist, MAX_CIR_RADIUS, MIN_CIR_RADIUS);
-                // println!("{} ", gray_scale);
+                // println!("{} ", alpha_scale);
 
                 draw.ellipse()
                     .x_y(x, y)
                     .w_h(stipple_size, stipple_size)
-                    .color(col_hsva);
+                    .color(gray);
                 
             }
-
-            // get random points along the line
-            for r in 0..1000 {
+            for r in 0..10 {
 
                 // weight the random value based on how far away from center_circle_point
                 
                 // let random = random_range(0.0, 1.0);
-                let random = weighted_random(0.0, 1.0, 3);
+                let random = weighted_random(0.0, 1.0, 30);
                 
                 // let random = rng.gen_range(0.0, 1.0);
                 let x = map_range(random, 0.0, 1.0, model.inner_circle_points[i].x, model.outer_circle_points[i].x);
@@ -229,18 +217,14 @@ fn update(app: &App, model: &mut Model, _update: Update) {
                 // get the distance from the center
                 let total_dist = model.center_circle_points[i].distance(model.outer_circle_points[i]);
                 let dist = model.center_circle_points[i].distance(pt);
-                
+                println!("{} ", dist );
                 //create a color based on the dist 
                 // let color = rgba(0.0, 0.0, 0.0, map_range(dist, 0.0, total_dist, 9.0, 0.0));
-                let alpha_scale = map_range(dist, 0.0, total_dist, 0.0, 0.9);
-                let hue_scale = map_range(dist, 0.0, total_dist, 0.3, 0.2);
+                let alpha_scale = map_range(dist, 0.0, total_dist, 1.0, 0.0);
 
-                let gray = rgba(alpha_scale, alpha_scale, alpha_scale, alpha_scale);
-
-                let col_hsva = hsva(hue_scale, 0.5, 0.5, alpha_scale);
-
+                let gray = rgba(0.0, 0.0, 0.0, alpha_scale);
                 let stipple_size = map_range(dist, 0.0, total_dist, MAX_CIR_RADIUS, MIN_CIR_RADIUS);
-                // println!("{} ", gray_scale);
+                // println!("{} ", alpha_scale);
 
                 draw.ellipse()
                     .x_y(x, y)
