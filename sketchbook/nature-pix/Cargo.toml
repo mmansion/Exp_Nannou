@@ -1,0 +1,32 @@
+[package]
+name = "nature-pix"
+version = "0.1.0"
+authors = ["mmansion <mikhail@transmission.studio>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nannou = "0.18.1"
+nannou_osc = "0.18.0"
+
+# nannou = { path = "../../nannou/nannou" }
+# nannou = { version ="0.16.0", path = "../../test/nannou/nannou" }
+
+# [patch.crates-io]
+# nannou = { version ="0.16.0", path = "../../test/nannou" }
+
+# mikhail's stuffs
+library = { path = "../library" }
+nannou_touchosc = { path = "../nannou_touchosc"}
+
+#--------------------------------------------------------
+# sketches
+
+[[example]]
+name = "np-001"
+path = "np-001.rs"
+
+[[example]]
+name = "np-002"
+path = "np-002.rs"

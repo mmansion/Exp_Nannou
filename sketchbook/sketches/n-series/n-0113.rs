@@ -5,10 +5,10 @@ use nannou::prelude::*;
 static FILENAME: &str = "n-0113";
 static CAPTURE: bool = true;
 // static SIZE: u32 = 16384;
-static SIZE: u32 = 2160;
+static SIZE: u32 = 16384;
 
-static MIN_CIR_RADIUS: f32 = 0.0;
-static MAX_CIR_RADIUS: f32 = 10.0;
+static MIN_CIR_RADIUS: f32 = 10.0;
+static MAX_CIR_RADIUS: f32 = 100.0;
 
 fn main() {
     nannou::app(model).update(update).exit(exit).run();
@@ -47,7 +47,6 @@ fn model(app: &App) -> Model {
         .build()
         .unwrap();
 
-  
     let window = app.window(window_id).unwrap();
 
     // Retrieve the wgpu device.
@@ -91,7 +90,6 @@ fn model(app: &App) -> Model {
 
     // Make sure the directory where we will save images to exists.
     
-
     if CAPTURE {      
         let dir     = "captures/".to_string();
         let sub_dir = FILENAME.to_string();
@@ -124,8 +122,7 @@ fn model(app: &App) -> Model {
 
         let x_inner = ((degree as f32).to_radians()).cos() * (s * 0.5);
         let y_inner = ((degree as f32).to_radians()).sin() * (s * 0.5);
-        inner_circle_points.push(pt2(x_inner, y_inner));
-        
+        inner_circle_points.push(pt2(x_inner, y_inner)); 
     }
 
     Model {
@@ -171,7 +168,6 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     
         for i in 0..model.center_circle_points.len() {
            
-
             // get random points along the line
             for r in 0..100 {
 

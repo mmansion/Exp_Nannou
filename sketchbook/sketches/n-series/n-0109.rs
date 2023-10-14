@@ -3,7 +3,7 @@ use std::os::unix::process;
 use nannou::{prelude::*, color::white_point::F2};
 
 //--------------------------------------------------------
-static FILENAME: &str = "n-0108";
+static FILENAME: &str = "n-0109";
 static CAPTURE: bool = true;
 static FRAME: bool = true; //hide window chrome when set to false
 
