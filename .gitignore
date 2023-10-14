@@ -22,6 +22,7 @@ sketchbook/rust-plots
 
 # capture folder
 captures/
+nature-pix/exports/
 
 # Folder view configuration files
 .DS_Store
